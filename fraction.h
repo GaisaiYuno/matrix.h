@@ -40,6 +40,9 @@ struct frac{
 		}
 		x=toInterger(s,len),y=1;
 	}
+	frac inv(){
+		return frac(y,x);
+	}
 	void init(const char *s){
 		int len=std::strlen(s);
 		for (int i=0;i<len;++i){
