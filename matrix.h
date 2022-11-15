@@ -162,7 +162,7 @@ std::ostream& operator << (std::ostream &out,const Matrix &A){
         }
         std::cout<<std::endl;
     }
-	return out;
+    return out;
 }
 bool operator == (Matrix A,Matrix B){
     return A.M==B.M;
@@ -199,46 +199,6 @@ Matrix Inverse(Matrix A){//求逆矩阵
     B.Message="Matrix Inversed";
     return B;
 }
-//化成简化的阶梯型矩阵，可选是否在前面形成一个单位矩阵，即是否交换列
-Matrix Gauss(Matrix A,bool swapCol=false){
-    int n=A.row,m=A.col;
-    for (int i=1;i<=std::min(n,m);++i){
-        int r=i;
-        for (int j=i;j<=n;++j){
-            if (!(A[j][i]==(Num)(0))) r=j;
-        }
-        A.swap('R',r,i);
-        if (A[i][i]==(Num)(0)){
-            continue;
-        }
-        Num inv=(Num)(Num(0)-((Num)(1))/A[i][i]);
-        // std::cout<<A[i][i]<<" "<<inv<<std::endl;
-        for (int j=1;j<=n;++j){
-            if (j==i) continue;
-            Num t=A[j][i]*inv;
-            A.addtimes('R',i,t,j);
-        }
-    }
-    // std::cout<<A<<std::endl;
-    for (int i=1;i<=std::min(n,m);++i){
-        if (!(A[i][i]==(Num)(0))){
-            A.times('R',i,(Num)(1)/A[i][i]);
-        }
-    }
-    if (swapCol==true){
-        for (int i=1;i<=n;++i){
-            for (int j=1;j<=m;++j){
-                // std::cout<<A[i][j]<<" "<<(A[i][j]-(Num)(1))<<std::endl;
-                if (A[i][j]==(Num)(1)){
-                    A.swap('C',i,j);
-                    break;
-                }
-            }
-        }
-    }
-    A.Message="Matrix is in Gauss form";
-    return A;
-}
 Num Determinant(Matrix A){
     int n=A.row,m=A.col;
     assert(n==m);
@@ -267,6 +227,48 @@ Num Determinant(Matrix A){
         sign=sign*A[i][i];
     }
     return sign;
+}
+//化成简化的阶梯型矩阵，可选是否在前面形成一个单位矩阵，即是否交换列
+Matrix Gauss(Matrix A,bool swapCol=false){
+    int n=A.row,m=A.col;
+    int rk=1;
+    for (int i=1;i<=std::min(n,m);++i){
+        int r=rk;
+        for (int j=rk;j<=n;++j){
+            if (!(A[j][i]==(Num)(0))) r=j;
+        }
+        A.swap('R',r,rk);
+        if (A[rk][i]==(Num)(0)){
+            continue;
+        }
+        Num inv=(Num)(Num(0)-((Num)(1))/A[rk][i]);
+        for (int j=1;j<=n;++j){
+            if (j==rk) continue;
+            Num t=A[j][i]*inv;
+            A.addtimes('R',rk,t,j);
+        }
+        ++rk;
+    }
+    for (int i=1;i<=std::min(n,m);++i){
+        for (int j=1;j<=m;++j){
+            if (!(A[i][j]==(Num)(0))){
+                A.times('R',i,(Num)(1)/A[i][j]);
+                break;
+            }
+        }
+    }
+    if (swapCol==true){
+        for (int i=1;i<=n;++i){
+            for (int j=1;j<=m;++j){
+                if (A[i][j]==(Num)(1)){
+                    A.swap('C',i,j);
+                    break;
+                }
+            }
+        }
+    }
+    A.Message="Matrix is in Gauss form";
+    return A;
 }
 Matrix operator * (Matrix A,Matrix B){
     assert(A.col==B.row);
