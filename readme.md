@@ -1,6 +1,6 @@
 矩阵小工具，支持矩阵求逆，高斯消元（可选是否交换列），求行列式，快速幂，求齐次线性方程组基础解系（返回向量组）
 
-矩阵的数域也有多种选择，比如有理数域（`fraction.h`），多元多项式域（`poly.h`），$$<img src="https://latex.codecogs.com/gif.latex?O_t=\Q(\sqrt x) " />$$ 域（`sqrt_field.h`），以及模数域（`mod_num.h`）。
+矩阵的数域也有多种选择，比如有理数域（`fraction.h`），多元多项式域（`poly.h`），\Q(\sqrt x) 域（`sqrt_field.h`），以及模数域（`mod_num.h`）。
  
 目前计划新增的功能：
 
