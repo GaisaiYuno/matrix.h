@@ -11,6 +11,30 @@ struct Matrix{
         M[1].resize(1+1,x);
         Message="Single Element";
     }
+    Matrix(char type,std::vector<Num>v){
+        int n=v.size();
+        if (type=='R'){
+            M.resize(1+1);
+            M[1].resize(n+1);
+            for (int i=1;i<=n;++i){
+                M[1][i]=v[i-1];
+            }
+            row=1,col=n;
+            Message="Row Vector";
+        }
+        else if (type=='C'){
+            M.resize(1+n);
+            for (int i=1;i<=n;++i){
+                M[i].resize(1+1);
+                M[i][1]=v[i-1];
+            }
+            row=n,col=1;
+            Message="Column Vector";
+        }
+        else{
+            assert(0);
+        }
+    }
     Matrix(int rows,int cols,int value=0){
         row=rows,col=cols;
         M.resize(row+1);
@@ -433,4 +457,15 @@ std::vector<Matrix> baseSolution(Matrix A){
     Matrix B=Gauss(A,true);
     int n=A.col,r=rk(A);
     return breakAsVector(addVertical((Num)(-1)*(subMatrix(B,genVector(1,r),genVector(r+1,n))),Matrix(n-r,n-r,1)), 'C');
+}
+std::vector<Matrix> baseSolution(Matrix A,std::vector<Num>b){
+    A=addHorizontal(A,Matrix('C',b));
+    Matrix B=Gauss(A,true);
+    int n=A.col-1,r=rk(A);
+    // std::cout<<A<<std::endl;
+    std::vector<Matrix> baseS=breakAsVector(addVertical((Num)(-1)*(subMatrix(B,genVector(1,r),genVector(r+1,n))),Matrix(n-r,n-r,1)), 'C');
+    Matrix gama=addVertical(subMatrix(B,genVector(1,r),std::vector<int>{A.col}),Matrix(n-r,1));
+    gama.Message="gama";
+    baseS.push_back(gama);
+    return baseS;
 }

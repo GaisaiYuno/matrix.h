@@ -13,6 +13,8 @@ int main(){
     cout<<Gauss(M,true)<<endl;
     vector<Matrix>baseS=baseSolution(M);//齐次线性方程组的基础解系
     for (int i=0;i<baseS.size();++i) cout<<baseS[i]<<endl;
+    baseS=baseSolution(M,vector<Num>{(Num)(1),(Num)(2),(Num)(3)});//非齐次线性方程组的基础解系
+    for (int i=0;i<baseS.size();++i) cout<<baseS[i]<<endl;
     M[3][1]=frac("3");
     cout<<M<<endl;
     cout<<Determinant(M)<<endl;//行列式
