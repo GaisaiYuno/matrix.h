@@ -104,13 +104,13 @@ std::ostream& operator << (std::ostream &out,const _poly &p){
         if (p.v[i].coef==(frac)(0)) continue;
         out<<p.v[i];
     }
-	return out;
+    return out;
 }
 std::istream& operator >> (std::istream &in,_poly &p){
-	std::string s;
-	in>>s;
+    std::string s;
+    in>>s;
     p=_poly(s.c_str());
-	return in;
+    return in;
 }
 struct poly{//含除法
     _poly x,y;
@@ -172,50 +172,50 @@ struct poly{//含除法
         simp();
     }
     void init(const char *s,int maxlen=0x7fffffff){//多项式除法，以中间的 | 为分界符
-		int len=std::min((int)std::strlen(s),maxlen);
-		for (int i=0;i<len;++i){
-			if (s[i]=='|'){
-				x=_poly(s,i),y=_poly(s+i+1,len-i-1);
+        int len=std::min((int)std::strlen(s),maxlen);
+        for (int i=0;i<len;++i){
+            if (s[i]=='|'){
+                x=_poly(s,i),y=_poly(s+i+1,len-i-1);
                 simp();
-				return ;
-			}
-		}
-		x=_poly(s,len),y=_poly(1);
+                return ;
+            }
+        }
+        x=_poly(s,len),y=_poly(1);
         simp();
     }
     poly(const char *s,int maxlen=0x7fffffff){//多项式除法，以中间的 | 为分界符
-		init(s,maxlen);
+        init(s,maxlen);
     }
 };
 
 poly operator + (poly A,poly B){
-	return poly(A.x*B.y+A.y*B.x,A.y*B.y);
+    return poly(A.x*B.y+A.y*B.x,A.y*B.y);
 }
 poly operator - (poly A,poly B){
-	return poly(A.x*B.y-A.y*B.x,A.y*B.y);
+    return poly(A.x*B.y-A.y*B.x,A.y*B.y);
 }
 poly operator * (poly A,poly B){
-	return poly(A.x*B.x,A.y*B.y);
+    return poly(A.x*B.x,A.y*B.y);
 }
 poly operator / (poly A,poly B){
-	// assert(!(B.x==_poly(0)));
-	return poly(A.x*B.y,A.y*B.x);
+    // assert(!(B.x==_poly(0)));
+    return poly(A.x*B.y,A.y*B.x);
 }
 bool operator == (poly A,poly B){
-	return (A-B).x==_poly(0);
+    return (A-B).x==_poly(0);
 }
 std::istream& operator >> (std::istream &in,poly &f){
-	std::string s;
-	in>>s;
-	f.init(s.c_str());
-	return in;
+    std::string s;
+    in>>s;
+    f.init(s.c_str());
+    return in;
 }
 std::ostream& operator << (std::ostream &out,const poly &f){
-	if (f.x==_poly(0)) out<<0;
+    if (f.x==_poly(0)) out<<0;
     else if (f.x==f.y) out<<1;
-	else {
-		if (f.y==_poly(1)) out<<f.x;
-	    else out<<f.x<<"|"<<f.y;
-	}
-	return out;
+    else {
+        if (f.y==_poly(1)) out<<f.x;
+        else out<<f.x<<"|"<<f.y;
+    }
+    return out;
 }

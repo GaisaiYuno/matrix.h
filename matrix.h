@@ -6,6 +6,11 @@ struct Matrix{
     std::string Message;
     std::vector<std::vector<Num> >M;
     int row,col;//行数、列数
+    Matrix(int x){
+        M.resize(1+1);
+        M[1].resize(1+1,x);
+        Message="Single Element";
+    }
     Matrix(int rows,int cols,int value=0){
         row=rows,col=cols;
         M.resize(row+1);
@@ -17,7 +22,8 @@ struct Matrix{
                 M[i][i]=(Num)(1);
             }
         }
-        if (row==1) Message="Row Vector";
+        if (row==1 && col==1) Message="Single Element";
+        else if (row==1) Message="Row Vector";
         else if (col==1) Message="Column Vector";
         else Message="Matrix";
     }
@@ -301,6 +307,16 @@ Matrix operator + (Matrix A,Matrix B){
     }
     return C;
 }
+Matrix operator - (Matrix A,Matrix B){
+    assert(A.row==B.row && A.col==B.col);
+    Matrix C(A.row,A.col);
+    for (int i=1;i<=A.row;++i){
+        for (int j=1;j<=A.col;++j){
+            C[i][j]=A[i][j]-B[i][j];
+        }
+    }
+    return C;
+}
 Matrix operator / (Num x,Matrix A){
     return x*Inverse(A);
 }
@@ -392,11 +408,14 @@ Matrix addVertical(Matrix A,Matrix B){
     }
     return C;
 }
+#ifndef UTILS
 std::vector<int> genVector(int l,int r){
     std::vector<int> ret;
     for (int i=l;i<=r;++i) ret.push_back(i);
     return ret;
 }
+#endif
+#define UTILS
 Matrix subMatrix(Matrix A,std::vector<int>rowChoose,std::vector<int>colChoose){
     Matrix B(rowChoose.size(),colChoose.size());
     for (int i=0;i<rowChoose.size();++i){
