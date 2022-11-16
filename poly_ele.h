@@ -140,11 +140,11 @@ std::ostream& operator << (std::ostream &out,const poly_ele &pe){
             }
         }
     }
-	return out;
+    return out;
 }
 std::istream& operator >> (std::istream &in,poly_ele &f){
-	std::string s;
-	in>>s;
+    std::string s;
+    in>>s;
     f=poly_ele(s.c_str());
-	return in;
+    return in;
 }
