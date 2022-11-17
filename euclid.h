@@ -22,3 +22,16 @@ Matrix Discrete(Num (*F)(Num),Num l,Num r,Num step){
 void Cauchy_Schwarz(Matrix A,Matrix B){
     std::cout<<(A&B)*(A&B)<<"<="<<(A&A)*(B&B)<<std::endl;
 }
+std::vector<Matrix> Schmidt(std::vector<Matrix>alpha){
+    int s=alpha.size();
+    std::vector<Matrix>beta;
+    for (int i=1;i<=s;++i){
+        Matrix beta_i=alpha[i-1];
+        for (int j=1;j<=i-1;++j){
+            Num lambda=(alpha[i-1]&beta[j-1])/(beta[j-1]&beta[j-1]);
+            beta_i=beta_i-lambda*beta[j-1];
+        }
+        beta.push_back(beta_i);
+    }
+    return beta;
+}

@@ -7,8 +7,8 @@ int main(){
     cin>>M;
     vector<Matrix>baseS=baseSolution(M);//齐次线性方程组的基础解系
     for (int i=0;i<baseS.size();++i) cout<<baseS[i]<<endl;
-    baseS=baseSolution(M,vector<Num>{(Num)(7),(Num)(15),(Num)(22)});//非齐次线性方程组的基础解系
-    for (int i=0;i<baseS.size();++i) cout<<baseS[i]<<endl;
+    // baseS=baseSolution(M,vector<Num>{(Num)(7),(Num)(15),(Num)(22)});//非齐次线性方程组的基础解系
+    // for (int i=0;i<baseS.size();++i) cout<<baseS[i]<<endl;
 }
 /*
 1 1 2 1 2
