@@ -1,3 +1,5 @@
+#ifndef MATRIX
+#define MATRIX
 #include <cassert>
 #include <iostream>
 #include <vector>
@@ -60,10 +62,12 @@ struct Matrix{
         Message="OK";
     }
     Matrix(int rows,int cols,std::vector<Num>v){
+        init(rows,cols);
         row=rows,col=cols;
+        int cnt=0;
         for (int i=1;i<=row;++i){
             for (int j=1;j<=col;++j){
-                M[i][j]=v[(i-1)*col+j-1];
+                M[i][j]=v[cnt++];
             }
         }
     }
@@ -469,3 +473,4 @@ std::vector<Matrix> baseSolution(Matrix A,std::vector<Num>b){
     baseS.push_back(gama);
     return baseS;
 }
+#endif

@@ -1,5 +1,9 @@
 //欧氏空间
+// #ifndef MATRIX
+// #else
+// #define MATRIX
 #include "matrix.h"
+// #endif
 Num operator & (Matrix A,Matrix B){
     assert(A.row==B.row && A.col==B.col);
     Matrix C(A.row,A.col);
@@ -14,7 +18,6 @@ Num operator & (Matrix A,Matrix B){
 Matrix Discrete(Num (*F)(Num),Num l,Num r,Num step){
     std::vector<Num>v;
     for (Num i=l;i<=r;i=i+step){
-        // std::cerr<<i<<std::endl;
         v.push_back(F(i));
     }
     return Matrix('R',v);
@@ -35,3 +38,26 @@ std::vector<Matrix> Schmidt(std::vector<Matrix>alpha){
     }
     return beta;
 }
+bool isOrthogonalMatrix(Matrix A){
+    assert(A.row==A.col);
+    return A*A.transpose()==Matrix(A.row,A.col,1);
+}
+
+#ifndef SQRT_FIELD
+
+#else
+Num length(Matrix A){
+    return Num(0,1,(A&A).x);
+}
+Num angle(Matrix A,Matrix B){
+    return (A&B)/(length(A)*length(B));
+}
+std::pair<Matrix,Matrix> identilize(Matrix v){
+    return std::make_pair((Num(1)/length(v))*v,(Num(-1)/length(v))*v);
+}
+Matrix houseHolder(Matrix v){
+    v=identilize(v).first;
+    int n=v.row;
+    return Matrix(n,n,1)-(Num(2)*v*v.transpose());
+}
+#endif

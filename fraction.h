@@ -2,6 +2,7 @@
 #include <cstring>
 #include <iostream>
 #include <cassert>
+#include <cmath>
 long long toInterger(const char *s,int length){
     long long f=1,x=0;
     for (int i=0;i<length;++i){
@@ -11,6 +12,12 @@ long long toInterger(const char *s,int length){
         }
     }
     return x*f;
+}
+long long getPowFactor(long long x){
+    for (long long i=sqrt(x);i>=1;--i){
+        if (x%(i*i)==0) return i;
+    }
+    return 1;
 }
 struct frac{
     long long x,y;
