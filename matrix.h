@@ -353,6 +353,12 @@ Matrix operator / (Matrix A,Matrix B){
 }
 Matrix operator ^ (Matrix A,int k){
     assert(A.row==A.col);
+	if (k==0){
+		return Matrix(A.row,A.col,1);
+	}
+	if (k<0){
+		return Inverse(A)^(-k);
+	}
     k--;
     Matrix base=A;
     while (k){
