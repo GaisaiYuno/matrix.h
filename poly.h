@@ -195,6 +195,10 @@ poly operator - (poly A,poly B){
     return poly(A.x*B.y-A.y*B.x,A.y*B.y);
 }
 poly operator * (poly A,poly B){
+    if (B.x==A.y) return poly(A.x,B.y);
+    if (A.x==B.y) return poly(B.x,A.y);
+    if (B.x==(_poly)("0")-A.y) return poly((_poly)("0")-A.x,B.y);
+    if (A.x==(_poly)("0")-B.y) return poly((_poly)("0")-B.x,A.y);
     return poly(A.x*B.x,A.y*B.y);
 }
 poly operator / (poly A,poly B){

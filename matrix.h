@@ -237,12 +237,12 @@ Num Determinant(Matrix A){
     int n=A.row,m=A.col;
     assert(n==m);
     Num sign=(Num)(1);
-    for (int i=1;i<=std::min(n,m);++i){
+    for (int i=1;i<=std::min(n,m)-1;++i){
         if (i>m){
             break;
         }
         int r=i;
-        for (int j=i;j<=n;++j){
+        for (int j=n;j>=i;--j){
             if (!(A[j][i]==(Num)(0))) r=j;
         }
         A.swap('R',r,i);
@@ -251,14 +251,18 @@ Num Determinant(Matrix A){
             return (Num)(0);
         }
         Num inv=(Num)(Num(0)-((Num)(1))/A[i][i]);
-        for (int j=1;j<=n;++j){
-            if (j==i) continue;
+        // std::cout<<"inv:"<<inv<<std::endl;
+        for (int j=i+1;j<=n;++j){
             Num t=A[j][i]*inv;
+            // std::cout<<"two num"<<A[j][i]<<" "<<inv<<std::endl;
+            // std::cout<<"t:"<<t<<std::endl;
             A.addtimes('R',i,t,j);
         }
+        // std::cout<<A<<std::endl;
     }
     for (int i=1;i<=n;++i){
         sign=sign*A[i][i];
+        // std::cout<<sign<<std::endl;
     }
     return sign;
 }
