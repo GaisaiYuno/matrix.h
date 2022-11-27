@@ -1,6 +1,6 @@
 #include "poly_ele.h"
 #include <vector>
-struct _poly{//不含乘除法
+struct _poly{//不含除法
     std::vector<poly_ele>v;
     _poly(int x){
         v.clear();
@@ -11,6 +11,24 @@ struct _poly{//不含乘除法
     }
     poly_ele &operator[](int i){
         return v[i];
+    }
+    bool qu(char &symb,frac &maxExpo){//单元有理
+        maxExpo=0;
+        bool hasAlpha[26];
+        memset(hasAlpha,0,sizeof(hasAlpha));
+        for (int i=0;i<v.size();++i){
+            for (int j=0;j<26;++j){
+                hasAlpha[j]|=(v[i].expo[j]!=0);
+                if (v[i].expo[j].y!=1) return false;
+                maxExpo=std::max(maxExpo,v[i].expo[j]);
+            }
+        }
+        int cnt=0;
+        for (int j=0;j<26;++j){
+            cnt+=hasAlpha[j];
+            if (hasAlpha[j]==1) symb='a'+j;
+        }
+        return cnt==1;
     }
     bool insert(poly_ele x){
         if (x.coef==(frac)(0)){
@@ -112,6 +130,162 @@ std::istream& operator >> (std::istream &in,_poly &p){
     p=_poly(s.c_str());
     return in;
 }
+
+
+//单元有理多项式，写为 a0+a1x+a2x^2+... 的形式
+struct upoly{
+    //规定只有0的多项式度数为-1
+    char symb;
+    std::vector<frac>v;
+    upoly(){
+        symb='x';
+        v.clear();
+    }
+    void simp(){
+        for (int i=v.size()-1;i>=0;--i){
+            if (!(v[i]==0)){
+                v.resize(i+1);
+                return ;
+            }
+        }
+        v.resize(0);
+        // v.resize()
+    }
+    bool is_zero(){
+        for (int i=0;i<v.size();++i){
+            if (v[i]!=0) return false;
+        }
+        return true;
+    }
+    int deg(){//多项式的度
+        simp();
+        return v.size()-1;
+    }
+    void insert(int expo,frac coef){
+        if (v.size()<expo+1){
+            v.resize(expo+1);
+            v[expo]=coef;
+        }
+        else{
+            v[expo]=v[expo]+coef;
+        }
+    }
+    frac &operator[](int i){
+        return v[i];
+    }
+    void init_from_poly(_poly A){
+        frac maxExpo=0;
+        if (A.qu(symb,maxExpo)){
+            v.resize(maxExpo.x+1,0);
+            for (int i=0;i<A.v.size();++i){
+                v[A.v[i].expo[symb-'a'].x]=A.v[i].coef;
+            }
+        }
+        else{
+            assert(0);
+        }
+        simp();
+    }
+    void init(const char *s,int maxlen=0x7fffffff){
+        init_from_poly(_poly(s,maxlen));
+    }
+    upoly(const char *s,int maxlen=0x7fffffff){
+        init(s,maxlen);
+    }
+};
+_poly convert(const upoly &A){
+    _poly ret;
+    for (int i=0;i<A.v.size();++i){
+        poly_ele t;
+        t.coef=A.v[i];
+        t.expo[A.symb-'a']=i;
+        ret.insert(t);
+    }
+    return ret;
+}
+upoly shift(int delta,const upoly &A){
+    upoly B;
+    B.v.resize(A.v.size()+delta,0);
+    for (int i=0;i<A.v.size();++i){
+        B[i+delta]=A.v[i];
+    }
+    B.symb=A.symb;
+    return B;
+}
+std::ostream& operator << (std::ostream &out,const upoly &p){
+    _poly _p=convert(p);
+    out<<_p;
+    return out;
+}
+std::istream& operator >> (std::istream &in,upoly &p){
+    std::string s;
+    in>>s;
+    p.init_from_poly(_poly(s.c_str()));
+    return in;
+}
+upoly operator + (upoly A,upoly B){
+    assert(A.symb==B.symb);
+    upoly C;
+    C.v.resize(std::max(A.v.size(),B.v.size()));
+    for (int i=0;i<A.v.size();++i) C[i]=C[i]+A[i];
+    for (int i=0;i<B.v.size();++i) C[i]=C[i]+B[i];
+    C.symb=A.symb;
+    C.simp();
+    return C;
+}
+upoly operator - (upoly A,upoly B){
+    assert(A.symb==B.symb);
+    upoly C;
+    C.v.resize(std::max(A.v.size(),B.v.size()));
+    for (int i=0;i<A.v.size();++i) C[i]=C[i]+A[i];
+    for (int i=0;i<B.v.size();++i) C[i]=C[i]-B[i];
+    C.symb=A.symb;
+    C.simp();
+    return C;
+}
+upoly operator * (upoly A,upoly B){
+    assert(A.symb==B.symb);
+    upoly C;
+    C.v.resize(A.v.size()+B.v.size()-1);
+    for (int i=0;i<A.v.size();++i){
+        for (int j=0;j<B.v.size();++j){
+            C[i+j]=C[i+j]+A[i]*B[j];
+        }
+    }
+    C.symb=A.symb;
+    C.simp();
+    return C;
+}
+upoly operator * (frac lambda,upoly A){
+    for (int i=0;i<A.v.size();++i){
+        A[i]=A[i]*lambda;
+    }
+    return A;
+}
+upoly operator / (upoly A,upoly B){
+    assert(A.symb==B.symb);
+    upoly ret;
+    ret.symb=A.symb;
+    while (A.deg()>=B.deg()){
+        frac lambda=A[A.v.size()-1]/B[B.v.size()-1];
+        ret.insert(A.deg()-B.deg(),lambda);
+        // std::cout<<lambda<<std::endl;
+        A=A-lambda*shift(A.deg()-B.deg(),B);
+        // std::cout<<A<<" "<<B<<std::endl;
+        // std::cout<<A.deg()<<" "<<B.deg()<<std::endl;
+    }
+    return ret;
+}
+upoly operator % (upoly A,upoly B){
+    return A-B*(A/B);
+}
+upoly gcd(upoly A,upoly B){
+    if (A.is_zero()) return B;
+    if (B.is_zero()) return A;
+    return gcd(B,A%B);
+}
+
+
 struct poly{//含除法
     _poly x,y;
     poly(){
@@ -165,6 +339,15 @@ struct poly{//含除法
             }
             x.v.clear(),y.v.clear();
             x.insert(_pe),y.insert(poly_ele(1));
+        }
+        char temp1;
+        frac temp2;
+        if (x.qu(temp1,temp2) && y.qu(temp1,temp2)){
+            upoly _x,_y;
+            _x.init_from_poly(x),_y.init_from_poly(y);
+            upoly g=gcd(_x,_y);
+            _x=_x/g,_y=_y/g;
+            x=convert(_x),y=convert(_y);
         }
     }
     poly(_poly nx,_poly ny){

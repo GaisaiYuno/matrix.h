@@ -8,6 +8,7 @@ int main(){
     M[2][1]=frac("2"),M[2][2]=frac("4"),M[2][3]=frac("-1/4");
     M[3][1]=frac("2"),M[3][2]=frac("4"),M[3][3]=frac("1");
     cout<<M<<endl<<M.transpose()<<endl;//输出M及转置
+    // cout<<(M^-1)<<endl;
     cout<<tr(M)<<endl;//矩阵的迹
     cout<<Gauss(M)<<endl;
     cout<<Gauss(M,true)<<endl;
