@@ -6,8 +6,8 @@ using namespace std;
 int main(){
     Matrix M;
     cin>>M;
-    M=M.transpose();
-    cout<<Gauss(M);
+    // M=M.transpose();
+    cout<<Gauss(M,true);
     vector<Matrix>baseS=baseSolution(M);
     for (int i=0;i<baseS.size();++i){
         cout<<baseS[i]<<endl;

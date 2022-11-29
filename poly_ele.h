@@ -22,6 +22,9 @@ struct poly_ele{//一个多项式的元素，形如 2/3a^3b^3/2
     poly_ele(int x){
         coef=(frac)(x);
     }
+    poly_ele(frac x){
+        coef=x;
+    }
     void init(const char *s,int maxlen=0x7fffffff){
         int len=std::min((int)(strlen(s)),maxlen);
         int lastAlphabet=-1;

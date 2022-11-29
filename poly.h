@@ -75,7 +75,6 @@ struct _poly{//不含除法
         if (lastSign==-1){
             poly_ele new_ele;
             new_ele.init(s,len);
-            // std::cout<<new_ele<<std::endl;
             insert(new_ele);
         }else{
             poly_ele new_ele;
@@ -113,7 +112,6 @@ bool operator == (_poly A,_poly B){
     return (A-B).v.size()==0;
 }
 std::ostream& operator << (std::ostream &out,const _poly &p){
-    // std::cout<<"outing _poly"<<p.v.size()<<std::endl;
     if (p.v.size()==0){
         out<<"0";
     }
@@ -169,6 +167,13 @@ struct upoly{
         else{
             v[expo]=v[expo]+coef;
         }
+    }
+    frac val(frac x){
+        frac ans=0;
+        for (int i=v.size()-1;i>=0;--i){
+            ans=ans*x+v[i];
+        }
+        return ans;
     }
     frac &operator[](int i){
         return v[i];
@@ -284,6 +289,42 @@ upoly gcd(upoly A,upoly B){
     if (B.is_zero()) return A;
     return gcd(B,A%B);
 }
+//对A进行因式分解
+std::vector<std::pair<upoly,int> > Factorization(upoly A){
+    // std::cout<<A<<std::endl;
+    std::vector<std::pair<upoly,int> > ret;
+    while (A.deg()){
+        upoly factor;
+        bool flag=true;
+        for (int i=100;i>=-100;--i){
+            for (int j=1;j<=100;++j){
+                if (A.val(frac(i,j))==0){
+                    factor.symb=A.symb;
+                    factor.v.resize(2);
+                    factor[1]=1;
+                    factor[0]=frac(-i,j);
+                    flag=false;
+                    break;
+                }
+            }
+            if (!flag) break;
+        }
+        if (flag){
+            ret.push_back(std::make_pair(A,1));
+            break;
+        }
+        else{
+            int cnt=0;
+            while ((A%factor).v.size()==0){
+                // std::cout<<factor<<std::endl;
+                A=A/factor;
+                cnt++;
+            }
+            ret.push_back(std::make_pair(factor,cnt));
+        }
+    }
+    return ret;
+}
 
 
 struct poly{//含除法
@@ -340,14 +381,16 @@ struct poly{//含除法
             x.v.clear(),y.v.clear();
             x.insert(_pe),y.insert(poly_ele(1));
         }
-        char temp1;
-        frac temp2;
-        if (x.qu(temp1,temp2) && y.qu(temp1,temp2)){
-            upoly _x,_y;
-            _x.init_from_poly(x),_y.init_from_poly(y);
-            upoly g=gcd(_x,_y);
-            _x=_x/g,_y=_y/g;
-            x=convert(_x),y=convert(_y);
+        char cx,cy;
+        frac fx,fy;
+        if (x.qu(cx,fx) && y.qu(cy,fy)){
+            if (cx==cy){
+                upoly _x,_y;
+                _x.init_from_poly(x),_y.init_from_poly(y);
+                upoly g=gcd(_x,_y);
+                _x=_x/g,_y=_y/g;
+                x=convert(_x),y=convert(_y);
+            }
         }
     }
     poly(_poly nx,_poly ny){

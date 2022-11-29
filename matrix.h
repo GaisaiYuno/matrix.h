@@ -59,7 +59,7 @@ struct Matrix{
         for (int i=1;i<=row;++i){
             M[i].resize(col+1,(Num)(0));
         }
-        Message="OK";
+        Message="Matrix";
     }
     Matrix(int rows,int cols,std::vector<Num>v){
         init(rows,cols);
@@ -272,7 +272,7 @@ Matrix Gauss(Matrix A,bool swapCol=false){
     int rk=1;
     for (int i=1;i<=std::min(n,m);++i){
         int r=rk;
-        for (int j=rk;j<=n;++j){
+        for (int j=n;j>=rk;--j){
             if (!(A[j][i]==(Num)(0))) r=j;
         }
         A.swap('R',r,rk);
@@ -285,6 +285,7 @@ Matrix Gauss(Matrix A,bool swapCol=false){
             Num t=A[j][i]*inv;
             A.addtimes('R',rk,t,j);
         }
+        //std::cout<<A<<std::endl;
         ++rk;
     }
     for (int i=1;i<=std::min(n,m);++i){
@@ -466,17 +467,30 @@ Matrix subMatrix(Matrix A,std::vector<int>rowChoose,std::vector<int>colChoose){
 bool isSwapable(Matrix A,Matrix B){
     return A*B==B*A;
 }
-//求出 A 的基础解系
+//求出 A 的基础解系，好像忘了交换生成的向量……
 std::vector<Matrix> baseSolution(Matrix A){
-    Matrix B=Gauss(A,true);
+    Matrix B=Gauss(A,false);
+    std::vector<std::pair<int,int> >swapID;
+    for (int i=1;i<=B.row;++i){
+        for (int j=1;j<=B.col;++j){
+            if (B[i][j]==(Num)(1)){
+                B.swap('C',i,j);
+                swapID.push_back(std::make_pair(i,j));
+                break;
+            }
+        }
+    }
     int n=A.col,r=rk(A);
-    return breakAsVector(addVertical((Num)(-1)*(subMatrix(B,genVector(1,r),genVector(r+1,n))),Matrix(n-r,n-r,1)), 'C');
+    Matrix ret=addVertical((Num)(-1)*(subMatrix(B,genVector(1,r),genVector(r+1,n))),Matrix(n-r,n-r,1));
+    for (int i=0;i<swapID.size();++i){
+        ret.swap('R',swapID[i].first,swapID[i].second);
+    }
+    return breakAsVector(ret, 'C');
 }
 std::vector<Matrix> baseSolution(Matrix A,std::vector<Num>b){
     A=addHorizontal(A,Matrix('C',b));
     Matrix B=Gauss(A,true);
     int n=A.col-1,r=rk(A);
-    // std::cout<<A<<std::endl;
     std::vector<Matrix> baseS=breakAsVector(addVertical((Num)(-1)*(subMatrix(B,genVector(1,r),genVector(r+1,n))),Matrix(n-r,n-r,1)), 'C');
     Matrix gama=addVertical(subMatrix(B,genVector(1,r),std::vector<int>{A.col}),Matrix(n-r,1));
     gama.Message="gama";
