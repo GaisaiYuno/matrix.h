@@ -285,6 +285,7 @@ upoly operator % (upoly A,upoly B){
     return A-B*(A/B);
 }
 upoly gcd(upoly A,upoly B){
+    // std::cout<<"Calculating "<<A<<" "<<B<<std::endl;
     if (A.is_zero()) return B;
     if (B.is_zero()) return A;
     return gcd(B,A%B);
@@ -385,11 +386,15 @@ struct poly{//含除法
         frac fx,fy;
         if (x.qu(cx,fx) && y.qu(cy,fy)){
             if (cx==cy){
+                // std::cout<<x<<" "<<y<<std::endl;
                 upoly _x,_y;
                 _x.init_from_poly(x),_y.init_from_poly(y);
                 upoly g=gcd(_x,_y);
-                _x=_x/g,_y=_y/g;
-                x=convert(_x),y=convert(_y);
+                if (g.deg()>1){
+                    _x=_x/g,_y=_y/g;
+                    x=convert(_x),y=convert(_y);
+                }
+                // std::cout<<"G"<<g<<std::endl;
             }
         }
     }

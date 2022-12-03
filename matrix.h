@@ -8,7 +8,8 @@ struct Matrix{
     std::string Message;
     std::vector<std::vector<Num> >M;
     int row,col;//行数、列数
-    Matrix(int x){
+    Matrix(Num x){
+        row=1,col=1;
         M.resize(1+1);
         M[1].resize(1+1,x);
         Message="Single Element";
@@ -87,6 +88,14 @@ struct Matrix{
         Matrix((int)V.size(),(int)V.size());
         for (int i=0;i<(int)V.size();++i){
             M[i+1][i+1]=V[i];
+        }
+    }
+    void genRand(){
+        srand(time(NULL));
+        for (int i=1;i<=row;++i){
+            for (int j=1;j<=col;++j){
+                M[i][j]=Num(rand()%10);
+            }
         }
     }
     //矩阵的初等行、列变换，type='R'行，type='C'列
@@ -170,6 +179,13 @@ struct Matrix{
         }
         B.Message="Matrix Transposed";
         return B;
+    }
+    void resize(int nrow,int ncol){
+        row=nrow,col=ncol;
+        M.resize(row+1);
+        for (int i=1;i<=row;++i){
+            M[i].resize(col+1);
+        }
     }
 };
 std::istream& operator >> (std::istream &in,Matrix &A){
@@ -262,7 +278,6 @@ Num Determinant(Matrix A){
     }
     for (int i=1;i<=n;++i){
         sign=sign*A[i][i];
-        // std::cout<<sign<<std::endl;
     }
     return sign;
 }
@@ -320,6 +335,9 @@ Matrix operator * (Matrix A,Matrix B){
         }
     }
     return C;
+}
+bool isSwapable(Matrix A,Matrix B){
+    return A*B==B*A;
 }
 Matrix operator * (Num lambda,Matrix A){
     Matrix B(A.row,A.col);
@@ -421,7 +439,7 @@ std::vector<Matrix> breakAsVector(Matrix A,char type){
     }
     return vectors;
 }
-Matrix addHorizontal(Matrix A,Matrix B){
+Matrix addH(Matrix A,Matrix B){
     assert(A.row==B.row);
     Matrix C(A.row,A.col+B.col);
     for (int i=1;i<=A.row;++i){
@@ -434,7 +452,7 @@ Matrix addHorizontal(Matrix A,Matrix B){
     }
     return C;
 }
-Matrix addVertical(Matrix A,Matrix B){
+Matrix addV(Matrix A,Matrix B){
     assert(A.col==B.col);
     Matrix C(A.row+B.row,A.col);
     for (int i=1;i<=A.col;++i){
@@ -464,8 +482,14 @@ Matrix subMatrix(Matrix A,std::vector<int>rowChoose,std::vector<int>colChoose){
     }
     return B;
 }
-bool isSwapable(Matrix A,Matrix B){
-    return A*B==B*A;
+Matrix subMatrix(Matrix A,int rlb,int rub,int clb,int cub){
+    Matrix B(rub-rlb+1,cub-clb+1);
+    for (int i=rlb;i<=rub;++i){
+        for (int j=clb;j<=cub;++j){
+            B[i-rlb+1][j-clb+1]=A[i][j];
+        }
+    }
+    return B;
 }
 //求出 A 的基础解系，好像忘了交换生成的向量……
 std::vector<Matrix> baseSolution(Matrix A){
@@ -481,18 +505,18 @@ std::vector<Matrix> baseSolution(Matrix A){
         }
     }
     int n=A.col,r=rk(A);
-    Matrix ret=addVertical((Num)(-1)*(subMatrix(B,genVector(1,r),genVector(r+1,n))),Matrix(n-r,n-r,1));
-    for (int i=0;i<swapID.size();++i){
+    Matrix ret=addV((Num)(-1)*(subMatrix(B,genVector(1,r),genVector(r+1,n))),Matrix(n-r,n-r,1));
+    for (int i=swapID.size()-1;i>=0;--i){
         ret.swap('R',swapID[i].first,swapID[i].second);
     }
     return breakAsVector(ret, 'C');
 }
 std::vector<Matrix> baseSolution(Matrix A,std::vector<Num>b){
-    A=addHorizontal(A,Matrix('C',b));
+    A=addH(A,Matrix('C',b));
     Matrix B=Gauss(A,true);
     int n=A.col-1,r=rk(A);
-    std::vector<Matrix> baseS=breakAsVector(addVertical((Num)(-1)*(subMatrix(B,genVector(1,r),genVector(r+1,n))),Matrix(n-r,n-r,1)), 'C');
-    Matrix gama=addVertical(subMatrix(B,genVector(1,r),std::vector<int>{A.col}),Matrix(n-r,1));
+    std::vector<Matrix> baseS=breakAsVector(addV((Num)(-1)*(subMatrix(B,genVector(1,r),genVector(r+1,n))),Matrix(n-r,n-r,1)), 'C');
+    Matrix gama=addV(subMatrix(B,genVector(1,r),std::vector<int>{A.col}),Matrix(n-r,1));
     gama.Message="gama";
     baseS.push_back(gama);
     return baseS;
