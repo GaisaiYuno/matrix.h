@@ -1,3 +1,5 @@
+#ifndef FRACTION
+#define FRACTION
 #include <algorithm>
 #include <cstring>
 #include <iostream>
@@ -63,6 +65,9 @@ frac operator + (frac A,frac B){
 frac operator - (frac A,frac B){
     return frac(A.x*B.y-A.y*B.x,A.y*B.y);
 }
+frac operator - (frac A){
+    return frac(-A.x,A.y);
+}
 frac operator * (frac A,frac B){
     return frac(A.x*B.x,A.y*B.y);
 }
@@ -102,3 +107,4 @@ std::ostream& operator << (std::ostream &out,const frac &f){
     }
     return out;
 }
+#endif

@@ -6,6 +6,10 @@ struct _poly{//不含除法
         v.clear();
         v.push_back(poly_ele(x));
     }
+    _poly(frac x){
+        v.clear();
+        v.push_back(poly_ele(x));
+    }
     _poly(){
         v.clear();
     }
@@ -28,7 +32,10 @@ struct _poly{//不含除法
             cnt+=hasAlpha[j];
             if (hasAlpha[j]==1) symb='a'+j;
         }
-        return cnt==1;
+        if (cnt==0){
+            symb='x';
+        }
+        return cnt==1 || cnt==0;
     }
     bool insert(poly_ele x){
         if (x.coef==(frac)(0)){
@@ -139,6 +146,10 @@ struct upoly{
         symb='x';
         v.clear();
     }
+    upoly(std::vector<frac>w){
+        symb='x';
+        v=w;
+    }
     void simp(){
         for (int i=v.size()-1;i>=0;--i){
             if (!(v[i]==0)){
@@ -158,6 +169,10 @@ struct upoly{
     int deg(){//多项式的度
         simp();
         return v.size()-1;
+    }
+    frac delta(){
+        assert(deg()==2);
+        return v[1]*v[1]-4*v[0]*v[2];
     }
     void insert(int expo,frac coef){
         if (v.size()<expo+1){
@@ -198,9 +213,17 @@ struct upoly{
         init(s,maxlen);
     }
 };
+upoly Integral(upoly x){
+    std::vector<frac>v;
+    v.push_back(0);
+    for (int i=0;i<x.v.size();++i){
+        v.push_back(x.v[i]*frac(1,i+1));
+    }
+    return upoly(v);
+}
 _poly convert(const upoly &A){
     _poly ret;
-    for (int i=0;i<A.v.size();++i){
+    for (int i=A.v.size()-1;i>=0;--i){
         poly_ele t;
         t.coef=A.v[i];
         t.expo[A.symb-'a']=i;
@@ -274,10 +297,7 @@ upoly operator / (upoly A,upoly B){
     while (A.deg()>=B.deg()){
         frac lambda=A[A.v.size()-1]/B[B.v.size()-1];
         ret.insert(A.deg()-B.deg(),lambda);
-        // std::cout<<lambda<<std::endl;
         A=A-lambda*shift(A.deg()-B.deg(),B);
-        // std::cout<<A<<" "<<B<<std::endl;
-        // std::cout<<A.deg()<<" "<<B.deg()<<std::endl;
     }
     return ret;
 }
@@ -285,15 +305,39 @@ upoly operator % (upoly A,upoly B){
     return A-B*(A/B);
 }
 upoly gcd(upoly A,upoly B){
-    // std::cout<<"Calculating "<<A<<" "<<B<<std::endl;
     if (A.is_zero()) return B;
     if (B.is_zero()) return A;
     return gcd(B,A%B);
 }
+struct cpoly{
+    std::vector<std::pair<upoly,int> >v;
+    void insert(upoly x,int expo){
+        v.push_back(std::make_pair(x,expo));
+    }
+};
+std::ostream& operator << (std::ostream &out,const cpoly &p){
+    for (int i=0;i<p.v.size();++i){
+        out<<"("<<p.v[i].first<<")";
+        if (p.v[i].second!=1){
+            out<<"^"<<p.v[i].second;
+        }
+    }
+    return out;
+}
+std::istream& operator >> (std::istream &in,cpoly &p){
+    int num;
+    in>>num;
+    while (num--){
+        upoly t;
+        int expo;
+        in>>t>>expo;
+        p.insert(t,expo);
+    }
+    return in;
+}
 //对A进行因式分解
-std::vector<std::pair<upoly,int> > Factorization(upoly A){
-    // std::cout<<A<<std::endl;
-    std::vector<std::pair<upoly,int> > ret;
+cpoly Factorization(upoly A){
+    cpoly ret;
     while (A.deg()){
         upoly factor;
         bool flag=true;
@@ -311,22 +355,100 @@ std::vector<std::pair<upoly,int> > Factorization(upoly A){
             if (!flag) break;
         }
         if (flag){
-            ret.push_back(std::make_pair(A,1));
+            ret.insert(A,1);
             break;
         }
         else{
             int cnt=0;
             while ((A%factor).v.size()==0){
-                // std::cout<<factor<<std::endl;
                 A=A/factor;
                 cnt++;
             }
-            ret.push_back(std::make_pair(factor,cnt));
+            ret.insert(factor,cnt);
         }
     }
     return ret;
 }
-
+upoly to_upoly(cpoly x){
+    upoly ret;
+    ret.insert(0,1);
+    for (int i=0;i<x.v.size();++i){
+        for (int j=1;j<=x.v[i].second;++j){
+            ret=ret*x.v[i].first;
+        }
+    }
+    return ret;
+}
+Matrix to_vector(upoly x,int sz=-1){
+    if (sz==-1){
+        return Matrix('C',x.v);
+    }
+    else{
+        Matrix ret=Matrix('C',x.v);
+        ret.resize(sz,1);
+        return ret;
+    }
+}
+struct decomp{
+    std::vector< std::pair<upoly,std::pair<upoly,int> > >v;
+    decomp(){
+        v.clear();
+    }
+    void insert(upoly x,upoly y,int expo){
+        v.push_back(std::make_pair(x,std::make_pair(y,expo)));
+    }
+};
+std::ostream& operator << (std::ostream &out,const decomp &p){
+    for (int i=0;i<p.v.size();++i){
+        if (i!=0) out<<"+";
+        out<<"("<<p.v[i].first<<")";
+        out<<"|";
+        out<<"("<<p.v[i].second.first<<")";
+        if (p.v[i].second.second!=1){
+            out<<"^"<<p.v[i].second.second;
+        }
+    }
+    return out;
+}
+decomp Decomposit(upoly x,cpoly y){
+    upoly z=to_upoly(y);
+    std::vector<Matrix>v;
+    cpoly temp=y;
+    for (int i=0;i<y.v.size();++i){
+        int d=y.v[i].first.deg();
+        for (int j=1;j<=y.v[i].second;++j){
+            temp.v[i].second=y.v[i].second-j;
+            if (d==1){
+                v.push_back(to_vector(to_upoly(temp),z.deg()));
+            }
+            else if (d==2){
+                v.push_back(to_vector(shift(1,to_upoly(temp)),z.deg()));
+                v.push_back(to_vector(to_upoly(temp),z.deg()));
+            }
+            else{
+                assert(0);
+            }
+            temp.v[i].second=y.v[i].second;
+        }
+    }
+    Matrix ans=(addH(v)^-1)*to_vector(x,z.deg());
+    decomp ret;
+    int cnt=0;
+    for (int i=0;i<y.v.size();++i){
+        int d=y.v[i].first.deg();
+        for (int j=1;j<=y.v[i].second;++j){
+            if (d==1){
+                ret.insert(upoly(std::vector<frac>{ans[++cnt][1]}),y.v[i].first,j);
+            }
+            else if (d==2){
+                frac B=ans[++cnt][1];
+                frac D=ans[++cnt][1];
+                ret.insert(upoly(std::vector<frac>{D,B}),y.v[i].first,j);
+            }
+        }
+    }
+    return ret;
+}
 
 struct poly{//含除法
     _poly x,y;
@@ -402,6 +524,9 @@ struct poly{//含除法
         x=nx,y=ny;
         simp();
     }
+    poly(_poly nx){
+        x=nx,y=1;
+    }
     void init(const char *s,int maxlen=0x7fffffff){//多项式除法，以中间的 | 为分界符
         int len=std::min((int)std::strlen(s),maxlen);
         for (int i=0;i<len;++i){
@@ -453,4 +578,17 @@ std::ostream& operator << (std::ostream &out,const poly &f){
         else out<<f.x<<"|"<<f.y;
     }
     return out;
+}
+
+poly int_x2a2(int n,frac a){
+    if (n==1){
+        return _poly("t");
+    }
+    _poly ans=_poly("x^2");
+    ans=ans+_poly(a*a);
+    _poly ret=ans;
+    for (int i=1;i<=n-2;++i){
+        ret=ret*ans;
+    }
+    return poly(poly_ele(1/(a*a)))*(poly(poly_ele(frac(2*n-3,2*n-2)))*int_x2a2(n-1,a)+poly(_poly("x"),2*(n-1)*ret));
 }

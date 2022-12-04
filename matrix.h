@@ -1,5 +1,5 @@
-#ifndef MATRIX
-#define MATRIX
+#ifndef _MATRIX_
+#define _MATRIX_
 #include <cassert>
 #include <iostream>
 #include <vector>
@@ -464,6 +464,16 @@ Matrix addV(Matrix A,Matrix B){
         }
     }
     return C;
+}
+Matrix addH(std::vector<Matrix>v){
+    Matrix ret=v[0];
+    for (int i=1;i<v.size();++i) ret=addH(ret,v[i]);
+    return ret;
+}
+Matrix addV(std::vector<Matrix>v){
+    Matrix ret=v[0];
+    for (int i=1;i<v.size();++i) ret=addV(ret,v[i]);
+    return ret;
 }
 #ifndef UTILS
 std::vector<int> genVector(int l,int r){
