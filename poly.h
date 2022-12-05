@@ -1,4 +1,8 @@
 #include "poly_ele.h"
+#include "fraction.h"
+#define Num frac
+#define Matrix __Matrix
+#include "matrix.h"
 #include <vector>
 struct _poly{//不含除法
     std::vector<poly_ele>v;
@@ -150,6 +154,10 @@ struct upoly{
         symb='x';
         v=w;
     }
+    upoly(frac f){
+        symb='x';
+        v.clear(),v.push_back(f);
+    }
     void simp(){
         for (int i=v.size()-1;i>=0;--i){
             if (!(v[i]==0)){
@@ -235,7 +243,7 @@ upoly shift(int delta,const upoly &A){
     upoly B;
     B.v.resize(A.v.size()+delta,0);
     for (int i=0;i<A.v.size();++i){
-        B[i+delta]=A.v[i];
+        if (i+delta>=0) B[i+delta]=A.v[i];
     }
     B.symb=A.symb;
     return B;
@@ -309,6 +317,13 @@ upoly gcd(upoly A,upoly B){
     if (B.is_zero()) return A;
     return gcd(B,A%B);
 }
+upoly F(upoly x,upoly a){
+    upoly ans;
+    for (int i=x.v.size()-1;i>=0;--i){
+        ans=ans*a+x.v[i];
+    }
+    return ans;
+}
 struct cpoly{
     std::vector<std::pair<upoly,int> >v;
     void insert(upoly x,int expo){
@@ -379,12 +394,12 @@ upoly to_upoly(cpoly x){
     }
     return ret;
 }
-Matrix to_vector(upoly x,int sz=-1){
+__Matrix to_vector(upoly x,int sz=-1){
     if (sz==-1){
-        return Matrix('C',x.v);
+        return __Matrix('C',x.v);
     }
     else{
-        Matrix ret=Matrix('C',x.v);
+        __Matrix ret=__Matrix('C',x.v);
         ret.resize(sz,1);
         return ret;
     }
@@ -412,7 +427,7 @@ std::ostream& operator << (std::ostream &out,const decomp &p){
 }
 decomp Decomposit(upoly x,cpoly y){
     upoly z=to_upoly(y);
-    std::vector<Matrix>v;
+    std::vector<__Matrix>v;
     cpoly temp=y;
     for (int i=0;i<y.v.size();++i){
         int d=y.v[i].first.deg();
@@ -431,7 +446,7 @@ decomp Decomposit(upoly x,cpoly y){
             temp.v[i].second=y.v[i].second;
         }
     }
-    Matrix ans=(addH(v)^-1)*to_vector(x,z.deg());
+    __Matrix ans=(addH(v)^-1)*to_vector(x,z.deg());
     decomp ret;
     int cnt=0;
     for (int i=0;i<y.v.size();++i){
@@ -448,6 +463,94 @@ decomp Decomposit(upoly x,cpoly y){
         }
     }
     return ret;
+}
+
+//一些泰勒公式
+upoly Exp(upoly p){
+    upoly t;
+    long long fac=1;
+    for (int i=1;i<=10;++i){
+        t.v.push_back(frac(1,fac));
+        fac=fac*i;
+    }
+    return F(t,p);
+}
+upoly Ln(upoly p){//Ln(p)，转化为(p-1)+1
+    upoly t;
+    t.v.push_back(0);
+    int sign=1;
+    for (int i=1;i<=10;++i){
+        t.v.push_back(frac(1,sign*i));
+        sign=sign*-1;
+    }
+    return F(t,p-upoly(1));
+}
+upoly Sin(upoly p){
+    upoly t;
+    long long fac=1;
+    int sign=1;
+    for (int i=0;i<=10;++i){
+        if (i!=0) fac=fac*i;
+        if (i&1){
+            t.v.push_back(frac(1,sign*fac));
+            sign=sign*-1;
+        }
+        else{
+            t.v.push_back(0);
+        }
+    }
+    return F(t,p);
+}
+upoly Cos(upoly p){
+    upoly t;
+    long long fac=1;
+    int sign=1;
+    for (int i=0;i<=10;++i){
+        if (i!=0) fac=fac*i;
+        if (!(i&1)){
+            t.v.push_back(frac(1,sign*fac));
+            sign=sign*-1;
+        }
+        else{
+            t.v.push_back(0);
+        }
+    }
+    return F(t,p);
+}
+upoly Tan(upoly p){
+    upoly t("x+1/3x^3+2/15x^5+17/315x^7");
+    return F(t,p);
+}
+upoly Arctan(upoly p){
+    upoly t("x-1/3x^3+1/5x^5-1/7x^7");
+    return F(t,p);
+}
+upoly Arcsin(upoly p){
+    upoly t("x+1/6x^3+3/40x^5");
+    return F(t,p);
+}
+upoly EquivInf(upoly x){
+    upoly ret;
+    for (int i=0;i<x.v.size();++i){
+        if (x.v[i]!=0){
+            ret.v.resize(i+1);
+            ret.v[i]=x.v[i];
+            return ret;
+        }
+    }
+    return ret;
+}
+frac Limit(upoly a,upoly b){//计算a/b当x->0时的极限
+    a=EquivInf(a);
+    b=EquivInf(b);
+    if (a.deg()==b.deg()) return (a/b)[0];
+    else if (a.deg()<b.deg()){
+        std::cout<<"Not Exist"<<std::endl;
+        return frac(0x7fffffff,1);
+    }
+    else{
+        return frac(0);
+    }
 }
 
 struct poly{//含除法
