@@ -62,6 +62,10 @@ struct Matrix{
         }
         Message="Matrix";
     }
+    Matrix & message(std::string m){
+        Message=m;
+        return *this;
+    }
     Matrix(int rows,int cols,std::vector<Num>v){
         init(rows,cols);
         row=rows,col=cols;
@@ -82,12 +86,6 @@ struct Matrix{
         assert(row==col);
         for (int i=1;i<=row;++i){
             M[i][i]=1;
-        }
-    }
-    void diag(std::vector<Num>V){
-        Matrix((int)V.size(),(int)V.size());
-        for (int i=0;i<(int)V.size();++i){
-            M[i+1][i+1]=V[i];
         }
     }
     void genRand(){
@@ -217,6 +215,7 @@ std::ostream& operator << (std::ostream &out,const Matrix &A){
 bool operator == (Matrix A,Matrix B){
     return A.M==B.M;
 }
+
 
 Matrix Inverse(Matrix A){//ÇóÄæ¾ØÕó
     assert(A.row==A.col);
@@ -465,6 +464,44 @@ Matrix addV(Matrix A,Matrix B){
     }
     return C;
 }
+
+// Matrix addH(std::initializer_list<Matrix> matrices) {
+//     assert(matrices.size() > 0);
+//     Matrix result = *matrices.begin();
+//     for (auto it = matrices.begin() + 1; it != matrices.end(); ++it) {
+//         assert(result.row == it->row);
+//         Matrix temp(result.row, result.col + it->col);
+//         for (int i = 1; i <= result.row; ++i) {
+//             for (int j = 1; j <= result.col; ++j) {
+//                 temp[i][j] = result[i][j];
+//             }
+//             for (int j = 1; j <= it->col; ++j) {
+//                 temp[i][result.col + j] = (*it)[i][j];
+//             }
+//         }
+//         result = temp;
+//     }
+//     return result;
+// }
+
+// Matrix addV(std::initializer_list<Matrix> matrices) {
+//     assert(matrices.size() > 0);
+//     Matrix result = *matrices.begin();
+//     for (auto it = matrices.begin() + 1; it != matrices.end(); ++it) {
+//         assert(result.col == it->col);
+//         Matrix temp(result.row + it->row, result.col);
+//         for (int j = 1; j <= result.col; ++j) {
+//             for (int k = 1; k <= result.row; ++k) {
+//                 temp[k][j] = result[k][j];
+//             }
+//             for (int k = 1; k <= it->row; ++k) {
+//                 temp[result.row + k][j] = (*it)[k][j];
+//             }
+//         }
+//         result = temp;
+//     }
+//     return result;
+// }
 Matrix addH(std::vector<Matrix>v){
     Matrix ret=v[0];
     for (int i=1;i<v.size();++i) ret=addH(ret,v[i]);
@@ -480,6 +517,13 @@ std::vector<int> genVector(int l,int r){
     std::vector<int> ret;
     for (int i=l;i<=r;++i) ret.push_back(i);
     return ret;
+}
+Matrix diag(std::vector<Num>V){
+    Matrix A=Matrix((int)V.size(),(int)V.size());
+    for (int i=0;i<(int)V.size();++i){
+        A[i+1][i+1]=V[i];
+    }
+    return A;
 }
 #endif
 #define UTILS

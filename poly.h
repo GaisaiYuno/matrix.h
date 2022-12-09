@@ -119,6 +119,11 @@ _poly operator * (_poly A,_poly B){
     }
     return C;
 }
+_poly operator ^ (_poly a,int k){
+    _poly ret=a;
+    for (int i=1;i<=k-1;++i) ret=ret*a;
+    return ret;
+}
 bool operator == (_poly A,_poly B){
     return (A-B).v.size()==0;
 }
@@ -146,17 +151,26 @@ struct upoly{
     //规定只有0的多项式度数为-1
     char symb;
     std::vector<frac>v;
+    int begin;
     upoly(){
         symb='x';
         v.clear();
+        begin=0;
     }
     upoly(std::vector<frac>w){
         symb='x';
         v=w;
+        begin=0;
+    }
+    upoly(std::vector<frac>w,int bg){
+        symb='x';
+        v=w;
+        begin=bg;
     }
     upoly(frac f){
         symb='x';
         v.clear(),v.push_back(f);
+        begin=0;
     }
     void simp(){
         for (int i=v.size()-1;i>=0;--i){
@@ -227,7 +241,14 @@ upoly Integral(upoly x){
     for (int i=0;i<x.v.size();++i){
         v.push_back(x.v[i]*frac(1,i+1));
     }
-    return upoly(v);
+    return upoly(v,x.begin-1);
+}
+upoly Deriv(upoly x){
+    std::vector<frac>v;
+    for (int i=1;i<x.v.size();++i){
+        v.push_back(x.v[i]*i);
+    }
+    return upoly(v,x.begin+1);
 }
 _poly convert(const upoly &A){
     _poly ret;
@@ -246,6 +267,7 @@ upoly shift(int delta,const upoly &A){
         if (i+delta>=0) B[i+delta]=A.v[i];
     }
     B.symb=A.symb;
+    B.begin=A.begin-delta;
     return B;
 }
 std::ostream& operator << (std::ostream &out,const upoly &p){
@@ -298,6 +320,9 @@ upoly operator * (frac lambda,upoly A){
     }
     return A;
 }
+upoly operator - (upoly A){
+    return (frac)(-1)*A;
+}
 upoly operator / (upoly A,upoly B){
     assert(A.symb==B.symb);
     upoly ret;
@@ -313,7 +338,6 @@ upoly operator % (upoly A,upoly B){
     return A-B*(A/B);
 }
 upoly gcd(upoly A,upoly B){
-    if (A.is_zero()) return B;
     if (B.is_zero()) return A;
     return gcd(B,A%B);
 }
@@ -323,6 +347,11 @@ upoly F(upoly x,upoly a){
         ans=ans*a+x.v[i];
     }
     return ans;
+}
+upoly operator ^ (upoly a,int k){
+    upoly ret=a;
+    for (int i=1;i<=k-1;++i) ret=ret*a;
+    return ret;
 }
 struct cpoly{
     std::vector<std::pair<upoly,int> >v;
@@ -394,6 +423,16 @@ upoly to_upoly(cpoly x){
     }
     return ret;
 }
+upoly to_upoly(__Matrix M){
+    upoly ret;
+    int cnt=0;
+    for (int i=1;i<=M.row;++i){
+        for (int j=1;j<=M.col;++j){
+            ret.insert(cnt++,M[i][j]);
+        }
+    }
+    return ret;
+}
 __Matrix to_vector(upoly x,int sz=-1){
     if (sz==-1){
         return __Matrix('C',x.v);
@@ -403,6 +442,36 @@ __Matrix to_vector(upoly x,int sz=-1){
         ret.resize(sz,1);
         return ret;
     }
+}
+std::vector<upoly> solve_diff(std::vector<upoly>p,int rk=1){//输入的项加和为0，默认微分方程的阶为1
+    int n=0x7fffffff;
+    for (int i=0;i<p.size();++i){
+        //std::cout<<p[i]<<std::endl;
+        n=std::min(n,p[i].deg());
+    }
+    __Matrix M(n,n+rk);
+    for (int i=0;i<p.size();++i){
+        for (int j=0;j<=n;++j){//枚举x^j
+            if (j+1+p[i].begin<=M.col && j+1<=M.row){
+                M[j+1][j+1+p[i].begin]=M[j+1][j+1+p[i].begin]+p[i][j];
+            }
+        }
+        std::cout<<M<<std::endl;
+    }
+    std::vector<__Matrix>baseS=baseSolution(M);
+    std::vector<upoly>ret;
+    for (int i=0;i<baseS.size();++i){
+        std::cout<<baseS[i]<<std::endl;
+        frac coef=1;
+        for (int j=1;j<=baseS[i].row;++j){
+            if (baseS[i][j][1]!=0){
+                coef=baseS[i][j][1];
+                break;
+            }
+        }
+        ret.push_back(to_upoly((1/coef)*baseS[i]));
+    }
+    return ret;
 }
 struct decomp{
     std::vector< std::pair<upoly,std::pair<upoly,int> > >v;
@@ -528,6 +597,19 @@ upoly Arctan(upoly p){
 upoly Arcsin(upoly p){
     upoly t("x+1/6x^3+3/40x^5");
     return F(t,p);
+}
+upoly Pow(upoly p,frac alpha){//转化为(1+(x-1))^alpha
+    upoly t;
+    t.v.push_back(1);
+    frac x=alpha,y=1;
+    for (int i=1;i<=10;++i){
+        t.v.push_back(x/y);
+        x=x*(alpha-i),y=y*(i+1);
+    }
+    return F(t,p-upoly(1));
+}
+upoly Pow(upoly a,upoly x){
+    return Exp(Ln(a)*x);
 }
 upoly EquivInf(upoly x){
     upoly ret;
@@ -687,11 +769,8 @@ poly int_x2a2(int n,frac a){
     if (n==1){
         return _poly("t");
     }
-    _poly ans=_poly("x^2");
-    ans=ans+_poly(a*a);
-    _poly ret=ans;
-    for (int i=1;i<=n-2;++i){
-        ret=ret*ans;
-    }
-    return poly(poly_ele(1/(a*a)))*(poly(poly_ele(frac(2*n-3,2*n-2)))*int_x2a2(n-1,a)+poly(_poly("x"),2*(n-1)*ret));
+    return poly(poly_ele(1/(a*a)))*(poly(poly_ele(frac(2*n-3,2*n-2)))*int_x2a2(n-1,a)+poly(_poly("x"),2*(n-1)*((_poly("x^2")+_poly(a*a))^(n-1))));
 }
+#undef Num
+#undef Matrix
+#undef _MATRIX_
