@@ -107,4 +107,11 @@ std::ostream& operator << (std::ostream &out,const frac &f){
     }
     return out;
 }
+std::string to_latex(const frac &f){
+    if (f.y!=1){
+        if (f.x<0) return "-\\frac{"+std::to_string(-f.x)+"}{"+std::to_string(f.y)+"}";
+        else return "\\frac{"+std::to_string(f.x)+"}{"+std::to_string(f.y)+"}";
+    }
+    else return std::to_string(f.x);
+}
 #endif

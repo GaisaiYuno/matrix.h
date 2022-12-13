@@ -15,9 +15,9 @@ Num operator & (Matrix A,Matrix B){
     }
     return ret;
 }
-Matrix Discrete(Num (*F)(Num),Num l,Num r,Num step){
+Matrix Discrete(Num (*F)(frac),frac l,frac r,frac step){
     std::vector<Num>v;
-    for (Num i=l;i<=r;i=i+step){
+    for (frac i=l;i<=r;i=i+step){
         v.push_back(F(i));
     }
     return Matrix('R',v);

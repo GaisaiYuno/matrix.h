@@ -212,6 +212,19 @@ std::ostream& operator << (std::ostream &out,const Matrix &A){
     }
     return out;
 }
+std::string to_latex(const Matrix &A){
+    std::string ret="";
+    ret+="\\begin{bmatrix}\n";
+    for (int i=1;i<=A.row;++i){
+        for (int j=1;j<=A.col;++j){
+            ret+=to_latex(A.M[i][j]);
+            if (j!=A.col) ret+=" &";
+            else ret+="\\\\\n";
+        }
+    }
+    ret+="\\end{bmatrix}";
+    return ret;
+}
 bool operator == (Matrix A,Matrix B){
     return A.M==B.M;
 }

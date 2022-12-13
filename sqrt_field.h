@@ -10,8 +10,12 @@ struct sqrtNum{
     }
     void simp(){
         if (M==ALL_MOD) return ;
+        if (M.y!=1){
+            M.x*=M.y;
+            y=y/M.y;
+            M.y=1;
+        }
         long long m=getPowFactor(M.x),n=getPowFactor(M.y);
-        // std::cout<<"m and n"<<m<<" "<<n<<std::endl;
         M=M/frac(m*m,n*n);
         y=y*frac(m,n);
         if (M==1){
@@ -172,4 +176,48 @@ std::ostream& operator << (std::ostream &out,const sqrtNum &A){
         out<<'\\'<<A.M;
     }
     return out;
+}
+std::string to_latex(const sqrtNum &A){
+    std::string ret="";
+    bool pre=false,aft=A.M!=ALL_MOD;
+    if (A.x!=frac(0)){
+        ret+=to_latex(A.x),pre=true;
+    }
+    if (pre==true){
+        if (A.y<0){
+            if (!(A.y==frac(-1)&&aft)){
+                ret+=to_latex(A.y);
+            }
+            else{
+                ret+="-";
+            }
+        }
+        else if (A.y>0){
+            ret+="+";
+            if (!(A.y==frac(1)&&aft)){
+                ret+=to_latex(A.y);
+            }
+        }
+    }
+    else{
+        // out<<(A.y==frac(1)&&aft)<<std::endl;
+        if (A.y<0){
+            if (!(A.y==frac(-1)&&aft)){
+                ret+=to_latex(A.y);
+            }
+            else{
+                ret+="-";
+            }
+        }
+        else if (A.y>0){
+            if (!(A.y==frac(1)&&aft)){
+                ret+=to_latex(A.y);
+            }
+        }
+        else if (A.y==0) ret+="0";
+    }
+    if (A.y!=0 && A.M!=ALL_MOD){
+        ret+="\\sqrt{"+to_latex(A.M)+"}";
+    }
+    return ret;
 }

@@ -125,14 +125,12 @@ std::ostream& operator << (std::ostream &out,const poly_ele &pe){
             flag=true;
         }
     }
-    // std::cout<<"Outing poly_ele"<<std::endl;
     if (flag){
         if (pe.coef==(frac)(1)) out<<"";
         else if (pe.coef==(frac)(-1)) out<<"-";
         else out<<pe.coef;
     }
     else {
-        // std::cout<<"hahaha"<<std::endl;
         out<<pe.coef;
     }
     for (int i=0;i<26;++i){
@@ -150,4 +148,30 @@ std::istream& operator >> (std::istream &in,poly_ele &f){
     in>>s;
     f=poly_ele(s.c_str());
     return in;
+}
+std::string to_latex(const poly_ele &pe){
+    bool flag=false;
+    for (int i=0;i<26;++i){
+        if (pe.expo[i]!=(frac)(0)){
+            flag=true;
+        }
+    }
+    std::string ret;
+    if (flag){
+        if (pe.coef==(frac)(1)) ret=ret+"";
+        else if (pe.coef==(frac)(-1)) ret=ret+"-";
+        else ret=ret+to_latex(pe.coef);
+    }
+    else {
+        ret=ret+to_latex(pe.coef);
+    }
+    for (int i=0;i<26;++i){
+        if (pe.expo[i]!=(frac)(0)){
+            ret=ret+char('a'+i);
+            if (pe.expo[i]!=frac(1)){
+                ret=ret+"^"+to_latex(pe.expo[i]);
+            }
+        }
+    }
+    return ret;
 }
