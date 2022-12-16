@@ -1,15 +1,28 @@
-#define Num poly
 #include "poly.h"
+#define Num poly
 #include "matrix.h"
 using namespace std;
 int main(){
     Matrix A;
     cin>>A;
     // cout<<A<<endl;
-    // cout<<Gauss(A)<<endl;
-    cout<<Determinant(A)<<endl;
+    // cout<<to_latex(Gauss(A))<<endl;
+    cout<<to_latex(Determinant(A))<<endl;
 }
 /*
+t-x -2 -t
+-2 1-x 2
+-t 2 5-x
+
+2 x -1 1
+x -1 1 2
+4 5 -5 -1
+a+k b c d
+a b+k c d
+a b c+k d
+a b c d+k
+
+
 0 x y z
 x 0 z y
 y z 0 x

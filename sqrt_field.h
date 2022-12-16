@@ -31,6 +31,9 @@ struct sqrtNum{
         if (y==0) M=ALL_MOD;
         simp();
     }
+    sqrtNum(frac nx){
+        x=nx,y=0,M=ALL_MOD;
+    }
     sqrtNum conjunction(){
         return sqrtNum(x,0-y,M);
     }
@@ -124,6 +127,12 @@ int Compare(sqrtNum A,sqrtNum B){
 bool operator <= (sqrtNum A,sqrtNum B){
     return Compare(A,B)<=0;
 }
+bool operator < (sqrtNum A,sqrtNum B){
+    return Compare(A,B)<0;
+}
+bool operator > (sqrtNum A,sqrtNum B){
+    return Compare(A,B)>0;
+}
 std::istream& operator >> (std::istream &in,sqrtNum &A){
     //a+b\x
     //a-b\x
@@ -177,16 +186,17 @@ std::ostream& operator << (std::ostream &out,const sqrtNum &A){
     }
     return out;
 }
-std::string to_latex(const sqrtNum &A){
+std::string to_latex(const sqrtNum &A,bool begin=true){
     std::string ret="";
+    if (begin) ret+="$";
     bool pre=false,aft=A.M!=ALL_MOD;
     if (A.x!=frac(0)){
-        ret+=to_latex(A.x),pre=true;
+        ret+=to_latex(A.x,0),pre=true;
     }
     if (pre==true){
         if (A.y<0){
             if (!(A.y==frac(-1)&&aft)){
-                ret+=to_latex(A.y);
+                ret+=to_latex(A.y,0);
             }
             else{
                 ret+="-";
@@ -195,7 +205,7 @@ std::string to_latex(const sqrtNum &A){
         else if (A.y>0){
             ret+="+";
             if (!(A.y==frac(1)&&aft)){
-                ret+=to_latex(A.y);
+                ret+=to_latex(A.y,0);
             }
         }
     }
@@ -203,7 +213,7 @@ std::string to_latex(const sqrtNum &A){
         // out<<(A.y==frac(1)&&aft)<<std::endl;
         if (A.y<0){
             if (!(A.y==frac(-1)&&aft)){
-                ret+=to_latex(A.y);
+                ret+=to_latex(A.y,0);
             }
             else{
                 ret+="-";
@@ -211,13 +221,14 @@ std::string to_latex(const sqrtNum &A){
         }
         else if (A.y>0){
             if (!(A.y==frac(1)&&aft)){
-                ret+=to_latex(A.y);
+                ret+=to_latex(A.y,0);
             }
         }
         else if (A.y==0) ret+="0";
     }
     if (A.y!=0 && A.M!=ALL_MOD){
-        ret+="\\sqrt{"+to_latex(A.M)+"}";
+        ret+="\\sqrt{"+to_latex(A.M,0)+"}";
     }
+    if (begin) ret+="$";
     return ret;
 }

@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <cstring>
+#include <fstream>
 struct Matrix{
     std::string Message;
     std::vector<std::vector<Num> >M;
@@ -198,12 +199,13 @@ std::istream& operator >> (std::istream &in,Matrix &A){
             std::cin>>A[i][j];
         }
     }
-    A.Message="This is a matrix";
+    static char name='A';
+    A.Message=name;
+    name++;
     return in;
 }
 std::ostream& operator << (std::ostream &out,const Matrix &A){
     std::cout<<A.Message<<std::endl;
-    std::cout<<A.row<<" by "<<A.col<<std::endl;
     for (int i=1;i<=A.row;++i){
         for (int j=1;j<=A.col;++j){
             std::cout<<A.M[i][j]<<" ";
@@ -212,19 +214,43 @@ std::ostream& operator << (std::ostream &out,const Matrix &A){
     }
     return out;
 }
-std::string to_latex(const Matrix &A){
+std::string to_latex(const Matrix &A,std::string type="bmatrix",bool begin=true){
     std::string ret="";
-    ret+="\\begin{bmatrix}\n";
+    if (begin) ret+="$";
+    ret+=A.Message+"=";
+    ret+="\\begin{"+type+"}\n";
     for (int i=1;i<=A.row;++i){
         for (int j=1;j<=A.col;++j){
-            ret+=to_latex(A.M[i][j]);
+            ret+=to_latex(A.M[i][j],0);
             if (j!=A.col) ret+=" &";
             else ret+="\\\\\n";
         }
     }
-    ret+="\\end{bmatrix}";
+    ret+="\\end{"+type+"}\n";
+    if (begin) ret+="$";
     return ret;
 }
+#ifndef UTILS
+std::vector<int> genVector(int l,int r){
+    std::vector<int> ret;
+    for (int i=l;i<=r;++i) ret.push_back(i);
+    return ret;
+}
+Matrix diag(std::vector<Num>V){
+    Matrix A=Matrix((int)V.size(),(int)V.size());
+    for (int i=0;i<(int)V.size();++i){
+        A[i+1][i+1]=V[i];
+    }
+    return A;
+}
+std::string begin_latex(){
+    return "\\documentclass{article}\n\\usepackage{ctex,amsmath,xparse}\n\\begin{document}\n";
+}
+std::string end_latex(){
+    return "\\end{document}\n";
+}
+#endif
+#define UTILS
 bool operator == (Matrix A,Matrix B){
     return A.M==B.M;
 }
@@ -264,6 +290,9 @@ Matrix Inverse(Matrix A){//ÇóÄæ¾ØÕó
 Num Determinant(Matrix A){
     int n=A.row,m=A.col;
     assert(n==m);
+    if (n==3){
+        return A[1][1]*A[2][2]*A[3][3]+A[1][2]*A[2][3]*A[3][1]+A[2][1]*A[3][2]*A[1][3]-A[1][3]*A[2][2]*A[3][1]-A[1][1]*A[2][3]*A[3][2]-A[1][2]*A[2][1]*A[3][3];
+    }
     Num sign=(Num)(1);
     for (int i=1;i<=std::min(n,m)-1;++i){
         if (i>m){
@@ -435,7 +464,7 @@ std::vector<Matrix> breakAsVector(Matrix A,char type){
             for (int j=1;j<=A.row;++j){
                 tmp[j][1]=A[j][i];
             }
-            tmp.Message="eta"+std::to_string(i);
+            tmp.Message="\\eta_"+std::to_string(i);
             vectors.push_back(tmp);
         }
     }
@@ -445,7 +474,7 @@ std::vector<Matrix> breakAsVector(Matrix A,char type){
             for (int j=1;j<=A.col;++j){
                 tmp[1][j]=A[i][j];
             }
-            tmp.Message="eta"+std::to_string(i);
+            tmp.Message="\\eta_"+std::to_string(i);
             vectors.push_back(tmp);
         }
     }
@@ -525,21 +554,6 @@ Matrix addV(std::vector<Matrix>v){
     for (int i=1;i<v.size();++i) ret=addV(ret,v[i]);
     return ret;
 }
-#ifndef UTILS
-std::vector<int> genVector(int l,int r){
-    std::vector<int> ret;
-    for (int i=l;i<=r;++i) ret.push_back(i);
-    return ret;
-}
-Matrix diag(std::vector<Num>V){
-    Matrix A=Matrix((int)V.size(),(int)V.size());
-    for (int i=0;i<(int)V.size();++i){
-        A[i+1][i+1]=V[i];
-    }
-    return A;
-}
-#endif
-#define UTILS
 Matrix subMatrix(Matrix A,std::vector<int>rowChoose,std::vector<int>colChoose){
     Matrix B(rowChoose.size(),colChoose.size());
     for (int i=0;i<rowChoose.size();++i){
@@ -584,7 +598,7 @@ std::vector<Matrix> baseSolution(Matrix A,std::vector<Num>b){
     int n=A.col-1,r=rk(A);
     std::vector<Matrix> baseS=breakAsVector(addV((Num)(-1)*(subMatrix(B,genVector(1,r),genVector(r+1,n))),Matrix(n-r,n-r,1)), 'C');
     Matrix gama=addV(subMatrix(B,genVector(1,r),std::vector<int>{A.col}),Matrix(n-r,1));
-    gama.Message="gama";
+    gama.Message="\\gama";
     baseS.push_back(gama);
     return baseS;
 }

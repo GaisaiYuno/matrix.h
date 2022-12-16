@@ -1,0 +1,75 @@
+\documentclass{article}
+\usepackage{ctex,amsmath,xparse}
+\begin{document}
+
+
+$A=\begin{bmatrix}
+-2 &1 &2\\
+1 &0 &0\\
+0 &1 &0\\
+\end{bmatrix}
+$
+
+$A=\begin{vmatrix}
+-2-l &1 &2\\
+1 &-l &0\\
+0 &1 &-l\\
+\end{vmatrix}
+$=$-2l^2-l^3+l+2$
+
+Factorize it then we have $(l-1)(l+1)(l+2)$
+
+For eigen value $\lambda=1$ ,we have vectors,
+
+$\eta_1=\begin{bmatrix}
+1\\
+1\\
+1\\
+\end{bmatrix}
+$
+
+For eigen value $\lambda=-1$ ,we have vectors,
+
+$\eta_1=\begin{bmatrix}
+1\\
+-1\\
+1\\
+\end{bmatrix}
+$
+
+For eigen value $\lambda=-2$ ,we have vectors,
+
+$\eta_1=\begin{bmatrix}
+4\\
+-2\\
+1\\
+\end{bmatrix}
+$
+
+Combine the vectors together then we get, 
+
+$P=\begin{bmatrix}
+1 &1 &4\\
+1 &-1 &-2\\
+1 &1 &1\\
+\end{bmatrix}
+$
+
+$\Lambda=PAP^{-1}=\begin{bmatrix}
+1 &0 &0\\
+0 &-1 &0\\
+0 &0 &-2\\
+\end{bmatrix}
+$
+
+So $A^n=P^{-1}\Lambda^n P$
+
+For calculating $A^n$, assume $\Lambda^n=[a,0,0;0,b,0;0,0,c]$, then we have:
+
+$\frac{1}{6}a-\frac{1}{2}b+\frac{4}{3}c$
+
+Then, substitute $a=(1)^{n-1}$ and $b=(-1)^{n-1}$ and $c=(-2)^{n-1}$, we have the final answer
+
+\end{document}
+
+

@@ -10,7 +10,7 @@ struct _poly{//不含除法
         v.clear();
         v.push_back(poly_ele(x));
     }
-    _poly(frac x){
+    _poly(sqrtNum x){
         v.clear();
         v.push_back(poly_ele(x));
     }
@@ -42,7 +42,7 @@ struct _poly{//不含除法
         return cnt==1 || cnt==0;
     }
     bool insert(poly_ele x){
-        if (x.coef==(frac)(0)){
+        if (x.coef==(sqrtNum)(0)){
             return true;
         }
         bool found=false;
@@ -51,7 +51,7 @@ struct _poly{//不含除法
             if (equal(x,*i)){
                 found=true;
                 v[j]=v[j]+x;
-                if (v[j].coef==frac(0)){
+                if (v[j].coef==sqrtNum(0)){
                     v.erase(i);
                 }
                 break;
@@ -76,7 +76,7 @@ struct _poly{//不含除法
             if (lastSign!=-1 &&(s[i]=='+' || s[i]=='-')){
                 poly_ele new_ele;
                 new_ele.init(s+lastSign+1,i-lastSign-1);
-                new_ele.coef=new_ele.coef*(frac)(sign);
+                new_ele.coef=new_ele.coef*(sqrtNum)(sign);
                 insert(new_ele);
             }
             if (s[i]=='+'||s[i]=='-'){
@@ -90,7 +90,7 @@ struct _poly{//不含除法
         }else{
             poly_ele new_ele;
             new_ele.init(s+lastSign+1,len-lastSign-1);
-            new_ele.coef=new_ele.coef*(frac)(sign);
+            new_ele.coef=new_ele.coef*(sqrtNum)(sign);
             insert(new_ele);
         }
     }
@@ -132,9 +132,16 @@ std::ostream& operator << (std::ostream &out,const _poly &p){
         out<<"0";
     }
     for (int i=0;i<p.v.size();++i){
-        if (i!=0 && p.v[i].coef>(frac)(0)) out<<"+";
-        if (p.v[i].coef==(frac)(0)) continue;
-        out<<p.v[i];
+        if (p.v[i].coef.M==-1){
+            if (p.v[i].coef.x==(0)) continue;
+            if (i!=0 && p.v[i].coef.x>(frac)(0)) out<<"+";
+            out<<p.v[i];
+        }
+        else{
+            if (p.v[i].coef.x==(0)) continue;
+            if (i!=0) out<<"+";
+            out<<p.v[i];
+        }
     }
     return out;
 }
@@ -143,6 +150,27 @@ std::istream& operator >> (std::istream &in,_poly &p){
     in>>s;
     p=_poly(s.c_str());
     return in;
+}
+std::string to_latex(const _poly &p,bool begin=true){
+    std::string ret="";
+    if (begin) ret+="$";
+    if (p.v.size()==0){
+        ret+="0";
+    }
+    for (int i=0;i<p.v.size();++i){
+        if (p.v[i].coef.M==-1){
+            if (p.v[i].coef.x==(0)) continue;
+            if (i!=0 && p.v[i].coef.x>(frac)(0)) ret+="+";
+            ret+=to_latex(p.v[i],0);
+        }
+        else{
+            if (p.v[i].coef.x==(0)) continue;
+            if (i!=0) ret+="+";
+            ret+=to_latex(p.v[i],0);
+        }
+    }
+    if (begin) ret+="$";
+    return ret;
 }
 
 
@@ -220,7 +248,7 @@ struct upoly{
         if (A.qu(symb,maxExpo)){
             v.resize(maxExpo.x+1,0);
             for (int i=0;i<A.v.size();++i){
-                v[A.v[i].expo[symb-'a'].x]=A.v[i].coef;
+                v[A.v[i].expo[symb-'a'].x]=A.v[i].coef.x;
             }
         }
         else{
@@ -246,18 +274,25 @@ upoly Integral(upoly x){
 upoly Deriv(upoly x){
     std::vector<frac>v;
     for (int i=1;i<x.v.size();++i){
-        v.push_back(x.v[i]*i);
+        v.push_back(x.v[i]*frac(i));
     }
     return upoly(v,x.begin+1);
 }
-_poly convert(const upoly &A){
+_poly convert(upoly A){
     _poly ret;
     for (int i=A.v.size()-1;i>=0;--i){
         poly_ele t;
-        t.coef=A.v[i];
+        t.coef=sqrtNum(A.v[i]);
         t.expo[A.symb-'a']=i;
         ret.insert(t);
     }
+    return ret;
+}
+std::string to_latex(const upoly &p,bool begin=true){
+    std::string ret="";
+    if (begin) ret+="$";
+    ret+=to_latex(convert(p),0);
+    if (begin) ret+="$";
     return ret;
 }
 upoly shift(int delta,const upoly &A){
@@ -353,10 +388,16 @@ upoly operator ^ (upoly a,int k){
     for (int i=1;i<=k-1;++i) ret=ret*a;
     return ret;
 }
+bool comp(std::pair<upoly,int>A,std::pair<upoly,int>B){
+    return A.first[1]<B.first[1];
+}
 struct cpoly{
     std::vector<std::pair<upoly,int> >v;
     void insert(upoly x,int expo){
         v.push_back(std::make_pair(x,expo));
+    }
+    void sort(){
+        std::sort(v.begin(),v.end(),comp);
     }
 };
 std::ostream& operator << (std::ostream &out,const cpoly &p){
@@ -378,6 +419,18 @@ std::istream& operator >> (std::istream &in,cpoly &p){
         p.insert(t,expo);
     }
     return in;
+}
+std::string to_latex(const cpoly &p,bool begin=true){
+    std::string ret="";
+    if (begin) ret+="$";
+    for (int i=0;i<p.v.size();++i){
+        ret+="("+to_latex(p.v[i].first,0)+")";
+        if (p.v[i].second!=1){
+            ret+="^"+std::to_string(p.v[i].second);
+        }
+    }
+    if (begin) ret+="$";
+    return ret;
 }
 //对A进行因式分解
 cpoly Factorization(upoly A){
@@ -604,7 +657,7 @@ upoly Pow(upoly p,frac alpha){//转化为(1+(x-1))^alpha
     frac x=alpha,y=1;
     for (int i=1;i<=10;++i){
         t.v.push_back(x/y);
-        x=x*(alpha-i),y=y*(i+1);
+        x=x*(alpha-i),y=y*frac(i+1);
     }
     return F(t,p-upoly(1));
 }
@@ -669,7 +722,7 @@ struct poly{//含除法
             }
         }
         poly_ele pe;
-        pe.coef=frac(1);
+        pe.coef=sqrtNum(1);
         for (int i=0;i<26;++i){
             pe.expo[i]=minexpo[i];
         }
@@ -764,12 +817,24 @@ std::ostream& operator << (std::ostream &out,const poly &f){
     }
     return out;
 }
+std::string to_latex(const poly &f,bool begin=true){
+    std::string ret="";
+    if (begin) ret+="$";
+    if (f.x==_poly(0)) ret+="0";
+    else if (f.x==f.y) ret+="1";
+    else {
+        if (f.y==_poly(1)) ret+=to_latex(f.x,0);
+        else ret+="\\frac{"+to_latex(f.x,0)+"}{"+to_latex(f.y,0)+"}";
+    }
+    if (begin) ret+="$";
+    return ret;
+}
 
-poly int_x2a2(int n,frac a){
+poly int_x2a2(int n,sqrtNum a){
     if (n==1){
         return _poly("t");
     }
-    return poly(poly_ele(1/(a*a)))*(poly(poly_ele(frac(2*n-3,2*n-2)))*int_x2a2(n-1,a)+poly(_poly("x"),2*(n-1)*((_poly("x^2")+_poly(a*a))^(n-1))));
+    return poly(poly_ele(sqrtNum(1)/(a*a)))*(poly(poly_ele(sqrtNum(frac(2*n-3,2*n-2))))*int_x2a2(n-1,a)+poly(_poly("x"),2*(n-1)*((_poly("x^2")+_poly(a*a))^(n-1))));
 }
 #undef Num
 #undef Matrix

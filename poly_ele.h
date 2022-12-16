@@ -10,19 +10,23 @@ a 单个变量，代表1a^1
 a^2 代表 1a^2
 中间 +,- 分割
 */
+#ifndef POLY_ELE
+#define POLY_ELE
 #include "fraction.h"
+#include "sqrt_field.h"
 struct poly_ele{//一个多项式的元素，形如 2/3a^3b^3/2
-    frac coef,expo[26];
+    sqrtNum coef;
+    frac expo[26];
     poly_ele(){
-        coef=(frac)(0);
+        coef=(sqrtNum)(0);
         for (int i=0;i<26;++i){
             expo[i]=(frac)(0);
         }
     }
     poly_ele(int x){
-        coef=(frac)(x);
+        coef=(sqrtNum)(x);
     }
-    poly_ele(frac x){
+    poly_ele(sqrtNum x){
         coef=x;
     }
     void init(const char *s,int maxlen=0x7fffffff){
@@ -63,7 +67,7 @@ struct poly_ele{//一个多项式的元素，形如 2/3a^3b^3/2
     }
     poly_ele inv(){
         poly_ele ret;
-        ret.coef=coef.inv();
+        ret.coef=sqrtNum(1)/coef;
         for (int i=0;i<26;++i){
             ret.expo[i]=frac(0)-expo[i];
         }
@@ -71,7 +75,7 @@ struct poly_ele{//一个多项式的元素，形如 2/3a^3b^3/2
     }
     poly_ele minus(){
         poly_ele ret;
-        ret.coef=frac(0)-coef;
+        ret.coef=sqrtNum(0)-coef;
         for (int i=0;i<26;++i){
             ret.expo[i]=expo[i];
         }
@@ -84,15 +88,15 @@ bool equal(poly_ele A,poly_ele B){
     }
     return true;
 }
-bool operator < (poly_ele A,poly_ele B){
-    return A.coef < B.coef;
-}
+// bool operator < (poly_ele A,poly_ele B){
+//     return A.coef < B.coef;
+// }
 bool operator == (poly_ele A,poly_ele B){
     return A.coef == B.coef && equal(A,B);
 }
-bool operator > (poly_ele A,poly_ele B){
-    return A.coef > B.coef;
-}
+// bool operator > (poly_ele A,poly_ele B){
+//     return A.coef > B.coef;
+// }
 poly_ele operator * (poly_ele A,poly_ele B){
     poly_ele res;
     res.coef=A.coef*B.coef;
@@ -102,7 +106,7 @@ poly_ele operator * (poly_ele A,poly_ele B){
     return res;
 }
 poly_ele operator / (poly_ele A,poly_ele B){
-    return A*B.inv();
+    return A*(B.inv());
 }
 poly_ele operator + (poly_ele A,poly_ele B){
     for (int i=0;i<26;++i){
@@ -126,9 +130,14 @@ std::ostream& operator << (std::ostream &out,const poly_ele &pe){
         }
     }
     if (flag){
-        if (pe.coef==(frac)(1)) out<<"";
-        else if (pe.coef==(frac)(-1)) out<<"-";
-        else out<<pe.coef;
+        if (pe.coef.M==-1){
+            if (pe.coef==(sqrtNum)(1)) out<<"";
+            else if (pe.coef==(sqrtNum)(-1)) out<<"-";
+            else out<<pe.coef;
+        }
+        else{
+            out<<"("<<pe.coef<<")";
+        }
     }
     else {
         out<<pe.coef;
@@ -136,7 +145,7 @@ std::ostream& operator << (std::ostream &out,const poly_ele &pe){
     for (int i=0;i<26;++i){
         if (pe.expo[i]!=(frac)(0)){
             out<<char('a'+i);
-            if (pe.expo[i]!=frac(1)){
+            if (!(pe.expo[i]==frac(1))){
                 out<<"^"<<pe.expo[i];
             }
         }
@@ -149,29 +158,37 @@ std::istream& operator >> (std::istream &in,poly_ele &f){
     f=poly_ele(s.c_str());
     return in;
 }
-std::string to_latex(const poly_ele &pe){
+std::string to_latex(const poly_ele &pe,bool begin=true){
     bool flag=false;
     for (int i=0;i<26;++i){
         if (pe.expo[i]!=(frac)(0)){
             flag=true;
         }
     }
-    std::string ret;
+    std::string ret="";
+    if (begin) ret+="$";
     if (flag){
-        if (pe.coef==(frac)(1)) ret=ret+"";
-        else if (pe.coef==(frac)(-1)) ret=ret+"-";
-        else ret=ret+to_latex(pe.coef);
+        if (pe.coef.M==-1){
+            if (pe.coef==(sqrtNum)(1)) ret=ret+"";
+            else if (pe.coef==(sqrtNum)(-1)) ret=ret+"-";
+            else ret=ret+to_latex(pe.coef,0);
+        }
+        else{
+            ret=ret+"("+to_latex(pe.coef,0)+")";
+        }
     }
     else {
-        ret=ret+to_latex(pe.coef);
+        ret=ret+to_latex(pe.coef,0);
     }
     for (int i=0;i<26;++i){
         if (pe.expo[i]!=(frac)(0)){
             ret=ret+char('a'+i);
             if (pe.expo[i]!=frac(1)){
-                ret=ret+"^"+to_latex(pe.expo[i]);
+                ret=ret+"^"+to_latex(pe.expo[i],0);
             }
         }
     }
+    if (begin) ret+="$";
     return ret;
 }
+#endif

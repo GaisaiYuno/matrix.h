@@ -34,6 +34,7 @@ std::vector<Matrix> Schmidt(std::vector<Matrix>alpha){
             Num lambda=(alpha[i-1]&beta[j-1])/(beta[j-1]&beta[j-1]);
             beta_i=beta_i-lambda*beta[j-1];
         }
+        beta_i.Message="\\beta_"+std::to_string(i);
         beta.push_back(beta_i);
     }
     return beta;
