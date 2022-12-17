@@ -53,7 +53,7 @@ struct sqrtNum{
         }
         // std::cerr<<signIndex<<" "<<slashIndex<<std::endl;
         if (slashIndex==-1 && (signIndex==-1 || signIndex==0)){
-            x=frac(s),y=0;
+            x=frac(s,maxlen),y=0;
             M=ALL_MOD;
         }
         else if (slashIndex!=-1 && signIndex==-1){

@@ -496,36 +496,6 @@ __Matrix to_vector(upoly x,int sz=-1){
         return ret;
     }
 }
-std::vector<upoly> solve_diff(std::vector<upoly>p,int rk=1){//输入的项加和为0，默认微分方程的阶为1
-    int n=0x7fffffff;
-    for (int i=0;i<p.size();++i){
-        //std::cout<<p[i]<<std::endl;
-        n=std::min(n,p[i].deg());
-    }
-    __Matrix M(n,n+rk);
-    for (int i=0;i<p.size();++i){
-        for (int j=0;j<=n;++j){//枚举x^j
-            if (j+1+p[i].begin<=M.col && j+1<=M.row){
-                M[j+1][j+1+p[i].begin]=M[j+1][j+1+p[i].begin]+p[i][j];
-            }
-        }
-        std::cout<<M<<std::endl;
-    }
-    std::vector<__Matrix>baseS=baseSolution(M);
-    std::vector<upoly>ret;
-    for (int i=0;i<baseS.size();++i){
-        std::cout<<baseS[i]<<std::endl;
-        frac coef=1;
-        for (int j=1;j<=baseS[i].row;++j){
-            if (baseS[i][j][1]!=0){
-                coef=baseS[i][j][1];
-                break;
-            }
-        }
-        ret.push_back(to_upoly((1/coef)*baseS[i]));
-    }
-    return ret;
-}
 struct decomp{
     std::vector< std::pair<upoly,std::pair<upoly,int> > >v;
     decomp(){
@@ -640,7 +610,7 @@ upoly Cos(upoly p){
     return F(t,p);
 }
 upoly Tan(upoly p){
-    upoly t("x+1/3x^3+2/15x^5+17/315x^7");
+    upoly t("x+1/3x^3+2/15x^5+17/315x^7+62/2835x^9+1382/155925x^11");
     return F(t,p);
 }
 upoly Arctan(upoly p){
@@ -836,6 +806,7 @@ poly int_x2a2(int n,sqrtNum a){
     }
     return poly(poly_ele(sqrtNum(1)/(a*a)))*(poly(poly_ele(sqrtNum(frac(2*n-3,2*n-2))))*int_x2a2(n-1,a)+poly(_poly("x"),2*(n-1)*((_poly("x^2")+_poly(a*a))^(n-1))));
 }
+
 #undef Num
 #undef Matrix
 #undef _MATRIX_

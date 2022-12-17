@@ -88,15 +88,9 @@ bool equal(poly_ele A,poly_ele B){
     }
     return true;
 }
-// bool operator < (poly_ele A,poly_ele B){
-//     return A.coef < B.coef;
-// }
 bool operator == (poly_ele A,poly_ele B){
     return A.coef == B.coef && equal(A,B);
 }
-// bool operator > (poly_ele A,poly_ele B){
-//     return A.coef > B.coef;
-// }
 poly_ele operator * (poly_ele A,poly_ele B){
     poly_ele res;
     res.coef=A.coef*B.coef;

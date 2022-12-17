@@ -179,12 +179,13 @@ struct Matrix{
         B.Message="Matrix Transposed";
         return B;
     }
-    void resize(int nrow,int ncol){
+    Matrix& resize(int nrow,int ncol){
         row=nrow,col=ncol;
         M.resize(row+1);
         for (int i=1;i<=row;++i){
             M[i].resize(col+1);
         }
+        return *this;
     }
 };
 std::istream& operator >> (std::istream &in,Matrix &A){
@@ -506,44 +507,6 @@ Matrix addV(Matrix A,Matrix B){
     }
     return C;
 }
-
-// Matrix addH(std::initializer_list<Matrix> matrices) {
-//     assert(matrices.size() > 0);
-//     Matrix result = *matrices.begin();
-//     for (auto it = matrices.begin() + 1; it != matrices.end(); ++it) {
-//         assert(result.row == it->row);
-//         Matrix temp(result.row, result.col + it->col);
-//         for (int i = 1; i <= result.row; ++i) {
-//             for (int j = 1; j <= result.col; ++j) {
-//                 temp[i][j] = result[i][j];
-//             }
-//             for (int j = 1; j <= it->col; ++j) {
-//                 temp[i][result.col + j] = (*it)[i][j];
-//             }
-//         }
-//         result = temp;
-//     }
-//     return result;
-// }
-
-// Matrix addV(std::initializer_list<Matrix> matrices) {
-//     assert(matrices.size() > 0);
-//     Matrix result = *matrices.begin();
-//     for (auto it = matrices.begin() + 1; it != matrices.end(); ++it) {
-//         assert(result.col == it->col);
-//         Matrix temp(result.row + it->row, result.col);
-//         for (int j = 1; j <= result.col; ++j) {
-//             for (int k = 1; k <= result.row; ++k) {
-//                 temp[k][j] = result[k][j];
-//             }
-//             for (int k = 1; k <= it->row; ++k) {
-//                 temp[result.row + k][j] = (*it)[k][j];
-//             }
-//         }
-//         result = temp;
-//     }
-//     return result;
-// }
 Matrix addH(std::vector<Matrix>v){
     Matrix ret=v[0];
     for (int i=1;i<v.size();++i) ret=addH(ret,v[i]);
@@ -586,18 +549,35 @@ std::vector<Matrix> baseSolution(Matrix A){
         }
     }
     int n=A.col,r=rk(A);
-    Matrix ret=addV((Num)(-1)*(subMatrix(B,genVector(1,r),genVector(r+1,n))),Matrix(n-r,n-r,1));
+    Matrix ret=addV((Num)(-1)*(subMatrix(B,1,r,r+1,n)),Matrix(n-r,n-r,1));
     for (int i=swapID.size()-1;i>=0;--i){
         ret.swap('R',swapID[i].first,swapID[i].second);
     }
     return breakAsVector(ret, 'C');
 }
-std::vector<Matrix> baseSolution(Matrix A,std::vector<Num>b){
-    A=addH(A,Matrix('C',b));
-    Matrix B=Gauss(A,true);
+std::vector<Matrix> baseSolution(Matrix A,Matrix b){
+    A=addH(A,b);
+    Matrix B=Gauss(A,false);
+    std::vector<std::pair<int,int> >swapID;
+    for (int i=1;i<=B.row;++i){
+        for (int j=1;j<=B.col-1;++j){
+            if (B[i][j]==(Num)(1)){
+                B.swap('C',i,j);
+                swapID.push_back(std::make_pair(i,j));
+                break;
+            }
+        }
+    }
     int n=A.col-1,r=rk(A);
-    std::vector<Matrix> baseS=breakAsVector(addV((Num)(-1)*(subMatrix(B,genVector(1,r),genVector(r+1,n))),Matrix(n-r,n-r,1)), 'C');
-    Matrix gama=addV(subMatrix(B,genVector(1,r),std::vector<int>{A.col}),Matrix(n-r,1));
+    Matrix ret=addV((Num)(-1)*(subMatrix(B,1,r,r+1,n)),Matrix(n-r,n-r,1));
+    for (int i=swapID.size()-1;i>=0;--i){
+        ret.swap('R',swapID[i].first,swapID[i].second);
+    }
+    std::vector<Matrix> baseS=breakAsVector(ret, 'C');
+    Matrix gama=addV(subMatrix(B,1,r,A.col,A.col),Matrix(n-r,1));
+    for (int i=swapID.size()-1;i>=0;--i){
+        gama.swap('R',swapID[i].first,swapID[i].second);
+    }
     gama.Message="\\gama";
     baseS.push_back(gama);
     return baseS;
