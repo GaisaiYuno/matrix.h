@@ -54,7 +54,7 @@ diff operator * (frac lambda,diff A){
     return C;
 }
 const int sz=2;
-const frac alpha=0,beta=2;
+const frac alpha=0,beta=3;
 void output(Matrix v){
     // cout<<v<<endl;
     upoly a,b;
@@ -88,8 +88,11 @@ int main(){
     // Matrix f=Matrix('C',vector<frac>{0,0,-1,0});
 
     // 解y''+4y'+4y=cos2x
-    diff ans=Deriv(Deriv(d))+4*Deriv(d)+4*d;
-    Matrix f=Matrix('C',vector<frac>{1,0,0,0});
+    // diff ans=Deriv(Deriv(d))+4*Deriv(d)+4*d;
+    // Matrix f=Matrix('C',vector<frac>{1,0,0,0});
+
+    diff ans=Deriv(Deriv(d))+d;
+    Matrix f=Matrix('C',vector<frac>{frac(-1,2),0,0,0});
 
     // cout<<addV(ans.P,ans.Q)<<endl<<f<<endl;
     vector<Matrix>baseS=baseSolution(addV(ans.P,ans.Q),f);

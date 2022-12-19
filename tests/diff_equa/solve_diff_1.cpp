@@ -3,6 +3,16 @@
 #define Num frac
 #include "matrix.h"
 using namespace std;
+Matrix D(int n){
+    Matrix D(n,n);
+    for (int i=1;i<=n-1;++i){
+        D[i][i+1]=i;
+    }
+    return D;
+}
+Matrix Deriv(Matrix M){
+    return D(M.row)*M;
+}
 struct diff{
     frac lambda;
     Matrix P;
@@ -41,7 +51,7 @@ vector<frac> to_v(upoly u){
     while (u.v.size()<sz) u.v.push_back(0);
     return u.v;
 }
-const frac lambda=2;
+const frac lambda=-2;
 void output(Matrix v){
     upoly a;
     a.v.resize(sz);
@@ -57,7 +67,10 @@ int main(){
     diff d=diff(lambda,sz);
 
     //求解 y''-2y'+2y=e^2x
-    diff ans=Deriv(Deriv(d))-2*Deriv(d)+2*d;
+    // diff ans=Deriv(Deriv(d))-2*Deriv(d)+d;
+    // Matrix f=Matrix('C',to_v("2x"));
+
+    diff ans=Deriv(Deriv(d))+4*Deriv(d)+4*d;
     Matrix f=Matrix('C',to_v("1"));
 
     // cout<<ans.P<<f<<endl;

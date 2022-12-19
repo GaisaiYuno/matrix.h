@@ -82,6 +82,9 @@ sqrtNum operator - (sqrtNum A,sqrtNum B){
     assert(A.M==ALL_MOD || B.M==ALL_MOD || A.M==B.M);
     return sqrtNum(A.x-B.x,A.y-B.y,std::max(A.M,B.M));
 }
+sqrtNum operator - (sqrtNum A){
+    return sqrtNum(0)-sqrtNum(A);
+}
 sqrtNum operator * (frac lambda,sqrtNum A){
     return sqrtNum(lambda*A.x,lambda*A.y,A.M);
 }

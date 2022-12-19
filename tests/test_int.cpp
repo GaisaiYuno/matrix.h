@@ -1,6 +1,6 @@
 #include "poly.h"
 using namespace std;
-frac lambda;
+sqrtNum lambda;
 poly simplify(poly ret){
     lambda=ret.x[0].coef/ret.y[0].coef;
     ret.x=ret.x-lambda*_poly("t")*ret.y;
@@ -35,7 +35,7 @@ int main(){
             frac p=y[1],q=y[0];
             frac dt=y.delta();
             if (k==1){
-                cout<<B/2<<"ln("<<y<<")+("<<(2*D-B*p)<<")/\\"<<-dt<<"arctan((2x+"<<p<<")/\\"<<-dt<<")"<<endl;
+                cout<<(B/frac(2))<<"ln("<<y<<")+("<<(2*D-B*p)<<")/\\"<<-dt<<"arctan((2x+"<<p<<")/\\"<<-dt<<")"<<endl;
             }
             else{
                 cout<<"好丑陋，嘤嘤嘤：";
@@ -43,7 +43,7 @@ int main(){
                     int m=(int)(sqrt(-dt.x));
                     frac a=frac(m,2);
                     poly r=simplify(int_x2a2(k,a));
-                    cout<<B/2<<"ln("<<y<<")+("<<(2*D-B*p)<<")/\\"<<-dt<<"[("<<r<<")+"<<lambda<<"*"<<1/a<<"arctan(x/"<<a<<")"<<"]"<<endl;
+                    cout<<(B/frac(2))<<"ln("<<y<<")+("<<(2*D-B*p)<<")/\\"<<-dt<<"[("<<r<<")+"<<lambda<<"*"<<1/a<<"arctan(x/"<<a<<")"<<"]"<<endl;
                 }
                 else{
                     cout<<"根号开不尽我更不会算了喵喵喵~"<<endl;

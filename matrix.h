@@ -413,6 +413,9 @@ Matrix operator - (Matrix A,Matrix B){
 Matrix operator / (Num x,Matrix A){
     return x*Inverse(A);
 }
+Matrix operator / (Matrix A,Num x){
+    return (Num(1)/x)*A;
+}
 Matrix operator / (Matrix A,Matrix B){
     return A*Inverse(B);
 }

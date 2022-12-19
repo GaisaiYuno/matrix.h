@@ -1,7 +1,9 @@
 #include "poly.h"
 using namespace std;
 int main(){
-    cout<<to_latex(poly_ele("-1/2a^1/2x^4y"))<<endl;
+    cout<<Deriv(Deriv(Exp("-x^2")))<<endl;
+    // cout<<Integral(Pow(upoly("1+x^2"),upoly("-1")))<<endl;
+    // cout<<to_latex(poly_ele("-1/2a^1/2x^4y"))<<endl;
     // cout<<EquivInf(Exp("-1/2x^2")-Cos("x"))<<endl;
     // cout<<EquivInf(Ln("1+x+x^2")+Ln("1-x+x^2"))<<endl;
     // cout<<Limit(upoly("x")*(Exp("x")+Exp("-x")-upoly("2")),upoly("x")-Sin("x"))<<endl;
