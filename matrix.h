@@ -8,7 +8,7 @@
 struct Matrix{
     std::string Message;
     std::vector<std::vector<Num> >M;
-    int row,col;//ĞĞÊı¡¢ÁĞÊı
+    int row,col;//è¡Œæ•°ã€åˆ—æ•°
     Matrix(Num x){
         row=1,col=1;
         M.resize(1+1);
@@ -97,7 +97,7 @@ struct Matrix{
             }
         }
     }
-    //¾ØÕóµÄ³õµÈĞĞ¡¢ÁĞ±ä»»£¬type='R'ĞĞ£¬type='C'ÁĞ
+    //çŸ©é˜µçš„åˆç­‰è¡Œã€åˆ—å˜æ¢ï¼Œtype='R'è¡Œï¼Œtype='C'åˆ—
     void swap(char type,int x,int y){
         if (type=='R'){
             assert(1<=x && x<=row && 1<=y && y<=row);
@@ -132,7 +132,7 @@ struct Matrix{
             assert(0);
         }
     }
-    void addtimes(char type,int x,Num t,int y){//xĞĞ/ÁĞµÄt±¶¼Óµ½yÉÏ
+    void addtimes(char type,int x,Num t,int y){//xè¡Œ/åˆ—çš„tå€åŠ åˆ°yä¸Š
         if (type=='R'){
             assert(1<=x && x<=row && 1<=y && y<=row);
             for (int i=1;i<=col;++i){
@@ -169,7 +169,7 @@ struct Matrix{
         }
         return 0;
     }
-    Matrix transpose(){//¾ØÕóµÄ×ªÖÃ
+    Matrix transpose(){//çŸ©é˜µçš„è½¬ç½®
         Matrix B(col,row);
         for (int i=1;i<=B.row;++i){
             for (int j=1;j<=B.col;++j){
@@ -257,7 +257,7 @@ bool operator == (Matrix A,Matrix B){
 }
 
 
-Matrix Inverse(Matrix A){//ÇóÄæ¾ØÕó
+Matrix Inverse(Matrix A){//æ±‚é€†çŸ©é˜µ
     assert(A.row==A.col);
     int n=A.row,m=A.col;
     Matrix B(A.row,A.col);
@@ -323,7 +323,7 @@ Num Determinant(Matrix A){
     }
     return sign;
 }
-//»¯³É¼ò»¯µÄ½×ÌİĞÍ¾ØÕó£¬¿ÉÑ¡ÊÇ·ñÔÚÇ°ÃæĞÎ³ÉÒ»¸öµ¥Î»¾ØÕó£¬¼´ÊÇ·ñ½»»»ÁĞ
+//åŒ–æˆç®€åŒ–çš„é˜¶æ¢¯å‹çŸ©é˜µï¼Œå¯é€‰æ˜¯å¦åœ¨å‰é¢å½¢æˆä¸€ä¸ªå•ä½çŸ©é˜µï¼Œå³æ˜¯å¦äº¤æ¢åˆ—
 Matrix Gauss(Matrix A,bool swapCol=false){
     int n=A.row,m=A.col;
     int rk=1;
@@ -468,10 +468,10 @@ int rk(Matrix A){
     }
     return rk;
 }
-//·ÖÁÑ³ÉĞĞÏòÁ¿ºÍÁĞÏòÁ¿
+//åˆ†è£‚æˆè¡Œå‘é‡å’Œåˆ—å‘é‡
 std::vector<Matrix> breakAsVector(Matrix A,char type){
     std::vector<Matrix> vectors;
-    if (type=='C'){//ÁĞÏòÁ¿
+    if (type=='C'){//åˆ—å‘é‡
         for (int i=1;i<=A.col;++i){
             Matrix tmp(A.row,1);
             for (int j=1;j<=A.row;++j){
@@ -481,7 +481,7 @@ std::vector<Matrix> breakAsVector(Matrix A,char type){
             vectors.push_back(tmp);
         }
     }
-    else if (type=='R'){//ĞĞÏòÁ¿
+    else if (type=='R'){//è¡Œå‘é‡
         for (int i=1;i<=A.row;++i){
             Matrix tmp(1,A.col);
             for (int j=1;j<=A.col;++j){
@@ -547,7 +547,7 @@ Matrix subMatrix(Matrix A,int rlb,int rub,int clb,int cub){
     }
     return B;
 }
-//Çó³ö A µÄ»ù´¡½âÏµ£¬ºÃÏñÍüÁË½»»»Éú³ÉµÄÏòÁ¿¡­¡­
+//æ±‚å‡º A çš„åŸºç¡€è§£ç³»ï¼Œå¥½åƒå¿˜äº†äº¤æ¢ç”Ÿæˆçš„å‘é‡â€¦â€¦
 std::vector<Matrix> baseSolution(Matrix A){
     Matrix B=Gauss(A,false);
     std::vector<std::pair<int,int> >swapID;
