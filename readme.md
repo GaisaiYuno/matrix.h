@@ -44,7 +44,7 @@
   - $f(x)=(b_0x^m+b_1x^{m-1}+\cdots+b_{m-1}x+b_m)e^{\lambda x}$
   - $f(x)=[P(x)\cos\beta x+Q(x)\sin \beta x]e^{ax}$
 
-
+- 空间解析几何。
 
 矩阵的数域也有多种选择，比如有理数域（`fraction.h`），多元多项式域（`poly.h`），单元有理多项式域（`upoly.h`），$$\Q(\sqrt x)$$ 域（`sqrt_field.h`），以及模数域（`mod_num.h`）。
 
