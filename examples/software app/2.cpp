@@ -2,7 +2,7 @@
 #include <algorithm>
 int main(){
     Matrix A(7,6);
-	A.Input();//ÊµÔÚ²»ÏëÊÖÇÃÁË¡£
+	A.Input();//å®åœ¨ä¸æƒ³æ‰‹æ•²äº†ã€‚
 	/*
 	1 1 0 1 0 0
 	1 0 1 1 0 0
