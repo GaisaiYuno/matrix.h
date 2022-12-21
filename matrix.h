@@ -410,6 +410,15 @@ Matrix operator - (Matrix A,Matrix B){
     }
     return C;
 }
+Matrix operator - (Matrix A){
+    Matrix C(A.row,A.col);
+    for (int i=1;i<=A.row;++i){
+        for (int j=1;j<=A.col;++j){
+            C[i][j]=(Num)(0)-A[i][j];
+        }
+    }
+    return C;
+}
 Matrix operator / (Num x,Matrix A){
     return x*Inverse(A);
 }

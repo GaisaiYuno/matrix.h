@@ -44,11 +44,21 @@ bool isOrthogonalMatrix(Matrix A){
     return A*A.transpose()==Matrix(A.row,A.col,1);
 }
 
+
 #ifndef SQRT_FIELD
 
 #else
+std::string Arccos(Num x){
+    if (x==Num("0")) return "\\pi/2";
+    if (x==Num("1/2")) return "\\pi/3";
+    if (x==Num("1/2\3")) return "\\pi/6";
+    if (x==Num("1")) return "0";
+    // std::cout<<x<<std::endl;
+    // std::cout<<x.x<<" "<<x.y<<std::endl;
+    return "arccos("+to_latex(x.eval(),0)+")";
+}
 Num length(Matrix A){
-    return Num(0,1,(A&A).x);
+    return Num(sqrtNum(0,1,(A&A).eval().x));
 }
 Num angle(Matrix A,Matrix B){
     return (A&B)/(length(A)*length(B));
@@ -62,6 +72,10 @@ Matrix proj(Matrix A,Matrix B){
 Matrix proj_vec(Matrix A,Matrix B){
     return proj(A,B)*identilize(A).first;
 }
+Matrix Nvec(Matrix A){
+    A.resize(1,3);
+    return A;
+}
 Matrix cross(Matrix A,Matrix B){
     if (A.row>A.col && B.row>B.col) return cross(A.transpose(),B.transpose()).transpose();
     assert(A.row==1 && A.col==3 && B.row==1 && B.col==3);
@@ -70,6 +84,38 @@ Matrix cross(Matrix A,Matrix B){
     ret[1][2]=-A[1][1]*B[1][3]+A[1][3]*B[1][1];
     ret[1][3]=A[1][1]*B[1][2]-A[1][2]*B[1][1];
     return ret;
+}
+Matrix Plane(Matrix V,Matrix P){
+    Matrix ret=V;
+    ret.resize(1,4);
+    ret[1][4]=(V&P);
+    return ret;
+}
+Matrix Plane(Matrix A,Matrix B,Matrix C){
+    Matrix ret=cross(B-A,C-A);
+    ret.resize(1,4);
+    ret[1][4]=Determinant(addV(std::vector<Matrix>{-A,B-A,C-A}));
+    return ret;
+}
+Matrix toIntercept(Matrix pl){
+    assert(!(pl[1][4]==(Num)(0)));
+    return Matrix('R',std::vector<Num>{-pl[1][1]/pl[1][4],-pl[1][2]/pl[1][4],-pl[1][3]/pl[1][4]});
+}
+std::pair<Matrix,Matrix> toLine(Matrix A,Matrix B){
+    Matrix S=addV(A,B);
+    std::vector<Matrix>baseS=baseSolution(subMatrix(S,1,2,1,3),-subMatrix(S,1,2,4,4));
+    return std::make_pair(baseS.back().transpose(),baseS.front().transpose());
+}
+Num dist(Matrix P,Matrix A){
+    // std::cout<<(P&Nvec(A))+A[1][4]<<std::endl;
+    // std::cout<<(A&A)<<std::endl;
+    return abs((P&Nvec(A))+A[1][4])/length(Nvec(A));
+}
+void output(Matrix P){
+    std::cout<<P[1][1]<<"X+"<<P[1][2]<<"Y+"<<P[1][3]<<"Z+"<<P[1][4]<<"=0"<<std::endl;
+}
+void output(Matrix R0,Matrix S){
+    std::cout<<"(X-"<<R0[1][1]<<")/"<<S[1][1]<<"=(Y-"<<R0[1][2]<<")/"<<S[1][2]<<"=(Z-"<<R0[1][3]<<")/"<<S[1][3]<<std::endl;
 }
 Matrix houseHolder(Matrix v){
     v=identilize(v).first;

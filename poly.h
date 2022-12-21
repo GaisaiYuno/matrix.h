@@ -97,6 +97,20 @@ struct _poly{//不含除法
     _poly(const char *s,int maxlen=0x7fffffff){
         init(s,maxlen);
     }
+    sqrtNum eval(){
+        if (v.size()==0){
+            return 0;
+        }
+        else if (v.size()==1){
+            for (int i=0;i<26;++i){
+                assert(v[0].expo[i]==0);
+            }
+            return v[0].coef;
+        }
+        else{
+            assert(0);
+        }
+    }
 };
 _poly operator + (_poly A,_poly B){
     for (int i=0;i<B.v.size();++i){
@@ -261,6 +275,9 @@ struct upoly{
     }
     upoly(const char *s,int maxlen=0x7fffffff){
         init(s,maxlen);
+    }
+    upoly(_poly x){
+        init_from_poly(x);
     }
 };
 upoly Integral(upoly x){
@@ -575,7 +592,7 @@ upoly Ln(upoly p){//Ln(p)，转化为(p-1)+1
         t.v.push_back(frac(1,sign*i));
         sign=sign*-1;
     }
-    return F(t,p-upoly(1));
+    return F(t,p-upoly("1"));
 }
 upoly Sin(upoly p){
     upoly t;
@@ -629,7 +646,7 @@ upoly Pow(upoly p,frac alpha){//转化为(1+(x-1))^alpha
         t.v.push_back(x/y);
         x=x*(alpha-i),y=y*frac(i+1);
     }
-    return F(t,p-upoly(1));
+    return F(t,p-upoly("1"));
 }
 upoly Pow(upoly a,upoly x){
     return Exp(Ln(a)*x);
@@ -673,6 +690,11 @@ struct poly{//含除法
     poly(poly_ele n){
         x.v.clear(),y.v.clear();
         x.insert(n);
+        y.insert(poly_ele(1));
+    }
+    poly(sqrtNum n){
+        x.v.clear(),y.v.clear();
+        x.insert(poly_ele(n));
         y.insert(poly_ele(1));
     }
     void simp(){
@@ -750,6 +772,9 @@ struct poly{//含除法
     poly(const char *s,int maxlen=0x7fffffff){//多项式除法，以中间的 | 为分界符
         init(s,maxlen);
     }
+    sqrtNum eval(){
+        return x.eval()/y.eval();
+    }
 };
 
 poly operator + (poly A,poly B){
@@ -758,12 +783,19 @@ poly operator + (poly A,poly B){
 poly operator - (poly A,poly B){
     return poly(A.x*B.y-A.y*B.x,A.y*B.y);
 }
+poly operator - (poly A){
+    return poly(0)-poly(A);
+}
 poly operator * (poly A,poly B){
     if (B.x==A.y) return poly(A.x,B.y);
     if (A.x==B.y) return poly(B.x,A.y);
     if (B.x==(_poly)("0")-A.y) return poly((_poly)("0")-A.x,B.y);
     if (A.x==(_poly)("0")-B.y) return poly((_poly)("0")-B.x,A.y);
     return poly(A.x*B.x,A.y*B.y);
+}
+poly abs(poly A){
+    if (A.eval()>sqrtNum(0)) return A;
+    else return -A;
 }
 poly operator / (poly A,poly B){
     // assert(!(B.x==_poly(0)));
@@ -805,6 +837,10 @@ poly int_x2a2(int n,sqrtNum a){
         return _poly("t");
     }
     return poly(poly_ele(sqrtNum(1)/(a*a)))*(poly(poly_ele(sqrtNum(frac(2*n-3,2*n-2))))*int_x2a2(n-1,a)+poly(_poly("x"),2*(n-1)*((_poly("x^2")+_poly(a*a))^(n-1))));
+}
+
+cpoly Factorization(poly x){
+    return Factorization(upoly(x.x));
 }
 
 #undef Num
