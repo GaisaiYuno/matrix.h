@@ -416,6 +416,21 @@ struct cpoly{
     void sort(){
         std::sort(v.begin(),v.end(),comp);
     }
+    std::vector<sqrtNum>sol(){
+        std::vector<sqrtNum>solution;
+        for (int i=0;i<v.size();++i){
+            if (v[i].first.deg()==1){
+                solution.push_back(-v[i].first[0]/v[i].first[1]);
+            }
+            else if (v[i].first.deg()==2){
+                frac a=v[i].first[2],b=v[i].first[1],c=v[i].first[0];
+                frac delta=b*b-4*a*c;
+                solution.push_back(sqrtNum(-b/(2*a),1/(2*a),delta));
+                solution.push_back(sqrtNum(-b/(2*a),-1/(2*a),delta));
+            }
+        }
+        return solution;
+    }
 };
 std::ostream& operator << (std::ostream &out,const cpoly &p){
     for (int i=0;i<p.v.size();++i){

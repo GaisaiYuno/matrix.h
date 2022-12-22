@@ -48,7 +48,7 @@ int main(){
         }
         else if (v.v[i].first.deg()==2){
             Num lambda_1,lambda_2;
-            frac a=v.v[i].first[2],b=v.v[i].first[1],c=v.v[i].first[1];
+            frac a=v.v[i].first[2],b=v.v[i].first[1],c=v.v[i].first[0];
             frac delta=b*b-4*a*c;
             lambda_1=poly_ele(sqrtNum(-b/(2*a),1/(2*a),delta));
             lambda_2=poly_ele(sqrtNum(-b/(2*a),-1/(2*a),delta));
