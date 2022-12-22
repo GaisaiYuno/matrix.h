@@ -142,6 +142,7 @@ bool operator == (_poly A,_poly B){
     return (A-B).v.size()==0;
 }
 std::ostream& operator << (std::ostream &out,const _poly &p){
+    // std::cout<<"outing _poly"<<std::endl;
     if (p.v.size()==0){
         out<<"0";
     }
@@ -152,7 +153,7 @@ std::ostream& operator << (std::ostream &out,const _poly &p){
             out<<p.v[i];
         }
         else{
-            if (p.v[i].coef.x==(0)) continue;
+            if (p.v[i].coef.x==(0) && p.v[i].coef.y==(0)) continue;
             if (i!=0) out<<"+";
             out<<p.v[i];
         }
@@ -709,6 +710,7 @@ struct poly{//含除法
     }
     poly(sqrtNum n){
         x.v.clear(),y.v.clear();
+        // std::cout<<n<<std::endl;
         x.insert(poly_ele(n));
         y.insert(poly_ele(1));
     }

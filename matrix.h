@@ -547,7 +547,7 @@ Matrix subMatrix(Matrix A,int rlb,int rub,int clb,int cub){
     }
     return B;
 }
-//求出 A 的基础解系，好像忘了交换生成的向量……
+//求出 A 的基础解系
 std::vector<Matrix> baseSolution(Matrix A){
     Matrix B=Gauss(A,false);
     std::vector<std::pair<int,int> >swapID;

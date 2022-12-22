@@ -25,9 +25,21 @@ struct poly_ele{//一个多项式的元素，形如 2/3a^3b^3/2
     }
     poly_ele(int x){
         coef=(sqrtNum)(x);
+        for (int i=0;i<26;++i){
+            expo[i]=(frac)(0);
+        }
     }
     poly_ele(sqrtNum x){
         coef=x;
+        for (int i=0;i<26;++i){
+            expo[i]=(frac)(0);
+        }
+    }
+    bool con(){
+        for (int i=0;i<26;++i){
+            if (expo[i]!=(frac)(0)) return false;
+        }
+        return true;
     }
     void init(const char *s,int maxlen=0x7fffffff){
         int len=std::min((int)(strlen(s)),maxlen);

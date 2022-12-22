@@ -106,6 +106,13 @@ std::pair<Matrix,Matrix> toLine(Matrix A,Matrix B){
     std::vector<Matrix>baseS=baseSolution(subMatrix(S,1,2,1,3),-subMatrix(S,1,2,4,4));
     return std::make_pair(baseS.back().transpose(),baseS.front().transpose());
 }
+Matrix distLine(std::pair<Matrix,Matrix>l1,std::pair<Matrix,Matrix>l2){
+    Matrix P1=l1.first,V1=l1.second,P2=l2.first,V2=l2.second;
+    std::vector<Matrix>baseS=baseSolution(addV(V1,V2));
+    Matrix P0=baseS.back().transpose(),V0=baseS.front().transpose();
+    Matrix sol=(P0-P1+P2)*(addV(std::vector<Matrix>{-V0,V1,-V2})^(-1));
+    return (P1+sol[1][2]*V1)-(P2+sol[1][3]*V2);
+}
 Num dist(Matrix P,Matrix A){
     // std::cout<<(P&Nvec(A))+A[1][4]<<std::endl;
     // std::cout<<(A&A)<<std::endl;
