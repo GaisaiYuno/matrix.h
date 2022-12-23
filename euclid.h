@@ -62,6 +62,9 @@ std::string Arccos(Num x){
 Matrix Vector(Num A,Num B,Num C){
     return Matrix('R',std::vector<Num>{A,B,C});
 }
+Matrix Plane(Num A,Num B,Num C,Num D){
+    return Matrix('R',std::vector<Num>{A,B,C,D});
+}
 Num length(Matrix A){
     return Num(sqrtNum(0,1,(A&A).eval().x));
 }
