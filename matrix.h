@@ -604,4 +604,15 @@ std::vector<Matrix> baseSolution(Matrix A,Matrix b){
     baseS.push_back(gama);
     return baseS;
 }
+#ifndef POLY_H
+#else
+Matrix substitute(Matrix M){
+    for (int i=1;i<=M.row;++i){
+        for (int j=1;j<=M.col;++j){
+            M[i][j]=substitute(M[i][j]);
+        }
+    }
+    return M;
+}
+#endif
 #endif

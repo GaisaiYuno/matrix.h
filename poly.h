@@ -1,14 +1,22 @@
+
 #include "poly_ele.h"
 #include "fraction.h"
 #define Num sqrtNum
 #define Matrix __Matrix
 #include "matrix.h"
 #include <vector>
+
+#ifndef POLY_H
+#define POLY_H
 struct _poly{//不含除法
     std::vector<poly_ele>v;
     _poly(int x){
         v.clear();
         v.push_back(poly_ele(x));
+    }
+    _poly(poly_ele x){
+        v.clear();
+        v.push_back(x);
     }
     _poly(sqrtNum x){
         v.clear();
@@ -158,6 +166,7 @@ _poly operator * (_poly A,_poly B){
     return C;
 }
 _poly operator ^ (_poly a,int k){
+    if (k==0) return _poly(1);
     _poly ret=a;
     for (int i=1;i<=k-1;++i) ret=ret*a;
     return ret;
@@ -209,6 +218,31 @@ std::string to_latex(const _poly &p,bool begin=true){
         }
     }
     if (begin) ret+="$";
+    return ret;
+}
+_poly substitute(_poly p){
+    _poly sub[26];
+    for (int i=0;i<26;++i){
+        poly_ele x(1);
+        x.coef=sqrtNum(1);
+        x.expo[i]=1;
+        sub[i].insert(x);
+    }
+    for (auto res:solvedResults){
+        sub[res.first-'a']=res.second;
+    }
+    _poly ret;
+    for (auto pe:p.v){
+        _poly mul(1);
+        for (int i=0;i<26;++i){
+            frac expo=pe.expo[i];
+            assert(expo.y==1);
+            mul=mul*(sub[i]^expo.x);
+        }
+        mul=mul*_poly(poly_ele(pe.coef));
+        // std::cout<<"mul:"<<mul<<std::endl;
+        ret=ret+mul;
+    }
     return ret;
 }
 
@@ -879,6 +913,9 @@ poly int_x2a2(int n,sqrtNum a){
     }
     return poly(poly_ele(sqrtNum(1)/(a*a)))*(poly(poly_ele(sqrtNum(2*n-3,2*n-2)))*int_x2a2(n-1,a)+poly(_poly("x"),2*(n-1)*((_poly("x^2")+_poly(a*a))^(n-1))));
 }
+poly substitute(poly p){
+    return poly(substitute(p.x),substitute(p.y));
+}
 
 cpoly Factorization(poly x){
     return Factorization(upoly(x.x));
@@ -943,3 +980,4 @@ void solve(std::vector<poly>p){
 #undef Num
 #undef Matrix
 #undef _MATRIX_
+#endif

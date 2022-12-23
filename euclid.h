@@ -41,11 +41,14 @@ bool isOrthogonalMatrix(Matrix A){
 }
 
 
-Num length2(Matrix A){
+auto length2(Matrix A){
     return (A&A);
 }
-Num dist2(Matrix A,Matrix B){
+auto dist2(Matrix A,Matrix B){
     return length2(A-B);
+}
+auto angle2(Matrix A,Matrix B){
+    return (A&B)*(A&B)/(length2(A)*length2(B));
 }
 
 #ifndef SQRT_FIELD
@@ -68,10 +71,10 @@ Matrix Plane(Num A,Num B,Num C,Num D){
 Num length(Matrix A){
     return Num(sqrtNum(0,1,(A&A).eval().x));
 }
-Num angle(Matrix A,Matrix B){
+auto angle(Matrix A,Matrix B){
     return (A&B)/(length(A)*length(B));
 }
-Num angle(Line A,Line B){
+auto angle(Line A,Line B){
     return angle(A.second,B.second);
 }
 auto identilize(Matrix v){
@@ -110,6 +113,9 @@ Matrix Plane(Matrix A,Matrix B,Matrix C){
 }
 auto dot_on_pl(Matrix A,Matrix P){
     return (A&Nvec(P))+P[1][4];
+}
+auto para_vec_pl(Matrix L,Matrix P){
+    return L&Nvec(P);
 }
 Matrix toIntercept(Matrix pl){
     assert(!(pl[1][4]==(Num)(0)));
