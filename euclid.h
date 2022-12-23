@@ -44,6 +44,7 @@ bool isOrthogonalMatrix(Matrix A){
 #ifndef SQRT_FIELD
 
 #else
+typedef std::pair<Matrix,Matrix> Line;
 std::string Arccos(Num x){
     if (x==Num("0")) return "\\pi/2";
     if (x==Num("1/2")) return "\\pi/3";
@@ -56,6 +57,9 @@ Num length(Matrix A){
 }
 Num angle(Matrix A,Matrix B){
     return (A&B)/(length(A)*length(B));
+}
+Num angle(Line A,Line B){
+    return angle(A.second,B.second);
 }
 auto identilize(Matrix v){
     return std::make_pair((Num(1)/length(v))*v,(Num(-1)/length(v))*v);
@@ -95,17 +99,27 @@ Matrix toIntercept(Matrix pl){
     assert(!(pl[1][4]==(Num)(0)));
     return Matrix('R',std::vector<Num>{-pl[1][1]/pl[1][4],-pl[1][2]/pl[1][4],-pl[1][3]/pl[1][4]});
 }
-auto toLine(Matrix A,Matrix B){
+Line toLine(Matrix A,Matrix B){
     Matrix S=addV(A,B);
     auto baseS=baseSolution(subMatrix(S,1,2,1,3),-subMatrix(S,1,2,4,4));
     return std::make_pair(baseS.back().transpose(),baseS.front().transpose());
 }
-Matrix distLine(std::pair<Matrix,Matrix>l1,std::pair<Matrix,Matrix>l2){
+Matrix distLine(Line l1,Line l2){
     Matrix P1=l1.first,V1=l1.second,P2=l2.first,V2=l2.second;
     auto baseS=baseSolution(addV(V1,V2));
     Matrix P0=baseS.back().transpose(),V0=baseS.front().transpose();
     Matrix sol=(P0-P1+P2)*(addV(-V0,V1,-V2)^(-1));
     return (P1+sol[1][2]*V1)-(P2+sol[1][3]*V2);
+}
+Line commonPlumb(Line l1,Line l2){
+    Matrix dir=cross(l1.second,l2.second);
+    Matrix n1=cross(dir,l1.second);
+    Matrix n2=cross(dir,l2.second);
+    auto d1=n1&l1.first,d2=n2&l2.first;
+    n1.resize(1,4),n2.resize(1,4);
+    n1[1][4]=d1,n2[1][4]=d2;
+    // std::cout<<n1<<" "<<n2<<std::endl;
+    return toLine(n1,n2);
 }
 auto dist(Matrix P,Matrix A){
     return abs((P&Nvec(A))+A[1][4])/length(Nvec(A));
