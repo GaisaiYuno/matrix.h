@@ -1,9 +1,5 @@
 //欧氏空间
-// #ifndef MATRIX
-// #else
-// #define MATRIX
 #include "matrix.h"
-// #endif
 Num operator & (Matrix A,Matrix B){
     assert(A.row==B.row && A.col==B.col);
     Matrix C(A.row,A.col);
@@ -53,8 +49,6 @@ std::string Arccos(Num x){
     if (x==Num("1/2")) return "\\pi/3";
     if (x==Num("1/2\3")) return "\\pi/6";
     if (x==Num("1")) return "0";
-    // std::cout<<x<<std::endl;
-    // std::cout<<x.x<<" "<<x.y<<std::endl;
     return "arccos("+to_latex(x.eval(),0)+")";
 }
 Num length(Matrix A){
@@ -63,7 +57,7 @@ Num length(Matrix A){
 Num angle(Matrix A,Matrix B){
     return (A&B)/(length(A)*length(B));
 }
-std::pair<Matrix,Matrix> identilize(Matrix v){
+auto identilize(Matrix v){
     return std::make_pair((Num(1)/length(v))*v,(Num(-1)/length(v))*v);
 }
 Matrix proj(Matrix A,Matrix B){
@@ -101,21 +95,19 @@ Matrix toIntercept(Matrix pl){
     assert(!(pl[1][4]==(Num)(0)));
     return Matrix('R',std::vector<Num>{-pl[1][1]/pl[1][4],-pl[1][2]/pl[1][4],-pl[1][3]/pl[1][4]});
 }
-std::pair<Matrix,Matrix> toLine(Matrix A,Matrix B){
+auto toLine(Matrix A,Matrix B){
     Matrix S=addV(A,B);
-    std::vector<Matrix>baseS=baseSolution(subMatrix(S,1,2,1,3),-subMatrix(S,1,2,4,4));
+    auto baseS=baseSolution(subMatrix(S,1,2,1,3),-subMatrix(S,1,2,4,4));
     return std::make_pair(baseS.back().transpose(),baseS.front().transpose());
 }
 Matrix distLine(std::pair<Matrix,Matrix>l1,std::pair<Matrix,Matrix>l2){
     Matrix P1=l1.first,V1=l1.second,P2=l2.first,V2=l2.second;
-    std::vector<Matrix>baseS=baseSolution(addV(V1,V2));
+    auto baseS=baseSolution(addV(V1,V2));
     Matrix P0=baseS.back().transpose(),V0=baseS.front().transpose();
     Matrix sol=(P0-P1+P2)*(addV(std::vector<Matrix>{-V0,V1,-V2})^(-1));
     return (P1+sol[1][2]*V1)-(P2+sol[1][3]*V2);
 }
-Num dist(Matrix P,Matrix A){
-    // std::cout<<(P&Nvec(A))+A[1][4]<<std::endl;
-    // std::cout<<(A&A)<<std::endl;
+auto dist(Matrix P,Matrix A){
     return abs((P&Nvec(A))+A[1][4])/length(Nvec(A));
 }
 void output(Matrix P){
