@@ -108,6 +108,9 @@ Matrix Plane(Matrix A,Matrix B,Matrix C){
     ret[1][4]=Determinant(addV(-A,B-A,C-A));
     return ret;
 }
+auto dot_on_pl(Matrix A,Matrix P){
+    return (A&Nvec(P))+P[1][4];
+}
 Matrix toIntercept(Matrix pl){
     assert(!(pl[1][4]==(Num)(0)));
     return Matrix('R',std::vector<Num>{-pl[1][1]/pl[1][4],-pl[1][2]/pl[1][4],-pl[1][3]/pl[1][4]});
@@ -134,14 +137,18 @@ Line commonPlumb(Line l1,Line l2){
     // std::cout<<n1<<" "<<n2<<std::endl;
     return toLine(n1,n2);
 }
-auto dist(Matrix P,Matrix A){
-    return abs((P&Nvec(A))+A[1][4])/length(Nvec(A));
+auto dist_dot_pl(Matrix A,Matrix P){
+    return abs(dot_on_pl(A,P))/length(Nvec(P));
 }
-auto dist(Matrix P,Line A){
-    return length(cross(A.second,P-A.first))/length(A.second);
+auto dist2_dot_pl(Matrix A,Matrix P){
+    auto val=dot_on_pl(A,P);
+    return (val*val)/length2(Nvec(P));
 }
-auto dist2(Matrix P,Line A){
-    return length2(cross(A.second,P-A.first))/length2(A.second);
+auto dist_dot_ln(Matrix A,Line L){
+    return length(cross(L.second,A-L.first))/length(L.second);
+}
+auto dist2_dot_ln(Matrix A,Line L){
+    return length2(cross(L.second,A-L.first))/length2(L.second);
 }
 void output(Matrix P){
     std::cout<<P[1][1]<<"X+"<<P[1][2]<<"Y+"<<P[1][3]<<"Z+"<<P[1][4]<<"=0"<<std::endl;

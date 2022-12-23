@@ -8,6 +8,6 @@ int main(){
     Line M=make_pair(Vector(1,0,-1),Vector(3,2,1));
     poly eq1=X.second&M.second;
     poly eq2=cross((X.first-L.first),X.second)&L.second;
-    cout<<eq1<<" "<<eq2<<endl;
-    cout<<setprecision(2)<<endl;
+    solve(vector<poly>{eq1,eq2});
+    outputResult();
 }

@@ -1,6 +1,6 @@
 #include "poly_ele.h"
 #include "fraction.h"
-#define Num frac
+#define Num sqrtNum
 #define Matrix __Matrix
 #include "matrix.h"
 #include <vector>
@@ -135,6 +135,7 @@ struct _poly{//不含除法
         }
     }
 };
+std::vector<std::pair<char,_poly> >solvedResults;
 _poly operator + (_poly A,_poly B){
     for (int i=0;i<B.v.size();++i){
         A.insert(B[i]);
@@ -216,24 +217,24 @@ std::string to_latex(const _poly &p,bool begin=true){
 struct upoly{
     //规定只有0的多项式度数为-1
     char symb;
-    std::vector<frac>v;
+    std::vector<sqrtNum>v;
     int begin;
     upoly(){
         symb='x';
         v.clear();
         begin=0;
     }
-    upoly(std::vector<frac>w){
+    upoly(std::vector<sqrtNum>w){
         symb='x';
         v=w;
         begin=0;
     }
-    upoly(std::vector<frac>w,int bg){
+    upoly(std::vector<sqrtNum>w,int bg){
         symb='x';
         v=w;
         begin=bg;
     }
-    upoly(frac f){
+    upoly(sqrtNum f){
         symb='x';
         v.clear(),v.push_back(f);
         begin=0;
@@ -258,11 +259,11 @@ struct upoly{
         simp();
         return v.size()-1;
     }
-    frac delta(){
+    sqrtNum delta(){
         assert(deg()==2);
         return v[1]*v[1]-4*v[0]*v[2];
     }
-    void insert(int expo,frac coef){
+    void insert(int expo,sqrtNum coef){
         if (v.size()<expo+1){
             v.resize(expo+1);
             v[expo]=coef;
@@ -271,14 +272,14 @@ struct upoly{
             v[expo]=v[expo]+coef;
         }
     }
-    frac val(frac x){
-        frac ans=0;
+    sqrtNum val(sqrtNum x){
+        sqrtNum ans=0;
         for (int i=v.size()-1;i>=0;--i){
             ans=ans*x+v[i];
         }
         return ans;
     }
-    frac &operator[](int i){
+    sqrtNum &operator[](int i){
         return v[i];
     }
     void init_from_poly(_poly A){
@@ -305,17 +306,17 @@ struct upoly{
     }
 };
 upoly Integral(upoly x){
-    std::vector<frac>v;
+    std::vector<sqrtNum>v;
     v.push_back(0);
     for (int i=0;i<x.v.size();++i){
-        v.push_back(x.v[i]*frac(1,i+1));
+        v.push_back(x.v[i]*sqrtNum(1,i+1));
     }
     return upoly(v,x.begin-1);
 }
 upoly Deriv(upoly x){
-    std::vector<frac>v;
+    std::vector<sqrtNum>v;
     for (int i=1;i<x.v.size();++i){
-        v.push_back(x.v[i]*frac(i));
+        v.push_back(x.v[i]*sqrtNum(i));
     }
     return upoly(v,x.begin+1);
 }
@@ -390,21 +391,21 @@ upoly operator * (upoly A,upoly B){
     C.simp();
     return C;
 }
-upoly operator * (frac lambda,upoly A){
+upoly operator * (sqrtNum lambda,upoly A){
     for (int i=0;i<A.v.size();++i){
         A[i]=A[i]*lambda;
     }
     return A;
 }
 upoly operator - (upoly A){
-    return (frac)(-1)*A;
+    return (sqrtNum)(-1)*A;
 }
 upoly operator / (upoly A,upoly B){
     assert(A.symb==B.symb);
     upoly ret;
     ret.symb=A.symb;
     while (A.deg()>=B.deg()){
-        frac lambda=A[A.v.size()-1]/B[B.v.size()-1];
+        sqrtNum lambda=A[A.v.size()-1]/B[B.v.size()-1];
         ret.insert(A.deg()-B.deg(),lambda);
         A=A-lambda*shift(A.deg()-B.deg(),B);
     }
@@ -447,8 +448,8 @@ struct cpoly{
                 solution.push_back(-v[i].first[0]/v[i].first[1]);
             }
             else if (v[i].first.deg()==2){
-                frac a=v[i].first[2],b=v[i].first[1],c=v[i].first[0];
-                frac delta=b*b-4*a*c;
+                sqrtNum a=v[i].first[2],b=v[i].first[1],c=v[i].first[0];
+                sqrtNum delta=b*b-4*a*c;
                 solution.push_back(sqrtNum(-b/(2*a),1/(2*a),delta));
                 solution.push_back(sqrtNum(-b/(2*a),-1/(2*a),delta));
             }
@@ -496,11 +497,11 @@ cpoly Factorization(upoly A){
         bool flag=true;
         for (int i=100;i>=-100;--i){
             for (int j=1;j<=100;++j){
-                if (A.val(frac(i,j))==0){
+                if (A.val(sqrtNum(i,j))==0){
                     factor.symb=A.symb;
                     factor.v.resize(2);
                     factor[1]=1;
-                    factor[0]=frac(-i,j);
+                    factor[0]=sqrtNum(-i,j);
                     flag=false;
                     break;
                 }
@@ -601,12 +602,12 @@ decomp Decomposit(upoly x,cpoly y){
         int d=y.v[i].first.deg();
         for (int j=1;j<=y.v[i].second;++j){
             if (d==1){
-                ret.insert(upoly(std::vector<frac>{ans[++cnt][1]}),y.v[i].first,j);
+                ret.insert(upoly(std::vector<sqrtNum>{ans[++cnt][1]}),y.v[i].first,j);
             }
             else if (d==2){
-                frac B=ans[++cnt][1];
-                frac D=ans[++cnt][1];
-                ret.insert(upoly(std::vector<frac>{D,B}),y.v[i].first,j);
+                sqrtNum B=ans[++cnt][1];
+                sqrtNum D=ans[++cnt][1];
+                ret.insert(upoly(std::vector<sqrtNum>{D,B}),y.v[i].first,j);
             }
         }
     }
@@ -618,7 +619,7 @@ upoly Exp(upoly p){
     upoly t;
     long long fac=1;
     for (int i=1;i<=10;++i){
-        t.v.push_back(frac(1,fac));
+        t.v.push_back(sqrtNum(1,fac));
         fac=fac*i;
     }
     return F(t,p);
@@ -628,7 +629,7 @@ upoly Ln(upoly p){//Ln(p)，转化为(p-1)+1
     t.v.push_back(0);
     int sign=1;
     for (int i=1;i<=10;++i){
-        t.v.push_back(frac(1,sign*i));
+        t.v.push_back(sqrtNum(1,sign*i));
         sign=sign*-1;
     }
     return F(t,p-upoly("1"));
@@ -640,7 +641,7 @@ upoly Sin(upoly p){
     for (int i=0;i<=10;++i){
         if (i!=0) fac=fac*i;
         if (i&1){
-            t.v.push_back(frac(1,sign*fac));
+            t.v.push_back(sqrtNum(1,sign*fac));
             sign=sign*-1;
         }
         else{
@@ -656,7 +657,7 @@ upoly Cos(upoly p){
     for (int i=0;i<=10;++i){
         if (i!=0) fac=fac*i;
         if (!(i&1)){
-            t.v.push_back(frac(1,sign*fac));
+            t.v.push_back(sqrtNum(1,sign*fac));
             sign=sign*-1;
         }
         else{
@@ -677,13 +678,13 @@ upoly Arcsin(upoly p){
     upoly t("x+1/6x^3+3/40x^5");
     return F(t,p);
 }
-upoly Pow(upoly p,frac alpha){//转化为(1+(x-1))^alpha
+upoly Pow(upoly p,sqrtNum alpha){//转化为(1+(x-1))^alpha
     upoly t;
     t.v.push_back(1);
-    frac x=alpha,y=1;
+    sqrtNum x=alpha,y=1;
     for (int i=1;i<=10;++i){
         t.v.push_back(x/y);
-        x=x*(alpha-i),y=y*frac(i+1);
+        x=x*(alpha-i),y=y*sqrtNum(i+1);
     }
     return F(t,p-upoly("1"));
 }
@@ -701,16 +702,16 @@ upoly EquivInf(upoly x){
     }
     return ret;
 }
-frac Limit(upoly a,upoly b){//计算a/b当x->0时的极限
+sqrtNum Limit(upoly a,upoly b){//计算a/b当x->0时的极限
     a=EquivInf(a);
     b=EquivInf(b);
     if (a.deg()==b.deg()) return (a/b)[0];
     else if (a.deg()<b.deg()){
         std::cout<<"Not Exist"<<std::endl;
-        return frac(0x7fffffff,1);
+        return sqrtNum(0x7fffffff,1);
     }
     else{
-        return frac(0);
+        return sqrtNum(0);
     }
 }
 
@@ -876,11 +877,67 @@ poly int_x2a2(int n,sqrtNum a){
     if (n==1){
         return _poly("t");
     }
-    return poly(poly_ele(sqrtNum(1)/(a*a)))*(poly(poly_ele(sqrtNum(frac(2*n-3,2*n-2))))*int_x2a2(n-1,a)+poly(_poly("x"),2*(n-1)*((_poly("x^2")+_poly(a*a))^(n-1))));
+    return poly(poly_ele(sqrtNum(1)/(a*a)))*(poly(poly_ele(sqrtNum(2*n-3,2*n-2)))*int_x2a2(n-1,a)+poly(_poly("x"),2*(n-1)*((_poly("x^2")+_poly(a*a))^(n-1))));
 }
 
 cpoly Factorization(poly x){
     return Factorization(upoly(x.x));
+}
+
+void outputResult(){
+    for (int i=0;i<solvedResults.size();++i){
+        std::cout<<solvedResults[i].first<<"="<<solvedResults[i].second<<std::endl;
+    }
+}
+/*
+使用 m,n,o,p... 代表未知参量
+*/
+void solve(std::vector<poly>p){
+    static int id[26],alpha[27];
+    int cnt=0;
+    memset(id,0,sizeof(id));
+    for (int i=0;i<p.size();++i){
+        auto v=p[i].x.v;
+        for (int j=0;j<v.size();++j){
+            assert(v[j].single());
+            auto s=v[j].symb();
+            if (s.length()==0) continue;
+            if (!id[s[0]-'a']){
+                id[s[0]-'a']=++cnt;
+                alpha[cnt]=s[0]-'a';
+            }
+        }
+    }
+    // std::cout<<cnt<<std::endl;
+    __Matrix M(p.size(),cnt),b(p.size(),1);
+    for (int i=0;i<p.size();++i){
+        auto v=p[i].x.v;
+        for (int j=0;j<v.size();++j){
+            auto s=v[j].symb();
+            if (s.length()==0){
+                b[i+1][1]=-v[j].coef;
+            }
+            else {
+                M[i+1][id[s[0]-'a']]=v[j].coef;
+            }
+        }
+    }
+    // std::cout<<M<<b<<std::endl;
+    solvedResults.resize(cnt);
+    auto baseS=baseSolution(M,b);
+    for (int i=0;i<cnt;++i){
+        solvedResults[i].first=alpha[i+1]+'a';
+    }
+    for (int i=0;i<cnt;++i){
+        solvedResults[i].second.insert(baseS.back()[i+1][1]);
+    }
+    for (int i=0;i<baseS.size()-1;++i){
+        for (int j=0;j<cnt;++j){
+            poly_ele pe(baseS[i][j+1][1]);
+            pe.expo['m'+i-'a']=1;
+            solvedResults[j].second.insert(pe);
+        }
+    }
 }
 
 #undef Num

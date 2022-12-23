@@ -13,5 +13,6 @@ int main(){
     Matrix P=Plane(3,-4,1,-10);
     poly eq1=(X.second&Nvec(P));
     poly eq2=cross((X.first-L.first),X.second)&L.second;
-    cout<<eq1<<" "<<eq2<<endl;
+    solve(vector<poly>{eq1,eq2});
+    outputResult();
 }

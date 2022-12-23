@@ -1,6 +1,7 @@
+#ifndef SQRT_FIELD
+#define SQRT_FIELD
 #include "fraction.h"
 #define ALL_MOD -1
-#define SQRT_FIELD
 struct sqrtNum{
     //形式是 x+y sqrt(M)
     frac M;
@@ -23,8 +24,20 @@ struct sqrtNum{
             M=ALL_MOD;
         }
     }
+    frac to_frac(){
+        assert(M==ALL_MOD);
+        return x;
+    }
+    sqrtNum(sqrtNum nx,sqrtNum ny,sqrtNum nM){
+        x=nx.to_frac(),y=ny.to_frac(),M=nM.to_frac();
+        if (y==0) M=ALL_MOD;
+        simp();
+    }
     sqrtNum(int nx){
         x=nx,y=0,M=ALL_MOD;
+    }
+    sqrtNum(long long nx,long long ny){
+        x=frac(nx,ny),y=0,M=ALL_MOD;
     }
     sqrtNum(frac nx,frac ny,frac nM){
         x=nx,y=ny,M=nM;
@@ -88,6 +101,9 @@ sqrtNum operator - (sqrtNum A){
 sqrtNum operator * (frac lambda,sqrtNum A){
     return sqrtNum(lambda*A.x,lambda*A.y,A.M);
 }
+sqrtNum operator * (long long lambda,sqrtNum A){
+    return sqrtNum(lambda*A.x,lambda*A.y,A.M);
+}
 sqrtNum operator * (sqrtNum A,sqrtNum B){
     if (A.x==0 && B.x==0){
         return sqrtNum(0,A.y*B.y,A.M*B.M);
@@ -96,6 +112,9 @@ sqrtNum operator * (sqrtNum A,sqrtNum B){
     // if (B.y==0) B.M=ALL_MOD;
     assert(A.M==ALL_MOD || B.M==ALL_MOD || A.M==B.M);
     return sqrtNum(A.x*B.x+std::max(A.M,B.M)*A.y*B.y,A.x*B.y+A.y*B.x,std::max(A.M,B.M));
+}
+sqrtNum operator / (long long lambda,sqrtNum A){
+    return lambda*sqrtNum(A.x/(A.x*A.x-A.y*A.y*A.M),A.M==ALL_MOD?0:(frac(0)-A.y)/(A.x*A.x-A.y*A.y*A.M),A.M);
 }
 sqrtNum operator / (frac lambda,sqrtNum A){
     return lambda*sqrtNum(A.x/(A.x*A.x-A.y*A.y*A.M),A.M==ALL_MOD?0:(frac(0)-A.y)/(A.x*A.x-A.y*A.y*A.M),A.M);
@@ -106,6 +125,9 @@ sqrtNum operator / (sqrtNum B,sqrtNum A){
 }
 bool operator == (sqrtNum A,sqrtNum B){
     return A.x==B.x && A.y==B.y && A.M==B.M;
+}
+bool operator != (sqrtNum A,sqrtNum B){
+    return !(A==B);
 }
 int sgn(frac x){
     if (x>0) return 1;
@@ -235,3 +257,4 @@ std::string to_latex(const sqrtNum &A,bool begin=true){
     if (begin) ret+="$";
     return ret;
 }
+#endif

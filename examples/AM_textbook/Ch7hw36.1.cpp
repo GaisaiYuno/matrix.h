@@ -9,5 +9,6 @@ int main(){
     poly eq1=(L2.first&Nvec(P))+P[1][4];
     poly eq2=(L2.second&Nvec(P));
     poly eq3=(L2.second&L.second);
-    cout<<eq1<<" "<<eq2<<" "<<eq3<<endl;
+    solve(vector<poly>{eq1,eq2,eq3});
+    outputResult();
 }

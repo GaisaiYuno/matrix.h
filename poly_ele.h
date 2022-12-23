@@ -86,6 +86,18 @@ struct poly_ele{//一个多项式的元素，形如 2/3a^3b^3/2
         }
         return ret;
     }
+    bool single(){
+        int cnt=0;
+        for (int i=0;i<26;++i){
+            if (expo[i]==0 || expo[i]==1){
+                if (expo[i]==1) ++cnt;
+            }
+            else{
+                return false;
+            }
+        }
+        return cnt==0||cnt==1;
+    }
     poly_ele(const char *s,int maxlen=0x7fffffff){
         init(s,maxlen);
     }
