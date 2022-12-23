@@ -3,11 +3,11 @@
 #include "euclid.h"
 using namespace std;
 int main(){
-    Matrix P0=Matrix('R',vector<poly>{-7,-2,-2});
-    Matrix V=Matrix('R',vector<poly>{1,2,3});
-    Matrix P=P0+poly("l")*V;
-    Matrix A=Matrix('R',vector<poly>{2,3,1});
-    Num eq=(A-P)&V;
-    Num l=Factorization(eq).sol().front();
+    auto P0=Matrix('R',vector<poly>{-7,-2,-2});
+    auto V=Matrix('R',vector<poly>{1,2,3});
+    auto P=P0+poly("l")*V;
+    auto A=Matrix('R',vector<poly>{2,3,1});
+    auto eq=(A-P)&V;
+    auto l=Factorization(eq).sol().front();
     cout<<P0+l*V<<endl;
 }
