@@ -58,6 +58,11 @@ struct frac{
     frac inv(){
         return frac(y,x);
     }
+    std::string to_string(){
+        if (x==0 && y==0) return "0";
+        if (y==1) return std::to_string(x);
+        return std::to_string(x)+"/"+std::to_string(y);
+    }
 };
 frac operator + (frac A,frac B){
     return frac(A.x*B.y+A.y*B.x,A.y*B.y);

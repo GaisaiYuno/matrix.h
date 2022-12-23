@@ -74,6 +74,18 @@ struct poly_ele{//一个多项式的元素，形如 2/3a^3b^3/2
             }
         }
     }
+    std::string symb(){
+        std::string ret="";
+        for (int i=0;i<26;++i){
+            if (expo[i]!=(frac)(0)){
+                ret+=char('a'+i);
+                if (!(expo[i]==frac(1))){
+                    ret+="^"+expo[i].to_string();
+                }
+            }
+        }
+        return ret;
+    }
     poly_ele(const char *s,int maxlen=0x7fffffff){
         init(s,maxlen);
     }

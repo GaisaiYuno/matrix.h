@@ -20,6 +20,13 @@ struct _poly{//不含除法
     poly_ele &operator[](int i){
         return v[i];
     }
+    poly_ele &operator[](std::string s){
+        for (auto it=v.begin();it!=v.end();++it){
+            if ((*it).symb()==s) return *it;
+        }
+        static poly_ele p=poly_ele(0);
+        return p;
+    }
     bool qu(char &symb,frac &maxExpo){//单元有理
         maxExpo=0;
         bool hasAlpha[26];
