@@ -417,7 +417,7 @@ struct cpoly{
     void sort(){
         std::sort(v.begin(),v.end(),comp);
     }
-    std::vector<sqrtNum>sol(){
+    auto sol(){
         std::vector<sqrtNum>solution;
         for (int i=0;i<v.size();++i){
             if (v[i].first.deg()==1){
@@ -710,7 +710,6 @@ struct poly{//含除法
     }
     poly(sqrtNum n){
         x.v.clear(),y.v.clear();
-        // std::cout<<n<<std::endl;
         x.insert(poly_ele(n));
         y.insert(poly_ele(1));
     }
@@ -755,7 +754,6 @@ struct poly{//含除法
         frac fx,fy;
         if (x.qu(cx,fx) && y.qu(cy,fy)){
             if (cx==cy){
-                // std::cout<<x<<" "<<y<<std::endl;
                 upoly _x,_y;
                 _x.init_from_poly(x),_y.init_from_poly(y);
                 upoly g=gcd(_x,_y);
@@ -763,7 +761,6 @@ struct poly{//含除法
                     _x=_x/g,_y=_y/g;
                     x=convert(_x),y=convert(_y);
                 }
-                // std::cout<<"G"<<g<<std::endl;
             }
         }
     }
