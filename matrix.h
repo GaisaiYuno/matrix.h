@@ -231,6 +231,52 @@ std::string to_latex(const Matrix &A,std::string type="bmatrix",bool begin=true)
     if (begin) ret+="$";
     return ret;
 }
+Matrix addH(Matrix A,Matrix B){
+    if (B.row==0 && B.col==0) return A;
+    if (A.row==0 && A.col==0) return B;
+    assert(A.row==B.row);
+    Matrix C(A.row,A.col+B.col);
+    for (int i=1;i<=A.row;++i){
+        for (int j=1;j<=A.col;++j){
+            C[i][j]=A[i][j];
+        }
+        for (int j=1;j<=B.col;++j){
+            C[i][A.col+j]=B[i][j];
+        }
+    }
+    return C;
+}
+Matrix addV(Matrix A,Matrix B){
+    if (B.row==0 && B.col==0) return A;
+    if (A.row==0 && A.col==0) return B;
+    assert(A.col==B.col);
+    Matrix C(A.row+B.row,A.col);
+    for (int i=1;i<=A.col;++i){
+        for (int j=1;j<=A.row;++j){
+            C[j][i]=A[j][i];
+        }
+        for (int j=1;j<=B.row;++j){
+            C[A.row+j][i]=B[j][i];
+        }
+    }
+    return C;
+}
+Matrix addH(std::vector<Matrix>v){
+    Matrix ret=v[0];
+    for (int i=1;i<v.size();++i) ret=addH(ret,v[i]);
+    return ret;
+}
+Matrix addV(std::vector<Matrix>v){
+    Matrix ret=v[0];
+    for (int i=1;i<v.size();++i) ret=addV(ret,v[i]);
+    return ret;
+}
+Matrix addH(Matrix A,Matrix B,Matrix C){
+    return addH(A,addH(B,C));
+}
+Matrix addV(Matrix A,Matrix B,Matrix C){
+    return addV(A,addV(B,C));
+}
 #ifndef UTILS
 std::vector<int> genVector(int l,int r){
     std::vector<int> ret;
@@ -492,42 +538,6 @@ std::vector<Matrix> breakAsVector(Matrix A,char type){
         }
     }
     return vectors;
-}
-Matrix addH(Matrix A,Matrix B){
-    assert(A.row==B.row);
-    Matrix C(A.row,A.col+B.col);
-    for (int i=1;i<=A.row;++i){
-        for (int j=1;j<=A.col;++j){
-            C[i][j]=A[i][j];
-        }
-        for (int j=1;j<=B.col;++j){
-            C[i][A.col+j]=B[i][j];
-        }
-    }
-    return C;
-}
-Matrix addV(Matrix A,Matrix B){
-    assert(A.col==B.col);
-    Matrix C(A.row+B.row,A.col);
-    for (int i=1;i<=A.col;++i){
-        for (int j=1;j<=A.row;++j){
-            C[j][i]=A[j][i];
-        }
-        for (int j=1;j<=B.row;++j){
-            C[A.row+j][i]=B[j][i];
-        }
-    }
-    return C;
-}
-Matrix addH(std::vector<Matrix>v){
-    Matrix ret=v[0];
-    for (int i=1;i<v.size();++i) ret=addH(ret,v[i]);
-    return ret;
-}
-Matrix addV(std::vector<Matrix>v){
-    Matrix ret=v[0];
-    for (int i=1;i<v.size();++i) ret=addV(ret,v[i]);
-    return ret;
 }
 Matrix subMatrix(Matrix A,std::vector<int>rowChoose,std::vector<int>colChoose){
     Matrix B(rowChoose.size(),colChoose.size());

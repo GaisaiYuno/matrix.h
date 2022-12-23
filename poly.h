@@ -783,7 +783,7 @@ struct poly{//含除法
         x=_poly(s,len),y=_poly(1);
         simp();
     }
-    poly(const char *s,int maxlen=0x7fffffff){//多项式除法，以中间的 | 为分界符
+    poly(const char *s,int maxlen=0x7fffffff){
         init(s,maxlen);
     }
     sqrtNum eval(){

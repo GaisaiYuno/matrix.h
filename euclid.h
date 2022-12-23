@@ -88,7 +88,7 @@ Matrix Plane(Matrix V,Matrix P){
 Matrix Plane(Matrix A,Matrix B,Matrix C){
     Matrix ret=cross(B-A,C-A);
     ret.resize(1,4);
-    ret[1][4]=Determinant(addV(std::vector<Matrix>{-A,B-A,C-A}));
+    ret[1][4]=Determinant(addV(-A,B-A,C-A));
     return ret;
 }
 Matrix toIntercept(Matrix pl){
@@ -104,7 +104,7 @@ Matrix distLine(std::pair<Matrix,Matrix>l1,std::pair<Matrix,Matrix>l2){
     Matrix P1=l1.first,V1=l1.second,P2=l2.first,V2=l2.second;
     auto baseS=baseSolution(addV(V1,V2));
     Matrix P0=baseS.back().transpose(),V0=baseS.front().transpose();
-    Matrix sol=(P0-P1+P2)*(addV(std::vector<Matrix>{-V0,V1,-V2})^(-1));
+    Matrix sol=(P0-P1+P2)*(addV(-V0,V1,-V2)^(-1));
     return (P1+sol[1][2]*V1)-(P2+sol[1][3]*V2);
 }
 auto dist(Matrix P,Matrix A){

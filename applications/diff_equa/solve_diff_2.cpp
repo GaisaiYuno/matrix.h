@@ -29,9 +29,6 @@ struct diff{
 };
 diff Deriv(diff t){
     int n=t.P.row;
-    // Matrix P1=subMatrix(t.P,1,n,1,n),P2=subMatrix(t.P,1,n,n+1,n*2);
-    // Matrix Q1=subMatrix(t.Q,1,n,1,n),Q2=subMatrix(t.Q,1,n,n+1,n*2);
-    // Matrix DP=addH(Deriv(P1),Deriv(P2)),DQ=addH(Deriv(Q1),Deriv(Q2));
     Matrix DP=Deriv(t.P),DQ=Deriv(t.Q);
     return diff(t.a,t.b,DP+t.a*t.P+t.b*t.Q,DQ+t.a*t.Q-t.b*t.P);
 }
