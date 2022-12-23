@@ -41,6 +41,13 @@ bool isOrthogonalMatrix(Matrix A){
 }
 
 
+Num length2(Matrix A){
+    return (A&A);
+}
+Num dist2(Matrix A,Matrix B){
+    return length2(A-B);
+}
+
 #ifndef SQRT_FIELD
 
 #else
@@ -51,6 +58,9 @@ std::string Arccos(Num x){
     if (x==Num("1/2\3")) return "\\pi/6";
     if (x==Num("1")) return "0";
     return "arccos("+to_latex(x.eval(),0)+")";
+}
+Matrix Vector(Num A,Num B,Num C){
+    return Matrix('R',std::vector<Num>{A,B,C});
 }
 Num length(Matrix A){
     return Num(sqrtNum(0,1,(A&A).eval().x));
@@ -123,6 +133,12 @@ Line commonPlumb(Line l1,Line l2){
 }
 auto dist(Matrix P,Matrix A){
     return abs((P&Nvec(A))+A[1][4])/length(Nvec(A));
+}
+auto dist(Matrix P,Line A){
+    return length(cross(A.second,P-A.first))/length(A.second);
+}
+auto dist2(Matrix P,Line A){
+    return length2(cross(A.second,P-A.first))/length2(A.second);
 }
 void output(Matrix P){
     std::cout<<P[1][1]<<"X+"<<P[1][2]<<"Y+"<<P[1][3]<<"Z+"<<P[1][4]<<"=0"<<std::endl;

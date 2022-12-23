@@ -111,6 +111,22 @@ struct _poly{//不含除法
             assert(0);
         }
     }
+    bool isconst(){
+        if (v.size()==0){
+            return true;
+        }
+        else if (v.size()==1){
+            for (int i=0;i<26;++i){
+                if (v[0].expo[i]!=0){
+                    return false;
+                }
+            }
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
 };
 _poly operator + (_poly A,_poly B){
     for (int i=0;i<B.v.size();++i){
@@ -789,6 +805,9 @@ struct poly{//含除法
     sqrtNum eval(){
         return x.eval()/y.eval();
     }
+    bool isconst(){
+        return x.isconst() && y.isconst();
+    }
 };
 
 poly operator + (poly A,poly B){
@@ -812,7 +831,7 @@ poly abs(poly A){
     else return -A;
 }
 poly operator / (poly A,poly B){
-    // assert(!(B.x==_poly(0)));
+    if (B.isconst()) return poly(A.x*(sqrtNum(1)/B.eval()),A.y);
     return poly(A.x*B.y,A.y*B.x);
 }
 bool operator == (poly A,poly B){
