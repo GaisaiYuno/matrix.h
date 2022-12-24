@@ -1,6 +1,7 @@
 #include "poly.h"
 #include "fraction.h"
-#define Num frac
+#define Num sqrtNum
+#undef POLY_H
 #include "matrix.h"
 using namespace std;
 Matrix D(int n){
@@ -44,7 +45,7 @@ Matrix operator * (upoly u,Matrix M){return M*u;}
 int main(){
     int rk=2;
     Matrix F=Matrix(sz,sz,1);
-    upoly g=upoly("x+2"),f=upoly("x^2"),phi=upoly("x");
+    upoly g=upoly("1+x"),f=upoly("x"),phi=upoly("x");
     Matrix M=g*Deriv(phi)*F+g*Deriv(F)-Deriv(g)*F;
     vector<Matrix>baseS=baseSolution(M,toVector(f));
     cout<<toUpoly(baseS.back())<<"|"<<g<<" e^"<<phi<<endl;

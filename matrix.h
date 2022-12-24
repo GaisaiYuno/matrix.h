@@ -604,6 +604,7 @@ std::vector<Matrix> baseSolution(Matrix A,Matrix b){
     baseS.push_back(gama);
     return baseS;
 }
+
 #ifndef POLY_H
 #else
 Matrix substitute(Matrix M){
@@ -615,4 +616,5 @@ Matrix substitute(Matrix M){
     return M;
 }
 #endif
+
 #endif
