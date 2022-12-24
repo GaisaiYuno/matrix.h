@@ -5,6 +5,7 @@ using namespace std;
 int main(){
     Matrix P=Plane("1","b","c","d");
     Line L1=toLine(Plane(1,5,1,0),Plane(1,0,-1,4));
+    cout<<L1.first<<L1.second<<endl;
     poly eq1=para_vec_pl(L1.second,P);
     poly eq2=dot_on_pl(L1.first,P);
     cout<<"eq:"<<eq1<<" "<<eq2<<endl;

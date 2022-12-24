@@ -111,8 +111,14 @@ Matrix Plane(Matrix A,Matrix B,Matrix C){
     ret[1][4]=Determinant(addV(-A,B-A,C-A));
     return ret;
 }
+auto triple_product(Matrix A,Matrix B,Matrix C){
+    return A&cross(B,C);
+}
 auto dot_on_pl(Matrix A,Matrix P){
     return (A&Nvec(P))+P[1][4];
+}
+auto common_plane(Line A,Line B){
+    return triple_product(A.first-B.first,A.second,B.second);
 }
 auto para_vec_pl(Matrix L,Matrix P){
     return L&Nvec(P);
@@ -159,8 +165,8 @@ auto dist2_dot_ln(Matrix A,Line L){
 void output(Matrix P){
     std::cout<<P[1][1]<<"X+"<<P[1][2]<<"Y+"<<P[1][3]<<"Z+"<<P[1][4]<<"=0"<<std::endl;
 }
-void output(Matrix R0,Matrix S){
-    std::cout<<"(X-"<<R0[1][1]<<")/"<<S[1][1]<<"=(Y-"<<R0[1][2]<<")/"<<S[1][2]<<"=(Z-"<<R0[1][3]<<")/"<<S[1][3]<<std::endl;
+void output(Line L){
+    std::cout<<"(X-"<<L.first[1][1]<<")/"<<L.second[1][1]<<"=(Y-"<<L.first[1][2]<<")/"<<L.second[1][2]<<"=(Z-"<<L.first[1][3]<<")/"<<L.second[1][3]<<std::endl;
 }
 Matrix houseHolder(Matrix v){
     v=identilize(v).first;

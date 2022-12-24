@@ -12,7 +12,10 @@ int main(){
     Line L=make_pair(Vector(-1,3,0),Vector(3,1,2));
     Matrix P=Plane(3,-4,1,-10);
     poly eq1=(X.second&Nvec(P));
-    poly eq2=cross((X.first-L.first),X.second)&L.second;
+    poly eq2=common_plane(X,L);
+    cout<<eq1<<" "<<eq2<<endl;
     solve(vector<poly>{eq1,eq2});
     outputResult();
+    X.second=substitute(X.second);
+    output(X);
 }
