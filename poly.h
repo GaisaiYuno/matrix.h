@@ -736,7 +736,7 @@ upoly EquivInf(upoly x){
     }
     return ret;
 }
-sqrtNum Limit(upoly a,upoly b){//计算a/b当x->0时的极限
+auto Limit(upoly a,upoly b){//计算a/b当x->0时的极限
     a=EquivInf(a);
     b=EquivInf(b);
     if (a.deg()==b.deg()) return (a/b)[0];
@@ -748,6 +748,14 @@ sqrtNum Limit(upoly a,upoly b){//计算a/b当x->0时的极限
         return sqrtNum(0);
     }
 }
+auto definiteInt(upoly x,sqrtNum l,sqrtNum r){
+    upoly ix=Integral(x);
+    return F(ix,r)-F(ix,l);
+}
+auto variableLimit(upoly x,upoly l,upoly r){
+    return Integral(F(x,r)*Deriv(r)-F(x,l)*Deriv(l));
+}
+
 
 struct poly{//含除法
     _poly x,y;
