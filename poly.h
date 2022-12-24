@@ -143,7 +143,6 @@ struct _poly{//不含除法
         }
     }
 };
-std::vector<std::pair<char,_poly> >solvedResults;
 _poly operator + (_poly A,_poly B){
     for (int i=0;i<B.v.size();++i){
         A.insert(B[i]);
@@ -218,31 +217,6 @@ std::string to_latex(const _poly &p,bool begin=true){
         }
     }
     if (begin) ret+="$";
-    return ret;
-}
-_poly substitute(_poly p){
-    _poly sub[26];
-    for (int i=0;i<26;++i){
-        poly_ele x(1);
-        x.coef=sqrtNum(1);
-        x.expo[i]=1;
-        sub[i].insert(x);
-    }
-    for (auto res:solvedResults){
-        sub[res.first-'a']=res.second;
-    }
-    _poly ret;
-    for (auto pe:p.v){
-        _poly mul(1);
-        for (int i=0;i<26;++i){
-            frac expo=pe.expo[i];
-            assert(expo.y==1);
-            mul=mul*(sub[i]^expo.x);
-        }
-        mul=mul*_poly(poly_ele(pe.coef));
-        // std::cout<<"mul:"<<mul<<std::endl;
-        ret=ret+mul;
-    }
     return ret;
 }
 
@@ -825,6 +799,8 @@ struct poly{//含除法
                 upoly g=gcd(_x,_y);
                 if (g.deg()>1){
                     _x=_x/g,_y=_y/g;
+                    sqrtNum t=_y[_y.deg()];
+                    _x=_x/t,_y=_y/t;
                     x=convert(_x),y=convert(_y);
                 }
             }
@@ -859,6 +835,7 @@ struct poly{//含除法
         return x.isconst() && y.isconst();
     }
 };
+std::vector<std::pair<char,poly> >solvedResults;
 
 poly operator + (poly A,poly B){
     return poly(A.x*B.y+A.y*B.x,A.y*B.y);
@@ -886,6 +863,39 @@ poly operator / (poly A,poly B){
 }
 bool operator == (poly A,poly B){
     return (A-B).x==_poly(0);
+}
+poly operator ^ (poly a,int k){
+    if (k==0) return poly(1);
+    poly ret=a;
+    for (int i=1;i<=k-1;++i) ret=ret*a;
+    return ret;
+}
+poly substitute(_poly p){
+    poly sub[26];
+    for (int i=0;i<26;++i){
+        poly_ele x(1);
+        x.coef=sqrtNum(1);
+        x.expo[i]=1;
+        sub[i]=x;
+    }
+    for (auto res:solvedResults){
+        sub[res.first-'a']=res.second;
+    }
+    poly ret;
+    for (auto pe:p.v){
+        poly mul(1);
+        for (int i=0;i<26;++i){
+            frac expo=pe.expo[i];
+            assert(expo.y==1);
+            mul=mul*(sub[i]^expo.x);
+        }
+        mul=mul*poly(poly_ele(pe.coef));
+        ret=ret+mul;
+    }
+    return ret;
+}
+poly substitute(poly p){
+    return substitute(p.x)/substitute(p.y);
 }
 std::istream& operator >> (std::istream &in,poly &f){
     std::string s;
@@ -921,9 +931,9 @@ poly int_x2a2(int n,sqrtNum a){
     }
     return poly(poly_ele(sqrtNum(1)/(a*a)))*(poly(poly_ele(sqrtNum(2*n-3,2*n-2)))*int_x2a2(n-1,a)+poly(_poly("x"),2*(n-1)*((_poly("x^2")+_poly(a*a))^(n-1))));
 }
-poly substitute(poly p){
-    return poly(substitute(p.x),substitute(p.y));
-}
+// poly substitute(poly p){
+//     return poly(substitute(p.x),substitute(p.y));
+// }
 
 cpoly Factorization(poly x){
     return Factorization(upoly(x.x));
@@ -974,13 +984,13 @@ void solve(std::vector<poly>p){
         solvedResults[i].first=alpha[i+1]+'a';
     }
     for (int i=0;i<cnt;++i){
-        solvedResults[i].second.insert(baseS.back()[i+1][1]);
+        solvedResults[i].second=solvedResults[i].second+(baseS.back()[i+1][1]);
     }
     for (int i=0;i<baseS.size()-1;++i){
         for (int j=0;j<cnt;++j){
             poly_ele pe(baseS[i][j+1][1]);
             pe.expo['m'+i-'a']=1;
-            solvedResults[j].second.insert(pe);
+            solvedResults[j].second=solvedResults[j].second+poly(pe);
         }
     }
 }
