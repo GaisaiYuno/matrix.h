@@ -3,7 +3,7 @@ using namespace std;
 sqrtNum lambda;
 poly simplify(poly ret){
     lambda=ret.x[0].coef/ret.y[0].coef;
-    ret.x=ret.x-lambda*_poly("t")*ret.y;
+    ret.x=ret.x-_poly(lambda)*_poly("t")*ret.y;
     ret.simp();
     return ret;
 }
@@ -29,11 +29,11 @@ int main(){
             }
         }
         else if (d==2){
-            frac s=y[2];
+            frac s=y[2].to_frac();
             x=(1/s)*x,y=(1/s)*y;
-            frac B=x[1],D=x[0];
-            frac p=y[1],q=y[0];
-            frac dt=y.delta();
+            frac B=x[1].to_frac(),D=x[0].to_frac();
+            frac p=y[1].to_frac(),q=y[0].to_frac();
+            frac dt=y.delta().to_frac();
             if (k==1){
                 cout<<(B/frac(2))<<"ln("<<y<<")+("<<(2*D-B*p)<<")/\\"<<-dt<<"arctan((2x+"<<p<<")/\\"<<-dt<<")"<<endl;
             }
