@@ -502,7 +502,7 @@ cpoly Factorization(upoly A){
     cpoly ret;
     while (A.deg()){
         upoly factor;
-        bool flag=true;
+        bool flag1=true,flag2=true;
         for (int i=100;i>=-100;--i){
             for (int j=1;j<=100;++j){
                 if (A.val(sqrtNum(i,j))==0){
@@ -510,23 +510,47 @@ cpoly Factorization(upoly A){
                     factor.v.resize(2);
                     factor[1]=1;
                     factor[0]=sqrtNum(-i,j);
-                    flag=false;
+                    flag1=false;
                     break;
                 }
             }
-            if (!flag) break;
+            if (!flag1) break;
         }
-        if (flag){
-            ret.insert(A,1);
-            break;
+        if (flag1){
+            for (int ip=10;ip>=-10;--ip){
+                for (int jp=1;jp<=10;++jp){
+                    for (int iq=10;iq>=-10;--iq){
+                        for (int jq=1;jq<=10;++jq){
+                            // std::cout<<ip<<" "<<jp<<" "<<iq<<" "<<jq<<std::endl;
+                            sqrtNum p(ip,jp),q(iq,jq);
+                            factor.symb=A.symb;
+                            factor.v.resize(3);
+                            factor[2]=1;
+                            factor[1]=p;
+                            factor[0]=q;
+                            if ((A%factor).deg()==-1){
+                                flag2=false;
+                                break;
+                            }
+                        }
+                        if (!flag2) break;
+                    }
+                    if (!flag2) break;
+                }
+                if (!flag2) break;
+            }
         }
-        else{
+        if (!flag1 || !flag2){
             int cnt=0;
             while ((A%factor).v.size()==0){
                 A=A/factor;
                 cnt++;
             }
             ret.insert(factor,cnt);
+        }
+        else{
+            ret.insert(A,1);
+            break;
         }
     }
     return ret;
