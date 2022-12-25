@@ -301,6 +301,9 @@ std::string end_latex(){
 bool operator == (Matrix A,Matrix B){
     return A.M==B.M;
 }
+bool operator != (Matrix A,Matrix B){
+    return !(A.M==B.M);
+}
 
 
 Matrix Inverse(Matrix A){//求逆矩阵

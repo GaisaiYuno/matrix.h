@@ -211,7 +211,7 @@ std::string to_latex(const _poly &p,bool begin=true){
             ret+=to_latex(p.v[i],0);
         }
         else{
-            if (p.v[i].coef.x==(0)) continue;
+            if (p.v[i].coef.x==(0) && p.v[i].coef.y==(0)) continue;
             if (i!=0) ret+="+";
             ret+=to_latex(p.v[i],0);
         }
@@ -1017,6 +1017,9 @@ void solve(std::vector<poly>p){
             solvedResults[j].second=solvedResults[j].second+poly(pe);
         }
     }
+}
+sqrtNum Sqrt(poly p){
+    return Sqrt(p.eval());
 }
 
 #undef Num

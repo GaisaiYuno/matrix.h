@@ -1,5 +1,5 @@
-#include "sqrt_field.h"
-#define Num sqrtNum
+#include "poly.h"
+#define Num poly
 #include "euclid.h"
 using namespace std;
 int main(){
@@ -19,3 +19,8 @@ int main(){
     out<<"Orthogonal Matrix\n\n"<<to_latex(A)<<endl;
     out<<end_latex()<<endl;
 }
+/*
+-1/2\2 1/6\6 -1/3\3 
+1/2\2 1/6\6 -1/3\3 
+0 1/3\6 1/3\3
+*/

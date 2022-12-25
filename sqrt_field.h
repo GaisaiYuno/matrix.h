@@ -149,6 +149,9 @@ int Compare(sqrtNum A,sqrtNum B){
         return -sgn(C.x*C.x-C.M*C.y*C.y);
     }
 }
+sqrtNum Sqrt(sqrtNum A){
+    return sqrtNum(0,1,A.to_frac());
+}
 bool operator <= (sqrtNum A,sqrtNum B){
     return Compare(A,B)<=0;
 }
