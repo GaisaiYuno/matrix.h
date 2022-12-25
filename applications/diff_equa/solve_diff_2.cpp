@@ -1,4 +1,5 @@
 #include "poly.h"
+#undef POLY_H
 #include "fraction.h"
 #define Num frac
 #include "matrix.h"
@@ -51,7 +52,7 @@ diff operator * (frac lambda,diff A){
     return C;
 }
 const int sz=2;
-const frac alpha=0,beta=3;
+frac Alpha=1,Beta=1;
 void output(Matrix v){
     // cout<<v<<endl;
     upoly a,b;
@@ -63,11 +64,11 @@ void output(Matrix v){
             else b[(cnt++)-sz]=v[i][j];
         }
     }
-    cout<<"[("<<a<<")cos("<<beta<<"x)+("<<b<<")sin("<<beta<<"x)"<<"]e^"<<alpha<<"x"<<endl;
+    cout<<"[("<<a<<")cos("<<Beta<<"x)+("<<b<<")sin("<<Beta<<"x)"<<"]e^"<<Alpha<<"x"<<endl;
 }
 //
 int main(){
-    diff d=diff(alpha,beta,sz);
+    diff d=diff(Alpha,Beta,sz);
     // 解y''-2y'+2y=e^xcosx
     // diff ans=Deriv(Deriv(d))-2*Deriv(d)+2*d;
     // Matrix f=Matrix('C',vector<frac>{1,0,0,0});
@@ -88,8 +89,8 @@ int main(){
     // diff ans=Deriv(Deriv(d))+4*Deriv(d)+4*d;
     // Matrix f=Matrix('C',vector<frac>{1,0,0,0});
 
-    diff ans=Deriv(Deriv(d))+d;
-    Matrix f=Matrix('C',vector<frac>{frac(-1,2),0,0,0});
+    diff ans=Deriv(d);
+    Matrix f=Matrix('C',vector<frac>{0,1,0,0});
 
     // cout<<addV(ans.P,ans.Q)<<endl<<f<<endl;
     vector<Matrix>baseS=baseSolution(addV(ans.P,ans.Q),f);
