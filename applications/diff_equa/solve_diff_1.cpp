@@ -1,6 +1,7 @@
 #include "poly.h"
 #include "fraction.h"
-#define Num frac
+#define Num sqrtNum
+#undef POLY_H
 #include "matrix.h"
 using namespace std;
 Matrix D(int n){
@@ -47,11 +48,11 @@ diff operator * (frac lambda,diff A){
     return C;
 }
 const int sz=4;
-vector<frac> to_v(upoly u){
+vector<sqrtNum> to_v(upoly u){
     while (u.v.size()<sz) u.v.push_back(0);
     return u.v;
 }
-const frac lambda=-2;
+const frac lambda=-1;
 void output(Matrix v){
     upoly a;
     a.v.resize(sz);
@@ -66,12 +67,8 @@ void output(Matrix v){
 int main(){
     diff d=diff(lambda,sz);
 
-    //求解 y''-2y'+2y=e^2x
-    // diff ans=Deriv(Deriv(d))-2*Deriv(d)+d;
-    // Matrix f=Matrix('C',to_v("2x"));
-
-    diff ans=Deriv(Deriv(d))+4*Deriv(d)+4*d;
-    Matrix f=Matrix('C',to_v("1"));
+    diff ans=Deriv(Deriv(d))-2*Deriv(d)-3*d;
+    Matrix f=Matrix('C',to_v("5"));
 
     // cout<<ans.P<<f<<endl;
     vector<Matrix>baseS=baseSolution(ans.P,f);

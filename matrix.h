@@ -5,7 +5,8 @@
 #include <vector>
 #include <cstring>
 #include <fstream>
-struct Matrix{
+class Matrix{
+    public:
     std::string Message;
     std::vector<std::vector<Num> >M;
     int row,col;//行数、列数

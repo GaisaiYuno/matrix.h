@@ -52,7 +52,7 @@ diff operator * (frac lambda,diff A){
     return C;
 }
 const int sz=2;
-frac Alpha=1,Beta=1;
+frac Alpha=0,Beta=1;
 void output(Matrix v){
     // cout<<v<<endl;
     upoly a,b;
@@ -89,8 +89,8 @@ int main(){
     // diff ans=Deriv(Deriv(d))+4*Deriv(d)+4*d;
     // Matrix f=Matrix('C',vector<frac>{1,0,0,0});
 
-    diff ans=Deriv(d);
-    Matrix f=Matrix('C',vector<frac>{0,1,0,0});
+    diff ans=Deriv(Deriv(d))-2*Deriv(d)-3*d;
+    Matrix f=Matrix('C',vector<frac>{0,0,1,0});
 
     // cout<<addV(ans.P,ans.Q)<<endl<<f<<endl;
     vector<Matrix>baseS=baseSolution(addV(ans.P,ans.Q),f);
