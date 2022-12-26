@@ -7,5 +7,5 @@ int main(){
     Line L=make_pair(Vector(-1,7,0),Vector(1,-2,1));
     Matrix C=L.first+poly("t")*L.second;
     cout<<length2(cross(B-C,A-C))/2<<endl;
-    cout<<length(distLine(make_pair(A,B-A),L))*length(B-A)/2<<endl;
+    cout<<length(distLine(make_pair(A,B-A),L).second)*length(B-A)/2<<endl;
 }

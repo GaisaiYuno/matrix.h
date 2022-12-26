@@ -976,10 +976,10 @@ void solve(std::vector<poly>p){
     int cnt=0;
     memset(id,0,sizeof(id));
     for (int i=0;i<p.size();++i){
-        auto v=p[i].x.v;
-        for (int j=0;j<v.size();++j){
-            assert(v[j].single());
-            auto s=v[j].symb();
+        auto v=&p[i].x.v;
+        for (int j=0;j<v->size();++j){
+            assert((*v)[j].single());
+            auto s=(*v)[j].symb();
             if (s.length()==0) continue;
             if (!id[s[0]-'a']){
                 id[s[0]-'a']=++cnt;
@@ -990,14 +990,14 @@ void solve(std::vector<poly>p){
     // std::cout<<cnt<<std::endl;
     __Matrix M(p.size(),cnt),b(p.size(),1);
     for (int i=0;i<p.size();++i){
-        auto v=p[i].x.v;
-        for (int j=0;j<v.size();++j){
-            auto s=v[j].symb();
+        auto v=&p[i].x.v;
+        for (int j=0;j<v->size();++j){
+            auto s=(*v)[j].symb();
             if (s.length()==0){
-                b[i+1][1]=-v[j].coef;
+                b[i+1][1]=-(*v)[j].coef;
             }
             else {
-                M[i+1][id[s[0]-'a']]=v[j].coef;
+                M[i+1][id[s[0]-'a']]=(*v)[j].coef;
             }
         }
     }

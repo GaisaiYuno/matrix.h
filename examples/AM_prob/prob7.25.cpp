@@ -3,7 +3,7 @@
 #include "euclid.h"
 using namespace std;
 int main(){
-    Matrix C=distLine(
+    Line C=distLine(
         make_pair(
             Matrix('R',vector<poly>{-1,0,1}),
             Matrix('R',vector<poly>{1,1,2})
@@ -13,6 +13,6 @@ int main(){
             Matrix('R',vector<poly>{1,3,4})
         )
     );
-    cout<<C<<endl;
-    cout<<length(C)<<endl;
+    output(C);
+    cout<<length(C.second)<<endl;
 }

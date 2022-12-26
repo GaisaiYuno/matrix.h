@@ -132,12 +132,12 @@ Line toLine(Matrix A,Matrix B){
     auto baseS=baseSolution(subMatrix(S,1,2,1,3),-subMatrix(S,1,2,4,4));
     return std::make_pair(baseS.back().transpose(),baseS.front().transpose());
 }
-Matrix distLine(Line l1,Line l2){
+Line distLine(Line l1,Line l2){
     Matrix P1=l1.first,V1=l1.second,P2=l2.first,V2=l2.second;
     auto baseS=baseSolution(addV(V1,V2));
     Matrix P0=baseS.back().transpose(),V0=baseS.front().transpose();
     Matrix sol=(P0-P1+P2)*(addV(-V0,V1,-V2)^(-1));
-    return (P1+sol[1][2]*V1)-(P2+sol[1][3]*V2);
+    return Line((P1+sol[1][2]*V1),(P1+sol[1][2]*V1)-(P2+sol[1][3]*V2));
 }
 Line commonPlumb(Line l1,Line l2){
     Matrix dir=cross(l1.second,l2.second);
