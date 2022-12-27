@@ -3,7 +3,8 @@
 #include "euclid.h"
 using namespace std;
 int main(){
-    Matrix P=poly("t")*Plane(1,-3,-1,-4)+Plane(2,-1,1,-1);
-    poly eq=dist2_dot_pl(Vector(0,0,0),P)-1;
+    Matrix P=Vector(0,-1,2)-Vector("0","0","z");
+    Matrix V=Vector(1,3,4);
+    poly eq=cross(P,V)&Vector(1,1,2);
     cout<<Factorization(eq)<<endl;
 }
