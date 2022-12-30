@@ -323,6 +323,10 @@ upoly Integral(upoly x){
 }
 upoly Deriv(upoly x){
     std::vector<sqrtNum>v;
+    if (x.v.size()==0){
+        v.push_back(0);
+        return upoly(v,x.begin+1);
+    }
     for (int i=1;i<x.v.size();++i){
         v.push_back(x.v[i]*sqrtNum(i));
     }
@@ -389,7 +393,7 @@ upoly operator - (upoly A,upoly B){
 upoly operator * (upoly A,upoly B){
     assert(A.symb==B.symb);
     upoly C;
-    C.v.resize(A.v.size()+B.v.size()-1);
+    C.v.resize(std::max((int)(A.v.size()+B.v.size()-1),0));
     for (int i=0;i<A.v.size();++i){
         for (int j=0;j<B.v.size();++j){
             C[i+j]=C[i+j]+A[i]*B[j];
@@ -521,7 +525,6 @@ cpoly Factorization(upoly A){
                 for (int jp=1;jp<=10;++jp){
                     for (int iq=10;iq>=-10;--iq){
                         for (int jq=1;jq<=10;++jq){
-                            // std::cout<<ip<<" "<<jp<<" "<<iq<<" "<<jq<<std::endl;
                             sqrtNum p(ip,jp),q(iq,jq);
                             factor.symb=A.symb;
                             factor.v.resize(3);
