@@ -45,8 +45,9 @@ Matrix operator * (upoly u,Matrix M){return M*u;}
 int main(){
     int rk=2;
     Matrix F=Matrix(sz,sz,1);
+    //求解 f(x)/(g(x))^2 e^phi(x) 的积分
     upoly g=upoly("1+x"),f=upoly("x"),phi=upoly("x");
     Matrix M=g*Deriv(phi)*F+g*Deriv(F)-Deriv(g)*F;
     vector<Matrix>baseS=baseSolution(M,toVector(f));
-    cout<<toUpoly(baseS.back())<<"|"<<g<<" e^"<<phi<<endl;
+    cout<<toUpoly(baseS.back())<<"|"<<g<<" e^"<<phi<<"+C"<<endl;
 }
