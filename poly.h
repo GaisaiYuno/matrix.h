@@ -44,6 +44,7 @@ struct _poly{//不含除法
                 hasAlpha[j]|=(v[i].expo[j]!=0);
                 if (v[i].expo[j].y!=1) return false;
                 maxExpo=std::max(maxExpo,v[i].expo[j]);
+                if (v[i].expo[j]<0) return false;
             }
         }
         int cnt=0;
@@ -174,7 +175,6 @@ bool operator == (_poly A,_poly B){
     return (A-B).v.size()==0;
 }
 std::ostream& operator << (std::ostream &out,const _poly &p){
-    // std::cout<<"outing _poly"<<std::endl;
     if (p.v.size()==0){
         out<<"0";
     }
@@ -293,15 +293,16 @@ struct upoly{
     void init_from_poly(_poly A){
         frac maxExpo=0;
         if (A.qu(symb,maxExpo)){
+            assert(maxExpo.y==1);
             v.resize(maxExpo.x+1,0);
             for (int i=0;i<A.v.size();++i){
                 v[A.v[i].expo[symb-'a'].x]=A.v[i].coef.x;
             }
+            simp();
         }
         else{
             assert(0);
         }
-        simp();
     }
     void init(const char *s,int maxlen=0x7fffffff){
         init_from_poly(_poly(s,maxlen));
@@ -753,6 +754,10 @@ auto definiteInt(upoly x,sqrtNum l,sqrtNum r){
     upoly ix=Integral(x);
     return F(ix,r)-F(ix,l);
 }
+auto definiteInt(upoly x,upoly l,upoly r){
+    upoly ix=Integral(x);
+    return F(ix,r)-F(ix,l);
+}
 auto variableLimit(upoly x,upoly l,upoly r){
     return Integral(F(x,r)*Deriv(r)-F(x,l)*Deriv(l));
 }
@@ -781,47 +786,47 @@ struct poly{//含除法
         y.insert(poly_ele(1));
     }
     void simp(){
-        //最低次项，提出来
-        frac minexpo[26];
-        for (int i=0;i<26;++i){
-            minexpo[i]=frac(0x7fffffff);
-        }
-        for (int i=0;i<x.v.size();++i){
-            for (int j=0;j<26;++j){
-                minexpo[j]=std::min(minexpo[j],x.v[i].expo[j]);
-            }
-        }
-        for (int i=0;i<y.v.size();++i){
-            for (int j=0;j<26;++j){
-                minexpo[j]=std::min(minexpo[j],y.v[i].expo[j]);
-            }
-        }
-        poly_ele pe;
-        pe.coef=sqrtNum(1);
-        for (int i=0;i<26;++i){
-            pe.expo[i]=minexpo[i];
-        }
-        for (int i=0;i<x.v.size();++i){
-            x.v[i]=x.v[i]/pe;
-        }
-        for (int i=0;i<y.v.size();++i){
-            y.v[i]=y.v[i]/pe;
-        }
-        if (x.v.size()>0 && y.v.size()>0 && x.v.size()==y.v.size()){
-            poly_ele _pe=x.v[0]/y.v[0];
-            for (int i=1;i<x.v.size();++i){
-                if (!(x.v[i]/y.v[i]==_pe)){
-                    return ;
-                }
-            }
-            x.v.clear(),y.v.clear();
-            x.insert(_pe),y.insert(poly_ele(1));
-        }
+        // //最低次项，提出来
+        // frac minexpo[26];
+        // for (int i=0;i<26;++i){
+        //     minexpo[i]=frac(0x7fffffff);
+        // }
+        // for (int i=0;i<x.v.size();++i){
+        //     for (int j=0;j<26;++j){
+        //         minexpo[j]=std::min(minexpo[j],x.v[i].expo[j]);
+        //     }
+        // }
+        // for (int i=0;i<y.v.size();++i){
+        //     for (int j=0;j<26;++j){
+        //         minexpo[j]=std::min(minexpo[j],y.v[i].expo[j]);
+        //     }
+        // }
+        // poly_ele pe;
+        // pe.coef=sqrtNum(1);
+        // for (int i=0;i<26;++i){
+        //     pe.expo[i]=minexpo[i];
+        // }
+        // for (int i=0;i<x.v.size();++i){
+        //     x.v[i]=x.v[i]/pe;
+        // }
+        // for (int i=0;i<y.v.size();++i){
+        //     y.v[i]=y.v[i]/pe;
+        // }
+        // if (x.v.size()>0 && y.v.size()>0 && x.v.size()==y.v.size()){
+        //     poly_ele _pe=x.v[0]/y.v[0];
+        //     for (int i=1;i<x.v.size();++i){
+        //         if (!(x.v[i]/y.v[i]==_pe)){
+        //             return ;
+        //         }
+        //     }
+        //     x.v.clear(),y.v.clear();
+        //     x.insert(_pe),y.insert(poly_ele(1));
+        // }
         char cx,cy;
         frac fx,fy;
         if (x.qu(cx,fx) && y.qu(cy,fy)){
             if (cx==cy){
-                upoly _x,_y;
+                static upoly _x,_y;
                 _x.init_from_poly(x),_y.init_from_poly(y);
                 upoly g=gcd(_x,_y);
                 if (g.deg()>1){
@@ -990,7 +995,6 @@ void solve(std::vector<poly>p){
             }
         }
     }
-    // std::cout<<cnt<<std::endl;
     __Matrix M(p.size(),cnt),b(p.size(),1);
     for (int i=0;i<p.size();++i){
         auto v=&p[i].x.v;
@@ -1004,7 +1008,6 @@ void solve(std::vector<poly>p){
             }
         }
     }
-    // std::cout<<M<<b<<std::endl;
     solvedResults.resize(cnt);
     auto baseS=baseSolution(M,b);
     for (int i=0;i<cnt;++i){

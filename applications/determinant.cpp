@@ -7,7 +7,7 @@ int main(){
     cin>>A;
     // cout<<A<<endl;
     // cout<<to_latex(Gauss(A))<<endl;
-    cout<<to_latex(Determinant(A))<<endl;
+    cout<<Determinant(A)<<endl;
 }
 /*
 t-x -2 -t
