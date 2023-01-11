@@ -87,6 +87,9 @@ frac operator / (frac A,frac B){
 frac operator / (long long A,frac B){
     return frac(A*B.y,B.x);
 }
+frac operator / (frac A,long long B){
+    return frac(A.x,A.y*B);
+}
 bool operator < (frac A,frac B){
     return (A-B).x<0;
 }

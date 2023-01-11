@@ -42,6 +42,39 @@ int main(){
                 out<<to_latex(baseS[i])<<endl<<endl;
             }
         }
+        else if (v.v[i].first.deg()==2){
+            poly lambda_1,lambda_2;
+            frac a=v.v[i].first[2].to_frac(),b=v.v[i].first[1].to_frac(),c=v.v[i].first[0].to_frac();
+            frac delta=b*b-4*a*c;
+            lambda_1=poly_ele(sqrtNum(-b/(2*a),1/(2*a),delta));
+            lambda_2=poly_ele(sqrtNum(-b/(2*a),-1/(2*a),delta));
+
+            out<<"对于特征值 $\\lambda="<<to_latex(lambda_1,0)<<"$ , 我们有"<<endl<<endl;
+            cout<<"特征值 lambda="<<lambda_1<<endl;
+            cout<<"代数重数 n="<<v.v[i].second<<endl;//代数重数
+            Matrix<poly> B=A-lambda_1*Matrix<poly>(A.row,A.col,1);
+            vector<Matrix<poly> >baseS=baseSolution(B);
+            cout<<"几何重数 m="<<baseS.size()<<endl;//几何重数，几何重数不超过代数重数
+            cout<<B<<endl;
+            for (int i=0;i<baseS.size();++i){
+                cout<<baseS[i]<<endl;
+                s.push_back(baseS[i]);
+                out<<to_latex(baseS[i])<<endl<<endl;
+            }
+
+            out<<"对于特征值 $\\lambda="<<to_latex(lambda_2,0)<<"$ , 我们有"<<endl<<endl;
+            cout<<"特征值 lambda="<<lambda_2<<endl;
+            cout<<"代数重数 n="<<v.v[i].second<<endl;//代数重数
+            B=A-lambda_2*Matrix<poly>(A.row,A.col,1);
+            baseS=baseSolution(B);
+            cout<<"几何重数 m="<<baseS.size()<<endl;//几何重数，几何重数不超过代数重数
+            cout<<B<<endl;
+            for (int i=0;i<baseS.size();++i){
+                cout<<baseS[i]<<endl;
+                s.push_back(baseS[i]);
+                out<<to_latex(baseS[i])<<endl<<endl;
+            }
+        }
     }
     if (s.size()==A.row){
         Matrix<poly> P=s[0];
@@ -92,12 +125,3 @@ int main(){
     out<<end_latex()<<endl<<endl;
     out.close();
 }
-/*
-2 0 2
-0 2 2
-2 2 4
-
--1 1/2 -1 
-1 1/2 -1 
-0 1 1
-*/

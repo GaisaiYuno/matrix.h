@@ -88,6 +88,7 @@ struct sqrtNum{
         init(s,maxlen);
     }
 };
+std::ostream& operator << (std::ostream &,const sqrtNum &);
 sqrtNum operator + (sqrtNum A,sqrtNum B){
     assert(A.M==ALL_MOD || B.M==ALL_MOD || A.M==B.M);
     return sqrtNum(A.x+B.x,A.y+B.y,std::max(A.M,B.M));
@@ -109,8 +110,6 @@ sqrtNum operator * (sqrtNum A,sqrtNum B){
     if (A.x==0 && B.x==0){
         return sqrtNum(0,A.y*B.y,A.M*B.M);
     }
-    // if (A.y==0) A.M=ALL_MOD;
-    // if (B.y==0) B.M=ALL_MOD;
     assert(A.M==ALL_MOD || B.M==ALL_MOD || A.M==B.M);
     return sqrtNum(A.x*B.x+std::max(A.M,B.M)*A.y*B.y,A.x*B.y+A.y*B.x,std::max(A.M,B.M));
 }
@@ -123,6 +122,17 @@ sqrtNum operator / (frac lambda,sqrtNum A){
 sqrtNum operator / (sqrtNum B,sqrtNum A){
     assert(A.M==ALL_MOD || B.M==ALL_MOD || A.M==B.M);
     return B*((frac)(1)/A);
+}
+sqrtNum Sqrt(frac A){
+    return sqrtNum(0,1,A);
+}
+sqrtNum Sqrt(sqrtNum A){
+    if (A.M==ALL_MOD) return Sqrt(A.x);
+    assert(0);
+    // std::cout<<"Calculating sqrt("<<A<<")"<<std::endl;
+    // frac a=1,b=A.y*A.y*A.M/4,c=-A.x;
+    // std::cout<<a<<" "<<b<<" "<<c<<std::endl;
+    // assert((b*b-4*a*c)>=0);
 }
 bool operator == (sqrtNum A,sqrtNum B){
     return A.x==B.x && A.y==B.y && A.M==B.M;
@@ -149,9 +159,6 @@ int Compare(sqrtNum A,sqrtNum B){
     else {
         return -sgn(C.x*C.x-C.M*C.y*C.y);
     }
-}
-sqrtNum Sqrt(sqrtNum A){
-    return sqrtNum(0,1,A.to_frac());
 }
 bool operator <= (sqrtNum A,sqrtNum B){
     return Compare(A,B)<=0;

@@ -78,7 +78,7 @@ Matrix<poly> Plane(poly A,poly B,poly C,poly D){
     return Matrix<poly>('R',std::vector<poly>{A,B,C,D});
 }
 poly length(Matrix<poly> A){
-    return poly(sqrtNum(0,1,(A&A).eval().x));
+    return Sqrt((A&A).eval());
 }
 auto angle(Matrix<poly> A,Matrix<poly> B){
     return (A&B)/(length(A)*length(B));
