@@ -65,13 +65,11 @@ struct sqrtNum{
             if (s[i]=='+'||s[i]=='-') signIndex=i,sign=(s[i]=='+'?1:-1);
             if (s[i]=='\\') slashIndex=i;
         }
-        // std::cerr<<signIndex<<" "<<slashIndex<<std::endl;
         if (slashIndex==-1 && (signIndex==-1 || signIndex==0)){
             x=frac(s,maxlen),y=0;
             M=ALL_MOD;
         }
         else if (slashIndex!=-1 && signIndex==-1){
-            // std::cerr<<"type2"<<std::endl;
             x=0,y.init(s,slashIndex);
             M.init(s+slashIndex+1,len-slashIndex);
             assert(M>(frac)(0));
@@ -88,6 +86,11 @@ struct sqrtNum{
         init(s,maxlen);
     }
 };
+frac::frac(sqrtNum A){
+    assert(A.M==ALL_MOD);
+    x=A.x.x;
+    y=A.x.y;
+}
 std::ostream& operator << (std::ostream &,const sqrtNum &);
 sqrtNum operator + (sqrtNum A,sqrtNum B){
     assert(A.M==ALL_MOD || B.M==ALL_MOD || A.M==B.M);
@@ -129,10 +132,6 @@ sqrtNum Sqrt(frac A){
 sqrtNum Sqrt(sqrtNum A){
     if (A.M==ALL_MOD) return Sqrt(A.x);
     assert(0);
-    // std::cout<<"Calculating sqrt("<<A<<")"<<std::endl;
-    // frac a=1,b=A.y*A.y*A.M/4,c=-A.x;
-    // std::cout<<a<<" "<<b<<" "<<c<<std::endl;
-    // assert((b*b-4*a*c)>=0);
 }
 bool operator == (sqrtNum A,sqrtNum B){
     return A.x==B.x && A.y==B.y && A.M==B.M;
@@ -178,7 +177,6 @@ std::istream& operator >> (std::istream &in,sqrtNum &A){
     return in;
 }
 std::ostream& operator << (std::ostream &out,const sqrtNum &A){
-    // std::cout<<A.x<<" "<<A.y<<" "<<A.M<<std::endl;
     bool pre=false,aft=A.M!=ALL_MOD;
     if (A.x!=frac(0)){
         out<<A.x,pre=true;
@@ -201,7 +199,6 @@ std::ostream& operator << (std::ostream &out,const sqrtNum &A){
         else if (A.y==0) out<<"";
     }
     else{
-        // out<<(A.y==frac(1)&&aft)<<std::endl;
         if (A.y<0){
             if (!(A.y==frac(-1)&&aft)){
                 out<<A.y;
@@ -246,7 +243,6 @@ std::string to_latex(const sqrtNum &A,bool begin=true){
         }
     }
     else{
-        // out<<(A.y==frac(1)&&aft)<<std::endl;
         if (A.y<0){
             if (!(A.y==frac(-1)&&aft)){
                 ret+=to_latex(A.y,0);

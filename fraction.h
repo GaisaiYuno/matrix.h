@@ -56,6 +56,7 @@ struct frac{
     frac(const char *s,int maxlen=0x7fffffff){
         init(s,maxlen);
     }
+    frac(sqrtNum);
     frac inv(){
         return frac(y,x);
     }

@@ -1,11 +1,10 @@
 #include "poly.h"
-#define Num poly
 #include "matrix.h"
 using namespace std;
 int main(){
-    Matrix A;
+    Matrix<poly> A;
     cin>>A;
-    Matrix B;
+    Matrix<poly> B;
     cin>>B;
     cout<<A*B<<endl;
 }

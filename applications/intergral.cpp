@@ -25,15 +25,15 @@ int main(){
                 cout<<x[0]<<"ln|"<<y<<"|"<<endl;
             }
             else{
-                cout<<x[0]*frac(1,-k+1)<<"("<<y<<")"<<"^"<<-(k-1)<<endl;
+                cout<<x[0]*sqrtNum(frac(1,-k+1))<<"("<<y<<")"<<"^"<<-(k-1)<<endl;
             }
         }
         else if (d==2){
-            frac s=y[2].to_frac();
+            frac s=y[2];
             x=(1/s)*x,y=(1/s)*y;
-            frac B=x[1].to_frac(),D=x[0].to_frac();
-            frac p=y[1].to_frac(),q=y[0].to_frac();
-            frac dt=y.delta().to_frac();
+            frac B=x[1],D=x[0];
+            frac p=y[1],q=y[0];
+            frac dt=y.delta();
             if (k==1){
                 cout<<(B/frac(2))<<"ln("<<y<<")+("<<(2*D-B*p)<<")/\\"<<-dt<<"arctan((2x+"<<p<<")/\\"<<-dt<<")"<<endl;
             }

@@ -27,7 +27,7 @@ int main(){
     vector<Matrix<poly> >s;
     for (int i=0;i<v.v.size();++i){
         if (v.v[i].first.deg()==1){
-            poly lambda=poly(poly_ele((frac)(0)-v.v[i].first[0]));
+            poly lambda=poly(poly_ele(-v.v[i].first[0]));
             out<<"对于特征值 $\\lambda="<<to_latex(lambda,0)<<"$ 我们有"<<endl<<endl;
             cout<<"特征值 lambda="<<lambda<<endl;
             cout<<"代数重数 n="<<v.v[i].second<<endl;//代数重数
@@ -44,7 +44,7 @@ int main(){
         }
         else if (v.v[i].first.deg()==2){
             poly lambda_1,lambda_2;
-            frac a=v.v[i].first[2].to_frac(),b=v.v[i].first[1].to_frac(),c=v.v[i].first[0].to_frac();
+            frac a=v.v[i].first[2],b=v.v[i].first[1],c=v.v[i].first[0];
             frac delta=b*b-4*a*c;
             lambda_1=poly_ele(sqrtNum(-b/(2*a),1/(2*a),delta));
             lambda_2=poly_ele(sqrtNum(-b/(2*a),-1/(2*a),delta));
