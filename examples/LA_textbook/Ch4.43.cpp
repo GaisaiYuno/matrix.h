@@ -1,12 +1,11 @@
 #include <poly.h>
-#define Num poly
 #include <matrix.h>
 using namespace std;
 int main(){
-    Matrix C(2,2,vector<poly>{"a","b","c","d"});
+    Matrix<poly> C(2,2,vector<poly>{"a","b","c","d"});
     for (int i=1;i<=2;++i){
         for (int j=1;j<=2;++j){
-            Matrix eps;
+            Matrix<poly> eps;
             eps.init(2,2);
             eps[i][j]=1;
             cout<<C.transpose()*eps*C<<endl;

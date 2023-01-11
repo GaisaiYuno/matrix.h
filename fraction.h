@@ -26,7 +26,7 @@ struct frac{
     long long x,y;
     void simp(){
         long long gcd=std::__gcd(x,y);
-        x/=gcd,y/=gcd;
+        if (gcd!=0) x/=gcd,y/=gcd;
         if (y<0) x=-x,y=-y;
     }
     frac(){

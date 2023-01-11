@@ -1,5 +1,5 @@
-#define Num poly
 #include "poly.h"
+#define Num poly
 #include "matrix.h"
 using namespace std;
 int main(){

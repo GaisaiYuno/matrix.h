@@ -5,8 +5,8 @@
 #include <vector>
 #include <cstring>
 #include <fstream>
-class Matrix{
-    public:
+template<class Num>
+struct Matrix{
     std::string Message;
     std::vector<std::vector<Num> >M;
     int row,col;//行数、列数
@@ -69,6 +69,7 @@ class Matrix{
         return *this;
     }
     Matrix(int rows,int cols,std::vector<Num>v){
+        assert(v.size() == rows*cols);
         init(rows,cols);
         row=rows,col=cols;
         int cnt=0;
@@ -189,7 +190,9 @@ class Matrix{
         return *this;
     }
 };
-std::istream& operator >> (std::istream &in,Matrix &A){
+
+template<class Num>
+std::istream& operator >> (std::istream &in,Matrix<Num> &A){
     int row,col;
     std::cout<<"Please enter the row and col of the matrix"<<std::endl;
     std::cin>>row>>col;
@@ -206,7 +209,8 @@ std::istream& operator >> (std::istream &in,Matrix &A){
     name++;
     return in;
 }
-std::ostream& operator << (std::ostream &out,const Matrix &A){
+template<class Num>
+std::ostream& operator << (std::ostream &out,const Matrix<Num> &A){
     std::cout<<A.Message<<std::endl;
     for (int i=1;i<=A.row;++i){
         for (int j=1;j<=A.col;++j){
@@ -216,7 +220,8 @@ std::ostream& operator << (std::ostream &out,const Matrix &A){
     }
     return out;
 }
-std::string to_latex(const Matrix &A,std::string type="bmatrix",bool begin=true){
+template<class Num>
+std::string to_latex(const Matrix<Num> &A,std::string type="bmatrix",bool begin=true){
     std::string ret="";
     if (begin) ret+="$";
     ret+=A.Message+"=";
@@ -232,11 +237,12 @@ std::string to_latex(const Matrix &A,std::string type="bmatrix",bool begin=true)
     if (begin) ret+="$";
     return ret;
 }
-Matrix addH(Matrix A,Matrix B){
+template<class Num>
+Matrix<Num>addH(Matrix<Num> A,Matrix<Num> B){
     if (B.row==0 && B.col==0) return A;
     if (A.row==0 && A.col==0) return B;
     assert(A.row==B.row);
-    Matrix C(A.row,A.col+B.col);
+    Matrix<Num>C(A.row,A.col+B.col);
     for (int i=1;i<=A.row;++i){
         for (int j=1;j<=A.col;++j){
             C[i][j]=A[i][j];
@@ -247,11 +253,12 @@ Matrix addH(Matrix A,Matrix B){
     }
     return C;
 }
-Matrix addV(Matrix A,Matrix B){
+template<class Num>
+Matrix<Num> addV(Matrix<Num> A,Matrix<Num> B){
     if (B.row==0 && B.col==0) return A;
     if (A.row==0 && A.col==0) return B;
     assert(A.col==B.col);
-    Matrix C(A.row+B.row,A.col);
+    Matrix<Num> C(A.row+B.row,A.col);
     for (int i=1;i<=A.col;++i){
         for (int j=1;j<=A.row;++j){
             C[j][i]=A[j][i];
@@ -262,20 +269,24 @@ Matrix addV(Matrix A,Matrix B){
     }
     return C;
 }
-Matrix addH(std::vector<Matrix>v){
+template<class Num>
+Matrix<Num> addH(std::vector<Matrix<Num> >v){
     Matrix ret=v[0];
     for (int i=1;i<v.size();++i) ret=addH(ret,v[i]);
     return ret;
 }
-Matrix addV(std::vector<Matrix>v){
+template<class Num>
+Matrix<Num> addV(std::vector<Matrix<Num> >v){
     Matrix ret=v[0];
     for (int i=1;i<v.size();++i) ret=addV(ret,v[i]);
     return ret;
 }
-Matrix addH(Matrix A,Matrix B,Matrix C){
+template<class Num>
+Matrix<Num> addH(Matrix<Num> A,Matrix<Num> B,Matrix<Num> C){
     return addH(A,addH(B,C));
 }
-Matrix addV(Matrix A,Matrix B,Matrix C){
+template<class Num>
+Matrix<Num> addV(Matrix<Num> A,Matrix<Num> B,Matrix<Num> C){
     return addV(A,addV(B,C));
 }
 #ifndef UTILS
@@ -284,7 +295,8 @@ std::vector<int> genVector(int l,int r){
     for (int i=l;i<=r;++i) ret.push_back(i);
     return ret;
 }
-Matrix diag(std::vector<Num>V){
+template<class Num>
+Matrix<Num> diag(std::vector<Num>V){
     Matrix A=Matrix((int)V.size(),(int)V.size());
     for (int i=0;i<(int)V.size();++i){
         A[i+1][i+1]=V[i];
@@ -299,18 +311,22 @@ std::string end_latex(){
 }
 #endif
 #define UTILS
-bool operator == (Matrix A,Matrix B){
+
+template<class Num>
+bool operator == (Matrix<Num> A,Matrix<Num> B){
     return A.M==B.M;
 }
-bool operator != (Matrix A,Matrix B){
+template<class Num>
+bool operator != (Matrix<Num> A,Matrix<Num> B){
     return !(A.M==B.M);
 }
 
 
-Matrix Inverse(Matrix A){//求逆矩阵
+template<class Num>
+Matrix<Num> Inverse(Matrix<Num> A){//求逆矩阵
     assert(A.row==A.col);
     int n=A.row,m=A.col;
-    Matrix B(A.row,A.col);
+    Matrix<Num> B(A.row,A.col);
     B.identityMatrix();
     for (int i=1;i<=std::min(n,m);++i){
         int r=i;
@@ -338,7 +354,9 @@ Matrix Inverse(Matrix A){//求逆矩阵
     B.Message="Matrix Inversed";
     return B;
 }
-Num Determinant(Matrix A){
+
+template<class Num>
+Num Determinant(Matrix<Num> A){
     int n=A.row,m=A.col;
     assert(n==m);
     if (n==3){
@@ -377,7 +395,8 @@ Num Determinant(Matrix A){
     return sign;
 }
 //化成简化的阶梯型矩阵，可选是否在前面形成一个单位矩阵，即是否交换列
-Matrix Gauss(Matrix A,bool swapCol=false){
+template<class Num>
+Matrix<Num> Gauss(Matrix<Num> A,bool swapCol=false){
     int n=A.row,m=A.col;
     int rk=1;
     for (int i=1;i<=std::min(n,m);++i){
@@ -395,7 +414,6 @@ Matrix Gauss(Matrix A,bool swapCol=false){
             Num t=A[j][i]*inv;
             A.addtimes('R',rk,t,j);
         }
-        //std::cout<<A<<std::endl;
         ++rk;
     }
     for (int i=1;i<=std::min(n,m);++i){
@@ -419,9 +437,11 @@ Matrix Gauss(Matrix A,bool swapCol=false){
     A.Message="Matrix is in Gauss form";
     return A;
 }
-Matrix operator * (Matrix A,Matrix B){
+
+template<class Num>
+Matrix<Num> operator * (Matrix<Num> A,Matrix<Num> B){
     assert(A.col==B.row);
-    Matrix C(A.row,B.col);
+    Matrix<Num> C(A.row,B.col);
     for (int i=1;i<=A.row;++i){
         for (int j=1;j<=B.col;++j){
             for (int k=1;k<=A.col;++k){
@@ -431,21 +451,24 @@ Matrix operator * (Matrix A,Matrix B){
     }
     return C;
 }
-bool isSwapable(Matrix A,Matrix B){
+template<class Num>
+bool isSwapable(Matrix<Num> A,Matrix<Num> B){
     return A*B==B*A;
 }
-Matrix operator * (Num lambda,Matrix A){
-    Matrix B(A.row,A.col);
+template<class lam,class Num>
+Matrix<Num> operator * (lam lambda,Matrix<Num> A){
+    Matrix<Num> B(A.row,A.col);
     for (int i=1;i<=A.row;++i){
         for (int j=1;j<=B.col;++j){
-            B[i][j]=lambda*A[i][j];
+            B[i][j]=(Num)(lambda)*A[i][j];
         }
     }
     return B;
 }
-Matrix operator + (Matrix A,Matrix B){
+template<class Num>
+Matrix<Num> operator + (Matrix<Num> A,Matrix<Num> B){
     assert(A.row==B.row && A.col==B.col);
-    Matrix C(A.row,A.col);
+    Matrix<Num> C(A.row,A.col);
     for (int i=1;i<=A.row;++i){
         for (int j=1;j<=A.col;++j){
             C[i][j]=A[i][j]+B[i][j];
@@ -453,9 +476,10 @@ Matrix operator + (Matrix A,Matrix B){
     }
     return C;
 }
-Matrix operator - (Matrix A,Matrix B){
+template<class Num>
+Matrix<Num> operator - (Matrix<Num> A,Matrix<Num> B){
     assert(A.row==B.row && A.col==B.col);
-    Matrix C(A.row,A.col);
+    Matrix<Num> C(A.row,A.col);
     for (int i=1;i<=A.row;++i){
         for (int j=1;j<=A.col;++j){
             C[i][j]=A[i][j]-B[i][j];
@@ -463,8 +487,9 @@ Matrix operator - (Matrix A,Matrix B){
     }
     return C;
 }
-Matrix operator - (Matrix A){
-    Matrix C(A.row,A.col);
+template<class Num>
+Matrix<Num> operator - (Matrix<Num> A){
+    Matrix<Num> C(A.row,A.col);
     for (int i=1;i<=A.row;++i){
         for (int j=1;j<=A.col;++j){
             C[i][j]=(Num)(0)-A[i][j];
@@ -472,19 +497,23 @@ Matrix operator - (Matrix A){
     }
     return C;
 }
-Matrix operator / (Num x,Matrix A){
+template<class Num>
+Matrix<Num> operator / (Num x,Matrix<Num> A){
     return x*Inverse(A);
 }
-Matrix operator / (Matrix A,Num x){
+template<class Num>
+Matrix<Num> operator / (Matrix<Num> A,Num x){
     return (Num(1)/x)*A;
 }
-Matrix operator / (Matrix A,Matrix B){
+template<class Num>
+Matrix<Num> operator / (Matrix<Num> A,Matrix<Num> B){
     return A*Inverse(B);
 }
-Matrix operator ^ (Matrix A,int k){
+template<class Num>
+Matrix<Num> operator ^ (Matrix<Num> A,int k){
     assert(A.row==A.col);
 	if (k==0){
-		return Matrix(A.row,A.col,1);
+		return Matrix<Num>(A.row,A.col,1);
 	}
 	if (k<0){
 		return Inverse(A)^(-k);
@@ -498,7 +527,8 @@ Matrix operator ^ (Matrix A,int k){
     }
     return base;
 }
-Num tr(Matrix A){
+template<class Num>
+Num tr(Matrix<Num> A){
     assert(A.row==A.col);
     Num ans=0;
     for (int i=1;i<=A.row;++i){
@@ -506,8 +536,9 @@ Num tr(Matrix A){
     }
     return ans;
 }
-int rk(Matrix A){
-    Matrix B=Gauss(A);
+template<class Num>
+int rk(Matrix<Num> A){
+    Matrix<Num> B=Gauss(A);
     int rk=0;
     for (int i=1;i<=B.row;++i){
         bool flag=false;
@@ -522,11 +553,12 @@ int rk(Matrix A){
     return rk;
 }
 //分裂成行向量和列向量
-std::vector<Matrix> breakAsVector(Matrix A,char type){
-    std::vector<Matrix> vectors;
+template<class Num>
+std::vector<Matrix<Num> > breakAsVector(Matrix<Num> A,char type){
+    std::vector<Matrix<Num> > vectors;
     if (type=='C'){//列向量
         for (int i=1;i<=A.col;++i){
-            Matrix tmp(A.row,1);
+            Matrix<Num> tmp(A.row,1);
             for (int j=1;j<=A.row;++j){
                 tmp[j][1]=A[j][i];
             }
@@ -536,7 +568,7 @@ std::vector<Matrix> breakAsVector(Matrix A,char type){
     }
     else if (type=='R'){//行向量
         for (int i=1;i<=A.row;++i){
-            Matrix tmp(1,A.col);
+            Matrix<Num> tmp(1,A.col);
             for (int j=1;j<=A.col;++j){
                 tmp[1][j]=A[i][j];
             }
@@ -546,8 +578,9 @@ std::vector<Matrix> breakAsVector(Matrix A,char type){
     }
     return vectors;
 }
-Matrix subMatrix(Matrix A,std::vector<int>rowChoose,std::vector<int>colChoose){
-    Matrix B(rowChoose.size(),colChoose.size());
+template<class Num>
+Matrix<Num> subMatrix(Matrix<Num> A,std::vector<int>rowChoose,std::vector<int>colChoose){
+    Matrix<Num> B(rowChoose.size(),colChoose.size());
     for (int i=0;i<rowChoose.size();++i){
         for (int j=0;j<colChoose.size();++j){
             B[i+1][j+1]=A[rowChoose[i]][colChoose[j]];
@@ -555,8 +588,9 @@ Matrix subMatrix(Matrix A,std::vector<int>rowChoose,std::vector<int>colChoose){
     }
     return B;
 }
-Matrix subMatrix(Matrix A,int rlb,int rub,int clb,int cub){
-    Matrix B(rub-rlb+1,cub-clb+1);
+template<class Num>
+Matrix<Num> subMatrix(Matrix<Num> A,int rlb,int rub,int clb,int cub){
+    Matrix<Num> B(rub-rlb+1,cub-clb+1);
     for (int i=rlb;i<=rub;++i){
         for (int j=clb;j<=cub;++j){
             B[i-rlb+1][j-clb+1]=A[i][j];
@@ -565,7 +599,8 @@ Matrix subMatrix(Matrix A,int rlb,int rub,int clb,int cub){
     return B;
 }
 //求出 A 的基础解系
-std::vector<Matrix> baseSolution(Matrix A){
+template<class Num>
+std::vector<Matrix<Num> > baseSolution(Matrix<Num> A){
     Matrix B=Gauss(A,false);
     std::vector<std::pair<int,int> >swapID;
     for (int i=1;i<=B.row;++i){
@@ -578,15 +613,16 @@ std::vector<Matrix> baseSolution(Matrix A){
         }
     }
     int n=A.col,r=rk(A);
-    Matrix ret=addV((Num)(-1)*(subMatrix(B,1,r,r+1,n)),Matrix(n-r,n-r,1));
+    Matrix ret=addV((Num)(-1)*(subMatrix(B,1,r,r+1,n)),Matrix<Num>(n-r,n-r,1));
     for (int i=swapID.size()-1;i>=0;--i){
         ret.swap('R',swapID[i].first,swapID[i].second);
     }
     return breakAsVector(ret, 'C');
 }
-std::vector<Matrix> baseSolution(Matrix A,Matrix b){
+template<class Num>
+std::vector<Matrix<Num> > baseSolution(Matrix<Num> A,Matrix<Num> b){
     A=addH(A,b);
-    Matrix B=Gauss(A,false);
+    Matrix<Num> B=Gauss(A,false);
     std::vector<std::pair<int,int> >swapID;
     for (int i=1;i<=B.row;++i){
         for (int j=1;j<=B.col-1;++j){
@@ -598,12 +634,12 @@ std::vector<Matrix> baseSolution(Matrix A,Matrix b){
         }
     }
     int n=A.col-1,r=rk(A);
-    Matrix ret=addV((Num)(-1)*(subMatrix(B,1,r,r+1,n)),Matrix(n-r,n-r,1));
+    Matrix ret=addV((Num)(-1)*(subMatrix(B,1,r,r+1,n)),Matrix<Num>(n-r,n-r,1));
     for (int i=swapID.size()-1;i>=0;--i){
         ret.swap('R',swapID[i].first,swapID[i].second);
     }
-    std::vector<Matrix> baseS=breakAsVector(ret, 'C');
-    Matrix gama=addV(subMatrix(B,1,r,A.col,A.col),Matrix(n-r,1));
+    std::vector<Matrix<Num> > baseS=breakAsVector(ret, 'C');
+    Matrix gama=addV(subMatrix(B,1,r,A.col,A.col),Matrix<Num>(n-r,1));
     for (int i=swapID.size()-1;i>=0;--i){
         gama.swap('R',swapID[i].first,swapID[i].second);
     }
@@ -611,17 +647,5 @@ std::vector<Matrix> baseSolution(Matrix A,Matrix b){
     baseS.push_back(gama);
     return baseS;
 }
-
-#ifndef POLY_H
-#else
-Matrix substitute(Matrix M){
-    for (int i=1;i<=M.row;++i){
-        for (int j=1;j<=M.col;++j){
-            M[i][j]=substitute(M[i][j]);
-        }
-    }
-    return M;
-}
-#endif
 
 #endif

@@ -1,5 +1,4 @@
 #include "poly.h"
-#define Num poly
 #include "matrix.h"
 #include "euclid.h"
 #include <fstream>
@@ -7,13 +6,13 @@ using namespace std;
 int main(){
     ofstream out;
     out.open("test.tex");
-    Matrix A;
+    Matrix<poly> A;
     cin>>A;
     out<<begin_latex()<<endl<<endl;
     out<<to_latex(A)<<endl<<endl;
-    Matrix B=A;
+    Matrix<poly> B=A;
     for (int i=1;i<=A.row;++i){
-        B[i][i]=B[i][i]-Num("l");
+        B[i][i]=B[i][i]-poly("l");
     }
     cout<<"特征多项式"<<endl;
     _poly x=Determinant(B).x;
@@ -25,15 +24,15 @@ int main(){
     v.sort();
     cout<<"对其进行分解"<<endl<<v<<endl;
     out<<"对其进行分解，得到，"<<to_latex(v)<<endl<<endl;
-    vector<Matrix>s;
+    vector<Matrix<poly> >s;
     for (int i=0;i<v.v.size();++i){
         if (v.v[i].first.deg()==1){
-            Num lambda=poly(poly_ele((frac)(0)-v.v[i].first[0]));
+            poly lambda=poly(poly_ele((frac)(0)-v.v[i].first[0]));
             out<<"对于特征值 $\\lambda="<<to_latex(lambda,0)<<"$ 我们有"<<endl<<endl;
             cout<<"特征值 lambda="<<lambda<<endl;
             cout<<"代数重数 n="<<v.v[i].second<<endl;//代数重数
-            Matrix B=A-lambda*Matrix(A.row,A.col,1);
-            vector<Matrix>baseS=baseSolution(B);
+            Matrix<poly> B=A-lambda*Matrix<poly>(A.row,A.col,1);
+            vector<Matrix<poly> >baseS=baseSolution(B);
             baseS=Schmidt(baseS);//进行施密特正交化
             cout<<"几何重数 m="<<baseS.size()<<endl;//几何重数，几何重数不超过代数重数
             cout<<B<<endl;
@@ -45,7 +44,7 @@ int main(){
         }
     }
     if (s.size()==A.row){
-        Matrix P=s[0];
+        Matrix<poly> P=s[0];
         cout<<"矩阵可以相似对角化，将这些向量组合在一起，"<<endl<<endl;
         out<<"矩阵可以相似对角化，将这些向量组合在一起，"<<endl<<endl;
         for (int i=1;i<s.size();++i){
@@ -61,25 +60,25 @@ int main(){
         }
         cout<<"矩阵是对称阵，继续进行正交化"<<endl<<endl;
         out<<"矩阵是对称阵，继续进行正交化"<<endl<<endl;
-        vector<Matrix>v=breakAsVector(P,'C');
+        vector<Matrix<poly> >v=breakAsVector(P,'C');
         for (int i=0;i<v.size();++i){
             v[i]=identilize(v[i]).first;
         }
-        Matrix Q=addH(v);
+        Matrix<poly> Q=addH(v);
         //Q是一个正交矩阵
         cout<<Q.message("Q")<<endl;
         cout<<((Q.transpose())*A*Q).message("Q^{-1}AQ")<<endl;
         out<<to_latex(Q.message("Q"))<<endl<<endl;
         out<<to_latex(((Q.transpose())*A*Q).message("Q^{-1}AQ"))<<endl<<endl;
-        Matrix L=(Q.transpose())*A*Q;
-        Matrix R(L.row,L.col);
+        Matrix<poly> L=(Q.transpose())*A*Q;
+        Matrix<poly> R(L.row,L.col);
         for (int i=1;i<=L.row;++i){
             if (L[i][i]!=poly(0)) R[i][i]=1/Sqrt(abs(L[i][i]));
             else R[i][i]=1;
         }
         cout<<"进行替换产生规范标准型"<<endl<<endl;
         out<<"进行替换产生规范标准型"<<endl<<endl;
-        Matrix S=Q*R;
+        Matrix<poly> S=Q*R;
         //Sx这个替换可以使二次型化为规范标准型
         cout<<S.message("S")<<endl;
         cout<<((S.transpose())*A*S).message("S^{-1}AS")<<endl;

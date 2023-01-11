@@ -7,7 +7,8 @@ struct sqrtNum{
     frac M;
     frac x,y;
     sqrtNum(){
-
+        x=0;y=0;
+        M=ALL_MOD;
     }
     void simp(){
         if (M==ALL_MOD) return ;

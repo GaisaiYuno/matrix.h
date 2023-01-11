@@ -1,8 +1,6 @@
 
 #include "poly_ele.h"
 #include "fraction.h"
-#define Num sqrtNum
-#define Matrix __Matrix
 #include "matrix.h"
 #include <vector>
 
@@ -569,7 +567,7 @@ upoly to_upoly(cpoly x){
     }
     return ret;
 }
-upoly to_upoly(__Matrix M){
+upoly to_upoly(Matrix<sqrtNum> M){
     upoly ret;
     int cnt=0;
     for (int i=1;i<=M.row;++i){
@@ -579,12 +577,12 @@ upoly to_upoly(__Matrix M){
     }
     return ret;
 }
-__Matrix to_vector(upoly x,int sz=-1){
+auto to_vector(upoly x,int sz=-1){
     if (sz==-1){
-        return __Matrix('C',x.v);
+        return Matrix<sqrtNum>('C',x.v);
     }
     else{
-        __Matrix ret=__Matrix('C',x.v);
+        auto ret=Matrix<sqrtNum>('C',x.v);
         ret.resize(sz,1);
         return ret;
     }
@@ -612,7 +610,7 @@ std::ostream& operator << (std::ostream &out,const decomp &p){
 }
 decomp Decomposit(upoly x,cpoly y){
     upoly z=to_upoly(y);
-    std::vector<__Matrix>v;
+    std::vector<Matrix<sqrtNum> >v;
     cpoly temp=y;
     for (int i=0;i<y.v.size();++i){
         int d=y.v[i].first.deg();
@@ -631,7 +629,7 @@ decomp Decomposit(upoly x,cpoly y){
             temp.v[i].second=y.v[i].second;
         }
     }
-    __Matrix ans=(addH(v)^-1)*to_vector(x,z.deg());
+    Matrix<sqrtNum>ans=(addH(v)^-1)*to_vector(x,z.deg());
     decomp ret;
     int cnt=0;
     for (int i=0;i<y.v.size();++i){
@@ -787,41 +785,41 @@ struct poly{//含除法
     }
     void simp(){
         // //最低次项，提出来
-        // frac minexpo[26];
-        // for (int i=0;i<26;++i){
-        //     minexpo[i]=frac(0x7fffffff);
-        // }
-        // for (int i=0;i<x.v.size();++i){
-        //     for (int j=0;j<26;++j){
-        //         minexpo[j]=std::min(minexpo[j],x.v[i].expo[j]);
-        //     }
-        // }
-        // for (int i=0;i<y.v.size();++i){
-        //     for (int j=0;j<26;++j){
-        //         minexpo[j]=std::min(minexpo[j],y.v[i].expo[j]);
-        //     }
-        // }
-        // poly_ele pe;
-        // pe.coef=sqrtNum(1);
-        // for (int i=0;i<26;++i){
-        //     pe.expo[i]=minexpo[i];
-        // }
-        // for (int i=0;i<x.v.size();++i){
-        //     x.v[i]=x.v[i]/pe;
-        // }
-        // for (int i=0;i<y.v.size();++i){
-        //     y.v[i]=y.v[i]/pe;
-        // }
-        // if (x.v.size()>0 && y.v.size()>0 && x.v.size()==y.v.size()){
-        //     poly_ele _pe=x.v[0]/y.v[0];
-        //     for (int i=1;i<x.v.size();++i){
-        //         if (!(x.v[i]/y.v[i]==_pe)){
-        //             return ;
-        //         }
-        //     }
-        //     x.v.clear(),y.v.clear();
-        //     x.insert(_pe),y.insert(poly_ele(1));
-        // }
+        frac minexpo[26];
+        for (int i=0;i<26;++i){
+            minexpo[i]=frac(0x7fffffff);
+        }
+        for (int i=0;i<x.v.size();++i){
+            for (int j=0;j<26;++j){
+                minexpo[j]=std::min(minexpo[j],x.v[i].expo[j]);
+            }
+        }
+        for (int i=0;i<y.v.size();++i){
+            for (int j=0;j<26;++j){
+                minexpo[j]=std::min(minexpo[j],y.v[i].expo[j]);
+            }
+        }
+        poly_ele pe;
+        pe.coef=sqrtNum(1);
+        for (int i=0;i<26;++i){
+            pe.expo[i]=minexpo[i];
+        }
+        for (int i=0;i<x.v.size();++i){
+            x.v[i]=x.v[i]/pe;
+        }
+        for (int i=0;i<y.v.size();++i){
+            y.v[i]=y.v[i]/pe;
+        }
+        if (x.v.size()>0 && y.v.size()>0 && x.v.size()==y.v.size()){
+            poly_ele _pe=x.v[0]/y.v[0];
+            for (int i=1;i<x.v.size();++i){
+                if (!(x.v[i]/y.v[i]==_pe)){
+                    return ;
+                }
+            }
+            x.v.clear(),y.v.clear();
+            x.insert(_pe),y.insert(poly_ele(1));
+        }
         char cx,cy;
         frac fx,fy;
         if (x.qu(cx,fx) && y.qu(cy,fy)){
@@ -869,32 +867,64 @@ struct poly{//含除法
 };
 std::vector<std::pair<char,poly> >solvedResults;
 
+int trig_add,trig_minus,trig_mul,trig_div;
+std::istream& operator >> (std::istream &in,poly &f){
+    std::string s;
+    in>>s;
+    f.init(s.c_str());
+    return in;
+}
+std::ostream& operator << (std::ostream &out,const poly &f){
+    if (f.x==_poly(0)) out<<0;
+    else if (f.x==f.y) out<<1;
+    else {
+        if (f.y==_poly(1)) out<<f.x;
+        else out<<f.x<<"|"<<f.y;
+    }
+    return out;
+}
 poly operator + (poly A,poly B){
+    trig_add++;
     return poly(A.x*B.y+A.y*B.x,A.y*B.y);
 }
 poly operator - (poly A,poly B){
+    trig_minus++;
     return poly(A.x*B.y-A.y*B.x,A.y*B.y);
 }
 poly operator - (poly A){
     return poly(0)-poly(A);
 }
-poly operator * (poly A,poly B){
-    if (B.x==A.y) return poly(A.x,B.y);
-    if (A.x==B.y) return poly(B.x,A.y);
-    if (B.x==(_poly)("0")-A.y) return poly((_poly)("0")-A.x,B.y);
-    if (A.x==(_poly)("0")-B.y) return poly((_poly)("0")-B.x,A.y);
-    return poly(A.x*B.x,A.y*B.y);
-}
 poly abs(poly A){
     if (A.eval()>sqrtNum(0)) return A;
     else return -A;
 }
+poly operator * (poly A,poly B){
+    // std::cout<<A<<" "<<B<<std::endl;
+    trig_mul++;
+    if (A.x==0 || B.x==0) return poly(0);
+    if (B.x==A.y) return poly(A.x,B.y);
+    if (A.x==B.y) return poly(B.x,A.y);
+    if (B.x==(_poly)("0")-A.y) return poly((_poly)("0")-A.x,B.y);
+    if (A.x==(_poly)("0")-B.y) return poly((_poly)("0")-B.x,A.y);
+    poly tmp=poly(A.x,B.y);
+    if (tmp.y==1) return poly(tmp.x*B.x,A.y);
+    if (tmp.x==1) return poly(B.x,A.y*tmp.y);
+    tmp=poly(B.x,A.y);
+    if (tmp.y==1) return poly(tmp.x*A.x,B.y);
+    if (tmp.x==1) return poly(A.x,B.y*tmp.y);
+    // std::cout<<"returning "<<poly(A.x*B.x,A.y*B.y)<<std::endl;
+    return poly(A.x*B.x,A.y*B.y);
+}
 poly operator / (poly A,poly B){
+    trig_div++;
     if (B.isconst()) return poly(A.x*(sqrtNum(1)/B.eval()),A.y);
     return poly(A.x*B.y,A.y*B.x);
 }
 bool operator == (poly A,poly B){
     return (A-B).x==_poly(0);
+}
+bool operator != (poly A,poly B){
+    return !(A==B);
 }
 poly operator ^ (poly a,int k){
     if (k==0) return poly(1);
@@ -929,21 +959,15 @@ poly substitute(_poly p){
 poly substitute(poly p){
     return substitute(p.x)/substitute(p.y);
 }
-std::istream& operator >> (std::istream &in,poly &f){
-    std::string s;
-    in>>s;
-    f.init(s.c_str());
-    return in;
-}
-std::ostream& operator << (std::ostream &out,const poly &f){
-    if (f.x==_poly(0)) out<<0;
-    else if (f.x==f.y) out<<1;
-    else {
-        if (f.y==_poly(1)) out<<f.x;
-        else out<<f.x<<"|"<<f.y;
+Matrix<poly> substitute(Matrix<poly> M){
+    for (int i=1;i<=M.row;++i){
+        for (int j=1;j<=M.col;++j){
+            M[i][j]=substitute(M[i][j]);
+        }
     }
-    return out;
+    return M;
 }
+
 std::string to_latex(const poly &f,bool begin=true){
     std::string ret="";
     if (begin) ret+="$";
@@ -995,7 +1019,7 @@ void solve(std::vector<poly>p){
             }
         }
     }
-    __Matrix M(p.size(),cnt),b(p.size(),1);
+    Matrix<sqrtNum> M(p.size(),cnt),b(p.size(),1);
     for (int i=0;i<p.size();++i){
         auto v=&p[i].x.v;
         for (int j=0;j<v->size();++j){
@@ -1027,8 +1051,4 @@ void solve(std::vector<poly>p){
 sqrtNum Sqrt(poly p){
     return Sqrt(p.eval());
 }
-
-#undef Num
-#undef Matrix
-#undef _MATRIX_
 #endif
