@@ -42,12 +42,29 @@ std::vector<Matrix<Num> > Schmidt(std::vector<Matrix<Num> >alpha){
     }
     return beta;
 }
+poly length(Matrix<poly> A){
+    return Sqrt((A&A).eval());
+}
 template<class Num>
 bool isOrthogonalMatrix(Matrix<Num> A){
     assert(A.row==A.col);
     return A*A.transpose()==Matrix<Num>(A.row,A.col,1);
 }
+auto identilize(Matrix<poly> v){
+    return std::make_pair((poly(1)/length(v))*v,(poly(-1)/length(v))*v);
+}
 
+template<class Num>
+auto identilize(std::vector<Matrix<Num> > s){
+    for (int i=0;i<s.size();++i){
+        s[i]=identilize(s[i]).first;
+    }
+    return s;
+}
+template<class Num>
+std::vector<Matrix<Num> >baseExpansion(std::vector<Matrix<Num> > v){
+    return identilize(Schmidt(baseSolution(addH(v).transpose())));
+}
 
 template<class Num>
 auto length2(Matrix<Num> A){
@@ -77,17 +94,11 @@ Matrix<poly> Vector(poly A,poly B,poly C){
 Matrix<poly> Plane(poly A,poly B,poly C,poly D){
     return Matrix<poly>('R',std::vector<poly>{A,B,C,D});
 }
-poly length(Matrix<poly> A){
-    return Sqrt((A&A).eval());
-}
 auto angle(Matrix<poly> A,Matrix<poly> B){
     return (A&B)/(length(A)*length(B));
 }
 auto angle(Line A,Line B){
     return angle(A.second,B.second);
-}
-auto identilize(Matrix<poly> v){
-    return std::make_pair((poly(1)/length(v))*v,(poly(-1)/length(v))*v);
 }
 Matrix<poly> proj(Matrix<poly> A,Matrix<poly> B){
     return (A&B)/length(A);

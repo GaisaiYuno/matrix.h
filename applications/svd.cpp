@@ -5,12 +5,15 @@
 using namespace std;
 ofstream out;
 Matrix<poly> Lambda;
+bool cmp(poly A,poly B){
+    return A.eval()>B.eval();
+}
 Matrix<poly> diagonalize(Matrix<poly> A){
     assert(A.row==A.col);
     out<<to_latex(A)<<endl<<endl;
     Matrix<poly> B=A;
     for (int i=1;i<=A.row;++i){
-        B[i][i]=B[i][i]-poly("l");
+        B[i][i]=B[i][i]-poly("x");
     }
     cout<<"特征多项式"<<endl;
     _poly x=Determinant(B).x;
@@ -23,22 +26,11 @@ Matrix<poly> diagonalize(Matrix<poly> A){
     cout<<"对其进行分解"<<endl<<v<<endl;
     out<<"对其进行分解，得到，"<<to_latex(v)<<endl<<endl;
     vector<Matrix<poly> >s;
+    vector<poly>eigen;
     for (int i=0;i<v.v.size();++i){
         if (v.v[i].first.deg()==1){
-            poly lambda=poly(poly_ele(-v.v[i].first[0]));
-            out<<"对于特征值 $\\lambda="<<to_latex(lambda,0)<<"$ 我们有"<<endl<<endl;
-            cout<<"特征值 lambda="<<lambda<<endl;
-            cout<<"代数重数 n="<<v.v[i].second<<endl;//代数重数
-            Matrix<poly> B=A-lambda*Matrix<poly>(A.row,A.col,1);
-            vector<Matrix<poly> >baseS=baseSolution(B);
-            baseS=Schmidt(baseS);//进行施密特正交化
-            cout<<"几何重数 m="<<baseS.size()<<endl;//几何重数，几何重数不超过代数重数
-            cout<<B<<endl;
-            for (int i=0;i<baseS.size();++i){
-                cout<<baseS[i]<<endl;
-                s.push_back(baseS[i]);
-                out<<to_latex(baseS[i])<<endl<<endl;
-            }
+            poly lambda=poly(poly_ele(-v.v[i].first[0]/v.v[i].first[1]));
+            eigen.push_back(lambda);
         }
         else if (v.v[i].first.deg()==2){
             poly lambda_1,lambda_2;
@@ -46,32 +38,23 @@ Matrix<poly> diagonalize(Matrix<poly> A){
             frac delta=b*b-4*a*c;
             lambda_1=poly_ele(sqrtNum(-b/(2*a),1/(2*a),delta));
             lambda_2=poly_ele(sqrtNum(-b/(2*a),-1/(2*a),delta));
-
-            out<<"对于特征值 $\\lambda="<<to_latex(lambda_1,0)<<"$ , 我们有"<<endl<<endl;
-            cout<<"特征值 lambda="<<lambda_1<<endl;
-            cout<<"代数重数 n="<<v.v[i].second<<endl;//代数重数
-            Matrix<poly> B=A-lambda_1*Matrix<poly>(A.row,A.col,1);
-            vector<Matrix<poly> >baseS=baseSolution(B);
-            cout<<"几何重数 m="<<baseS.size()<<endl;//几何重数，几何重数不超过代数重数
-            cout<<B<<endl;
-            for (int i=0;i<baseS.size();++i){
-                cout<<baseS[i]<<endl;
-                s.push_back(baseS[i]);
-                out<<to_latex(baseS[i])<<endl<<endl;
-            }
-
-            out<<"对于特征值 $\\lambda="<<to_latex(lambda_2,0)<<"$ , 我们有"<<endl<<endl;
-            cout<<"特征值 lambda="<<lambda_2<<endl;
-            cout<<"代数重数 n="<<v.v[i].second<<endl;//代数重数
-            B=A-lambda_2*Matrix<poly>(A.row,A.col,1);
-            baseS=baseSolution(B);
-            cout<<"几何重数 m="<<baseS.size()<<endl;//几何重数，几何重数不超过代数重数
-            cout<<B<<endl;
-            for (int i=0;i<baseS.size();++i){
-                cout<<baseS[i]<<endl;
-                s.push_back(baseS[i]);
-                out<<to_latex(baseS[i])<<endl<<endl;
-            }
+            eigen.push_back(lambda_1);
+            eigen.push_back(lambda_2);
+        }
+    }
+    sort(eigen.begin(),eigen.end(),cmp);
+    for (poly lambda:eigen){
+        out<<"对于特征值 $\\lambda="<<to_latex(lambda,0)<<"$ 我们有"<<endl<<endl;
+        cout<<"特征值 lambda="<<lambda<<endl;
+        Matrix<poly> B=A-lambda*Matrix<poly>(A.row,A.col,1);
+        vector<Matrix<poly> >baseS=baseSolution(B);
+        baseS=Schmidt(baseS);//进行施密特正交化
+        cout<<"几何重数 m="<<baseS.size()<<endl;//几何重数，几何重数不超过代数重数
+        cout<<B<<endl;
+        for (int i=0;i<baseS.size();++i){
+            cout<<baseS[i]<<endl;
+            s.push_back(baseS[i]);
+            out<<to_latex(baseS[i])<<endl<<endl;
         }
     }
     if (s.size()==A.row){
@@ -112,16 +95,27 @@ int main(){
     cin>>A;
     int m=A.row,n=A.col;
     out<<begin_latex()<<endl<<endl;
-    Matrix<poly> U=diagonalize(A*A.transpose());
+    Matrix<poly> myU=diagonalize(A*A.transpose());
+    vector<Matrix<poly> >u;
     Matrix<poly> V=diagonalize(A.transpose()*A);
+    auto v=breakAsVector(V,'C');
     // Matrix<poly> Sigma=U.transpose()*A*V.transpose();
     Matrix<poly> Sigma=Lambda.resize(m,n);
     for (int i=1;i<=min(m,n);++i){
-        Sigma[i][i]=Sqrt(Sigma[i][i]);
+        if (Sigma[i][i]!=0){
+            Sigma[i][i]=Sqrt(Sigma[i][i]);
+            // cout<<v[i-1]<<endl;
+            u.push_back(1/Sigma[i][i]*(A*v[i-1]));
+        }
     }
+    Matrix<poly>U=addH(addH(u),addH(baseExpansion(u)));
+    V=V.transpose();
+    cout<<"My U:"<<myU<<endl;
+    // U=myU.transpose();
     cout<<U.message("U")<<endl;
     cout<<Sigma.message("Sigma")<<endl;
     cout<<V.message("V")<<endl;
+    cout<<(U*Sigma*V).message("SVD")<<endl;
     int k=min(n,m);
     for (int i=1;i<=min(n,m);++i){
         if (Sigma[i][i]==0){k=i-1;break;}
@@ -136,3 +130,7 @@ int main(){
     out<<end_latex()<<endl<<endl;
     out.close();
 }
+/*
+1 -1 0 0 2
+-2 0 0 1 1
+*/

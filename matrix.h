@@ -5,6 +5,7 @@
 #include <vector>
 #include <cstring>
 #include <fstream>
+#include <algorithm>
 template<class Num>
 struct Matrix{
     std::string Message;
@@ -271,12 +272,14 @@ Matrix<Num> addV(Matrix<Num> A,Matrix<Num> B){
 }
 template<class Num>
 Matrix<Num> addH(std::vector<Matrix<Num> >v){
+    if (v.size()==0) return Matrix<Num>(0,0);
     Matrix ret=v[0];
     for (int i=1;i<v.size();++i) ret=addH(ret,v[i]);
     return ret;
 }
 template<class Num>
 Matrix<Num> addV(std::vector<Matrix<Num> >v){
+    if (v.size()==0) return Matrix<Num>(0,0);
     Matrix ret=v[0];
     for (int i=1;i<v.size();++i) ret=addV(ret,v[i]);
     return ret;
@@ -359,11 +362,25 @@ template<class Num>
 Num Determinant(Matrix<Num> A){
     int n=A.row,m=A.col;
     assert(n==m);
-    if (n==3){
-        return A[1][1]*A[2][2]*A[3][3]+A[1][2]*A[2][3]*A[3][1]+A[2][1]*A[3][2]*A[1][3]-A[1][3]*A[2][2]*A[3][1]-A[1][1]*A[2][3]*A[3][2]-A[1][2]*A[2][1]*A[3][3];
-    }
-    if (n==4){
-        return A[1][1]*A[2][2]*A[3][3]*A[4][4]+A[1][1]*A[2][3]*A[3][4]*A[4][2]+A[1][1]*A[2][4]*A[3][2]*A[4][3]+A[1][2]*A[2][1]*A[3][4]*A[4][3]+A[1][2]*A[2][3]*A[3][1]*A[4][4]+A[1][2]*A[2][4]*A[3][3]*A[4][1]+A[1][3]*A[2][1]*A[3][2]*A[4][4]+A[1][3]*A[2][2]*A[3][4]*A[4][1]+A[1][3]*A[2][4]*A[3][1]*A[4][2]+A[1][4]*A[2][1]*A[3][3]*A[4][2]+A[1][4]*A[2][2]*A[3][1]*A[4][3]+A[1][4]*A[2][3]*A[3][2]*A[4][1]-A[1][1]*A[2][2]*A[3][4]*A[4][3]-A[1][1]*A[2][3]*A[3][2]*A[4][4]-A[1][1]*A[2][4]*A[3][3]*A[4][2]-A[1][2]*A[2][1]*A[3][3]*A[4][4]-A[1][2]*A[2][3]*A[3][4]*A[4][1]-A[1][2]*A[2][4]*A[3][1]*A[4][3]-A[1][3]*A[2][1]*A[3][4]*A[4][2]-A[1][3]*A[2][2]*A[3][1]*A[4][4]-A[1][3]*A[2][4]*A[3][2]*A[4][1]-A[1][4]*A[2][1]*A[3][2]*A[4][3]-A[1][4]*A[2][2]*A[3][3]*A[4][1]-A[1][4]*A[2][3]*A[3][1]*A[4][2];
+    if (n<=10){
+        Num ans=0;
+        int per[11];
+        for (int i=1;i<=n;++i) per[i]=i;
+        do{
+            int rev=1;
+            for (int i=2;i<=n;++i){
+                for (int j=1;j<=i-1;++j){
+                    if (per[i]<per[j]) rev=-rev;
+                }
+            }
+            Num sum;
+            for (int i=1;i<=n;++i){
+                if (i==1) sum=rev*A[i][per[i]];
+                else sum=sum*A[i][per[i]];
+            }
+            ans=ans+sum;
+        }while (std::next_permutation(per+1,per+1+n));
+        return ans;
     }
     Num sign=(Num)(1);
     for (int i=1;i<=std::min(n,m)-1;++i){
@@ -380,14 +397,10 @@ Num Determinant(Matrix<Num> A){
             return (Num)(0);
         }
         Num inv=(Num)(Num(0)-((Num)(1))/A[i][i]);
-        // std::cout<<"inv:"<<inv<<std::endl;
         for (int j=i+1;j<=n;++j){
             Num t=A[j][i]*inv;
-            // std::cout<<"two num"<<A[j][i]<<" "<<inv<<std::endl;
-            // std::cout<<"t:"<<t<<std::endl;
             A.addtimes('R',i,t,j);
         }
-        // std::cout<<A<<std::endl;
     }
     for (int i=1;i<=n;++i){
         sign=sign*A[i][i];
