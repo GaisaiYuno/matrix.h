@@ -4,6 +4,7 @@
 #include <fstream>
 using namespace std;
 ofstream out;
+Matrix<poly> Lambda;
 Matrix<poly> diagonalize(Matrix<poly> A){
     assert(A.row==A.col);
     out<<to_latex(A)<<endl<<endl;
@@ -94,6 +95,7 @@ Matrix<poly> diagonalize(Matrix<poly> A){
         //Q是一个正交矩阵
         cout<<Q.message("Q")<<endl;
         cout<<((Q.transpose())*A*Q).message("Q^{-1}AQ")<<endl;
+        Lambda=(Q.transpose())*A*Q;
         out<<to_latex(Q.message("Q"))<<endl<<endl;
         out<<to_latex(((Q.transpose())*A*Q).message("Q^{-1}AQ"))<<endl<<endl;
         return Q;
@@ -108,13 +110,29 @@ int main(){
     out.open("test.tex");
     Matrix<poly> A;
     cin>>A;
+    int m=A.row,n=A.col;
     out<<begin_latex()<<endl<<endl;
     Matrix<poly> U=diagonalize(A*A.transpose());
     Matrix<poly> V=diagonalize(A.transpose()*A);
-    Matrix<poly> Sigma=U.transpose()*A*V.transpose();
+    // Matrix<poly> Sigma=U.transpose()*A*V.transpose();
+    Matrix<poly> Sigma=Lambda.resize(m,n);
+    for (int i=1;i<=min(m,n);++i){
+        Sigma[i][i]=Sqrt(Sigma[i][i]);
+    }
     cout<<U.message("U")<<endl;
     cout<<Sigma.message("Sigma")<<endl;
     cout<<V.message("V")<<endl;
+    int k=min(n,m);
+    for (int i=1;i<=min(n,m);++i){
+        if (Sigma[i][i]==0){k=i-1;break;}
+    }
+    U.resize(m,k);
+    Sigma.resize(k,k);
+    V.resize(k,n);
+    cout<<U.message("New U")<<endl;
+    cout<<Sigma.message("New Sigma")<<endl;
+    cout<<V.message("New V")<<endl;
+    cout<<(U*Sigma*V).message("SVD")<<endl;
     out<<end_latex()<<endl<<endl;
     out.close();
 }

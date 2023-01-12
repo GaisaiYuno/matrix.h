@@ -12,6 +12,11 @@ struct sqrtNum{
     }
     void simp(){
         if (M==ALL_MOD) return ;
+        if (M==0){
+            y=0;
+            M=ALL_MOD;
+            return ;
+        }
         if (M.y!=1){
             M.x*=M.y;
             y=y/M.y;
