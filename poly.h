@@ -3,6 +3,7 @@
 #include "poly_ele.h"
 #include "matrix.h"
 #include <vector>
+
 template<class Num>
 struct upoly;
 template<class Num>
@@ -62,7 +63,7 @@ struct _poly{//不含除法
             if (equal(x,*i)){
                 found=true;
                 v[j]=v[j]+x;
-                if (v[j].coef==Num(0)){
+                if (equals(v[j].coef,Num(0))){
                     v.erase(i);
                 }
                 break;
@@ -108,7 +109,7 @@ struct _poly{//不含除法
     _poly(const char *s,int maxlen=0x7fffffff){
         init(s,maxlen);
     }
-    Num eval(){
+    operator Num(){
         if (v.size()==0){
             return 0;
         }
@@ -285,7 +286,7 @@ struct upoly{
     upoly(Matrix<Num>);
     void simp(){
         for (int i=v.size()-1;i>=0;--i){
-            if (!(v[i]==0)){
+            if (!equals(v[i],(Num)(0))){
                 v.resize(i+1);
                 return ;
             }
@@ -294,7 +295,7 @@ struct upoly{
     }
     bool is_zero(){
         for (int i=0;i<v.size();++i){
-            if (v[i]!=0) return false;
+            if (!equals(v[i],(Num)(0))) return false;
         }
         return true;
     }
@@ -503,12 +504,12 @@ upoly<Num> operator ^ (upoly<Num> a,int k){
     return ret;
 }
 upoly<double> Shie(upoly<double>a,double &p,double &q){
-    int n=a.v.size();
+    int n=a.v.size()-1;
     upoly<double>b,c;
-    b.v.resize(n),c.v.resize(n);
+    b.v.resize(n+1,0),c.v.resize(n+1,0);
     p=q=0;
     double dp=1,dq=1;
-    static const double eps=1e-8;
+    static const double eps=1e-6;
     while (dp>eps||dp<-eps||dq>eps||dq<-eps){
         double p0=p,q0=q;
         b[n-2]=a[n];
@@ -534,11 +535,11 @@ upoly<double> Shie(upoly<double>a,double &p,double &q){
 std::vector<double>solve(upoly<double>p){
     if (p.deg()<=2){
         if (p.deg()==2){
-            double a=p[0],b=p[1],c=p[2];
+            double c=p[0],b=p[1],a=p[2];
             double delta=b*b-4*a*c;
             if (delta<0) return std::vector<double>{};
             else{
-                double sq=sqrt(delta);
+                double sq=std::sqrt(delta);
                 return std::vector<double>{(-b+sq)/(2*a),(-b-sq)/(2*a)};
             }
         }
@@ -556,7 +557,7 @@ std::vector<double>solve(upoly<double>p){
         double delta=b*b-4*a*c;
         if (delta<0) return res;
         else{
-            double sq=sqrt(delta);
+            double sq=std::sqrt(delta);
             res.push_back((-b+sq)/(2*a));
             res.push_back((-b-sq)/(2*a));
             return res;
@@ -628,7 +629,7 @@ cpoly<Num> Factorization(upoly<Num> A){
         bool flag1=true,flag2=true;
         for (int i=100;i>=-100;--i){
             for (int j=1;j<=100;++j){
-                if (A.val(Num(i)/Num(j))==0){
+                if (equals(A.val(Num(i)/Num(j)),Num(0))){
                     factor.symb=A.symb;
                     factor.v.resize(2);
                     factor[1]=1;
@@ -905,8 +906,8 @@ struct poly{//含除法
     _poly<Num> x,y;
     poly(){
         x.v.clear(),y.v.clear();
-        x.insert(poly_ele(0));
-        y.insert(poly_ele(1));
+        x.insert(poly_ele((Num)(0)));
+        y.insert(poly_ele((Num)(1)));
     }
     poly(Num n){
         x.v.clear(),y.v.clear();
@@ -997,8 +998,8 @@ struct poly{//含除法
     poly(const char *s,int maxlen=0x7fffffff){
         init(s,maxlen);
     }
-    Num eval(){
-        return x.eval()/y.eval();
+    operator Num(){
+        return Num(x)/Num(y);
     }
     bool isconst(){
         return x.isconst() && y.isconst();
@@ -1037,7 +1038,7 @@ poly<Num> operator - (poly<Num> A){
 }
 template<class Num>
 poly<Num> abs(poly<Num> A){
-    if (A.eval()>Num(0)) return A;
+    if (Num(A)>Num(0)) return A;
     else return -A;
 }
 template<class Num>
@@ -1058,12 +1059,12 @@ poly<Num> operator * (poly<Num> A,poly<Num> B){
 }
 template<class Num>
 poly<Num> operator / (poly<Num> A,poly<Num> B){
-    if (B.isconst()) return poly<Num>(A.x*(Num(1)/B.eval()),A.y);
+    if (B.isconst()) return poly<Num>(A.x*(Num(1)/Num(B)),A.y);
     return poly<Num>(A.x*B.y,A.y*B.x);
 }
 template<class Num>
 bool operator == (poly<Num> A,poly<Num> B){
-    return (A-B).x==_poly<Num>(0);
+    return (A-B).x==_poly<Num>((Num)(0));
 }
 template<class Num>
 bool operator != (poly<Num> A,poly<Num> B){
@@ -1196,6 +1197,6 @@ cpoly<Num> Factorization(poly<Num> x){
 
 template<class Num>
 Num sqrt(poly<Num> p){
-    return sqrt(p.eval());
+    return sqrt(Num(p));
 }
 #endif

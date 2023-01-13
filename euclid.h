@@ -42,16 +42,18 @@ std::vector<Matrix<Num> > Schmidt(std::vector<Matrix<Num> >alpha){
     }
     return beta;
 }
-poly length(Matrix<poly> A){
-    return Sqrt((A&A).eval());
+template<class Num>
+Num length(Matrix<Num> A){
+    return sqrt(Num(A&A));
 }
 template<class Num>
 bool isOrthogonalMatrix(Matrix<Num> A){
     assert(A.row==A.col);
     return A*A.transpose()==Matrix<Num>(A.row,A.col,1);
 }
-auto identilize(Matrix<poly> v){
-    return std::make_pair((poly(1)/length(v))*v,(poly(-1)/length(v))*v);
+template<class Num>
+auto identilize(Matrix<Num> v){
+    return std::make_pair((Num(1)/length(v))*v,(Num(-1)/length(v))*v);
 }
 
 template<class Num>
@@ -65,7 +67,7 @@ template<class Num>
 std::vector<Matrix<Num> >baseExpansion(std::vector<Matrix<Num> > v){
     return identilize(Schmidt(baseSolution(addH(v).transpose())));
 }
-
+/*
 template<class Num>
 auto length2(Matrix<Num> A){
     return (A&A);
@@ -192,4 +194,5 @@ Matrix<poly> houseHolder(Matrix<poly> v){
     int n=v.row;
     return Matrix<poly>(n,n,1)-(poly(2)*v*v.transpose());
 }
+*/
 #endif

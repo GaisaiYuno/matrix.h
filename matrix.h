@@ -5,7 +5,23 @@
 #include <vector>
 #include <cstring>
 #include <fstream>
+#include <cmath>
 #include <algorithm>
+#include <iomanip>
+double myabs(double x){
+    if (x>0) return x;
+    else return -x;
+}
+template<class T>
+bool equals(const T &a,const T &b){
+    if (typeid(T)==typeid(double)){
+        static const double eps=1e-4;
+        return myabs(a-b)<=eps;
+    }
+    else{
+        return a==b;
+    }
+}
 template<class Num>
 struct Matrix{
     std::string Message;
@@ -190,6 +206,19 @@ struct Matrix{
         }
         return *this;
     }
+    template<class T>
+    operator Matrix<T>(){
+        Matrix<T>s;
+        s.Message=Message;
+        s.row=row,s.col=col;
+        s.resize(row,col);
+        for (int i=1;i<=row;++i){
+            for (int j=1;j<=col;++j){
+                s[i][j]=(T)(M[i][j]);
+            }
+        }
+        return s;
+    }
 };
 
 template<class Num>
@@ -216,6 +245,17 @@ std::ostream& operator << (std::ostream &out,const Matrix<Num> &A){
     for (int i=1;i<=A.row;++i){
         for (int j=1;j<=A.col;++j){
             std::cout<<A.M[i][j]<<" ";
+        }
+        std::cout<<std::endl;
+    }
+    return out;
+}
+std::ostream& operator << (std::ostream &out,const Matrix<double> &A){
+    std::cout<<A.Message<<std::endl;
+    for (int i=1;i<=A.row;++i){
+        for (int j=1;j<=A.col;++j){
+            if (equals(A.M[i][j],(double)(0))) std::cout<<"0 ";
+            else std::cout<<std::setprecision(6)<<A.M[i][j]<<" ";
         }
         std::cout<<std::endl;
     }
@@ -334,10 +374,10 @@ Matrix<Num> Inverse(Matrix<Num> A){//求逆矩阵
     for (int i=1;i<=std::min(n,m);++i){
         int r=i;
         for (int j=i;j<=n;++j){
-            if (!(A[j][i]==(Num)(0))) r=j;
+            if (!equals(A[j][i],(Num)(0))) r=j;
         }
         A.swap('R',i,r),B.swap('R',i,r);
-        if (A[i][i]==(Num)(0)){
+        if (equals(A[i][i],(Num)(0))){
             B.Message="Not full rank!";
             return B;
         }
@@ -362,7 +402,7 @@ template<class Num>
 Num Determinant(Matrix<Num> A){
     int n=A.row,m=A.col;
     assert(n==m);
-    if (n<=10){
+    if (n<=7){
         Num ans=0;
         int per[11];
         for (int i=1;i<=n;++i) per[i]=i;
@@ -375,7 +415,7 @@ Num Determinant(Matrix<Num> A){
             }
             Num sum;
             for (int i=1;i<=n;++i){
-                if (i==1) sum=rev*A[i][per[i]];
+                if (i==1) sum=(Num)(rev)*A[i][per[i]];
                 else sum=sum*A[i][per[i]];
             }
             ans=ans+sum;
@@ -384,16 +424,17 @@ Num Determinant(Matrix<Num> A){
     }
     Num sign=(Num)(1);
     for (int i=1;i<=std::min(n,m)-1;++i){
+        std::cout<<A<<std::endl;
         if (i>m){
             break;
         }
         int r=i;
         for (int j=n;j>=i;--j){
-            if (!(A[j][i]==(Num)(0))) r=j;
+            if (!equals(A[j][i],(Num)(0))) r=j;
         }
         A.swap('R',r,i);
         if (i!=r) sign=(Num)(0)-sign;
-        if (A[i][i]==(Num)(0)){
+        if (equals(A[i][i],(Num)(0))){
             return (Num)(0);
         }
         Num inv=(Num)(Num(0)-((Num)(1))/A[i][i]);
@@ -407,18 +448,18 @@ Num Determinant(Matrix<Num> A){
     }
     return sign;
 }
-//化成简化的阶梯型矩阵，可选是否在前面形成一个单位矩阵，即是否交换列
+//化成简化的阶梯型矩阵
 template<class Num>
-Matrix<Num> Gauss(Matrix<Num> A,bool swapCol=false){
+Matrix<Num> Gauss(Matrix<Num> A){
     int n=A.row,m=A.col;
     int rk=1;
     for (int i=1;i<=std::min(n,m);++i){
         int r=rk;
         for (int j=n;j>=rk;--j){
-            if (!(A[j][i]==(Num)(0))) r=j;
+            if (!equals(A[j][i],(Num)(0))) r=j;
         }
         A.swap('R',r,rk);
-        if (A[rk][i]==(Num)(0)){
+        if (equals(A[rk][i],(Num)(0))){
             continue;
         }
         Num inv=(Num)(Num(0)-((Num)(1))/A[rk][i]);
@@ -431,19 +472,9 @@ Matrix<Num> Gauss(Matrix<Num> A,bool swapCol=false){
     }
     for (int i=1;i<=std::min(n,m);++i){
         for (int j=1;j<=m;++j){
-            if (!(A[i][j]==(Num)(0))){
+            if (!equals(A[i][j],(Num)(0))){
                 A.times('R',i,(Num)(1)/A[i][j]);
                 break;
-            }
-        }
-    }
-    if (swapCol==true){
-        for (int i=1;i<=n;++i){
-            for (int j=1;j<=m;++j){
-                if (A[i][j]==(Num)(1)){
-                    A.swap('C',i,j);
-                    break;
-                }
             }
         }
     }
@@ -556,7 +587,7 @@ int rk(Matrix<Num> A){
     for (int i=1;i<=B.row;++i){
         bool flag=false;
         for (int j=1;j<=B.col;++j){
-            if (!(B[i][j]==(Num)(0))){
+            if (!equals(B[i][j],(Num)(0))){
                 flag=true;
                 break;
             }
@@ -614,11 +645,12 @@ Matrix<Num> subMatrix(Matrix<Num> A,int rlb,int rub,int clb,int cub){
 //求出 A 的基础解系
 template<class Num>
 std::vector<Matrix<Num> > baseSolution(Matrix<Num> A){
-    Matrix B=Gauss(A,false);
+    Matrix B=Gauss(A);
+    // std::cout<<B<<std::endl;
     std::vector<std::pair<int,int> >swapID;
     for (int i=1;i<=B.row;++i){
         for (int j=1;j<=B.col;++j){
-            if (B[i][j]==(Num)(1)){
+            if (equals(B[i][j],(Num)(1))){
                 B.swap('C',i,j);
                 swapID.push_back(std::make_pair(i,j));
                 break;
@@ -639,7 +671,7 @@ std::vector<Matrix<Num> > baseSolution(Matrix<Num> A,Matrix<Num> b){
     std::vector<std::pair<int,int> >swapID;
     for (int i=1;i<=B.row;++i){
         for (int j=1;j<=B.col-1;++j){
-            if (B[i][j]==(Num)(1)){
+            if (equals(B[i][j],(Num)(1))){
                 B.swap('C',i,j);
                 swapID.push_back(std::make_pair(i,j));
                 break;
