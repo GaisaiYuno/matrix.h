@@ -218,7 +218,7 @@ template<class Num>
 std::istream& operator >> (std::istream &in,poly_ele<Num> &f){
     std::string s;
     in>>s;
-    f=poly_ele(s.c_str());
+    f=poly_ele<Num>(s.c_str());
     return in;
 }
 template<class Num>

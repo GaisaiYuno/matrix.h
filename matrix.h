@@ -15,7 +15,7 @@ double myabs(double x){
 template<class T>
 bool equals(const T &a,const T &b){
     if (typeid(T)==typeid(double)){
-        static const double eps=1e-4;
+        static const double eps=1e-7;
         return myabs(a-b)<=eps;
     }
     else{

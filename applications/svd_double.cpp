@@ -4,24 +4,29 @@
 #include <fstream>
 using namespace std;
 Matrix<double> Lambda;
+bool comp(double a,double b){
+    return equals(a,b);
+}
 Matrix<double> diagonalize(Matrix<double> A){
     assert(A.row==A.col);
-    Matrix<poly<double> >B=Matrix<poly<double> >(A);
-    for (int i=1;i<=A.row;++i) B[i][i]=B[i][i]-poly<double>("x");
-    // cout<<B<<endl;
-    _poly<double> x=Determinant(B).x;
-    cout<<"特征多项式"<<x<<endl;
-    upoly<double> _x(x);
-    vector<double> sol=solve(_x);
-    sort(sol.begin(),sol.end(),greater<double>());
+    // Matrix<poly<double> >B=Matrix<poly<double> >(A);
+    // for (int i=1;i<=A.row;++i) B[i][i]=B[i][i]-poly<double>("x");
+    // // cout<<B<<endl;
+    // _poly<double> x=Determinant(B).x;
+    // cout<<"特征多项式"<<x<<endl;
+    // upoly<double> _x(x);
+    // vector<double> sol=solve(_x);
+    auto eig=EigenVals(A);
+    sort(eig.begin(),eig.end(),greater<double>());
+    eig.erase(unique(eig.begin(),eig.end(),comp),eig.end());
     vector<Matrix<double> >s;
-    for (double lambda:sol){
+    for (double lambda:eig){
         // cout<<lambda<<endl;
         // cout<<F(_x,lambda)<<endl;
         Matrix<double> B=A-lambda*Matrix<double>(A.row,A.col,1);
         // cout<<B<<endl;
         auto baseS=Schmidt(baseSolution(B));
-        // cout<<"size"<<baseS.size()<<endl;
+        cout<<"size"<<baseS.size()<<endl;
         for (auto x:baseS) s.push_back(x);
     }
     if (s.size()==A.row){
@@ -70,7 +75,7 @@ int main(){
         cout<<Sigma.message("New Sigma")<<endl;
         cout<<V.message("New V")<<endl;
         cout<<(U*Sigma*V).message("SVD")<<endl;
-        cout<<"舍弃第"<<j<<"个特征值"<<Sigma[j][j]<<"，得到："<<endl;
+        cout<<"舍弃第"<<j<<"个奇异值"<<Sigma[j][j]<<"，得到："<<endl;
     }
 }
 /*
@@ -83,24 +88,19 @@ int main(){
 
 svd {{1,0,0,0,0,0},{1,0,1,1,0,0},{1,1,1,0,0,1},{1,1,1,0,0,0},{1,1,1,1,1,0},{1,0,0,0,0,0}}
 
-1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
-1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
-1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
-1 0 1 1 1 1 1 1 1 1 1 0 0 0 1 1 1 1 1 1
-1 0 1 0 0 1 1 1 1 1 0 0 1 0 0 1 1 1 1 1
-1 0 0 0 0 0 1 1 1 1 0 1 1 1 0 0 1 1 1 1
-1 0 0 1 1 0 0 1 1 0 0 1 1 1 1 0 1 1 1 1
-1 0 0 1 1 1 0 1 1 0 1 1 1 1 1 0 0 1 1 1
-1 0 0 1 1 1 0 1 1 0 1 1 1 1 0 0 1 1 1 1
-1 0 1 1 1 1 0 1 1 0 1 1 1 0 0 0 1 1 1 1
-1 0 1 1 1 1 0 1 1 1 0 0 0 0 1 0 1 1 1 1
-1 1 1 1 1 1 1 1 1 1 1 0 0 1 1 0 0 1 1 1
-1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 1 1
-1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
-1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
-1 1 1 1 0 1 0 0 1 1 1 1 1 1 1 1 1 1 1 1
-1 1 1 1 0 0 0 0 0 1 1 1 1 1 1 1 1 1 1 1
-1 1 1 1 0 1 1 1 0 0 1 1 1 1 1 1 1 1 1 1
-1 1 1 1 0 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1
-1 1 1 1 0 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1
+1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+1 0 1 1 1 1 1 1 1 1 1 1 1 1 1
+1 0 1 1 1 1 1 1 1 1 1 0 0 0 1
+1 0 1 0 0 1 1 1 1 1 0 0 1 0 0
+1 0 0 0 0 0 1 1 1 1 0 1 1 1 0
+1 0 0 1 1 0 0 1 1 0 0 1 1 1 1
+1 0 0 1 1 1 0 1 1 0 1 1 1 1 1
+1 0 0 1 1 1 0 1 1 0 1 1 1 1 0
+1 0 1 1 1 1 0 1 1 0 1 1 1 0 0
+1 0 1 1 1 1 0 1 1 1 0 0 0 0 1
+1 1 1 1 1 1 1 1 1 1 1 0 0 1 1
+1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
 */

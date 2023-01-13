@@ -43,6 +43,58 @@ std::vector<Matrix<Num> > Schmidt(std::vector<Matrix<Num> >alpha){
     return beta;
 }
 template<class Num>
+std::pair<Matrix<Num>,Matrix<Num> > QR(Matrix<Num>A){
+    assert(A.row==A.col);
+    Matrix<Num>R(A.row,A.col);
+    auto alpha=breakAsVector(A,'C');
+    int s=alpha.size();
+    std::vector<Matrix<Num> >beta;
+    for (int i=1;i<=s;++i){
+        Matrix<Num> beta_i=alpha[i-1];
+        for (int j=1;j<=i-1;++j){
+            Num lambda=(alpha[i-1]&beta[j-1])/(beta[j-1]&beta[j-1]);
+            beta_i=beta_i-lambda*beta[j-1];
+            R[j][i]=lambda;
+        }
+        R[i][i]=1;
+        beta_i.Message="\\beta_"+std::to_string(i);
+        beta.push_back(beta_i);
+    }
+    for (int i=1;i<=s;++i){
+        Num l=length(beta[i-1]);
+        beta[i-1]=(Num(1)/Num(l))*beta[i-1];
+        R.times('R',i,l);
+    }
+    Matrix<Num>Q=addH(beta);
+    return std::make_pair(Q.message("Q"),R.message("R"));
+}
+template<class Num>
+std::vector<Num> EigenVals(Matrix<Num>A){
+    assert(A.row==A.col);
+    int n=A.row;
+    if (n==1) return std::vector<Num>{A[1][1]};
+    Matrix eye=Matrix<Num>(n,n,1);
+    while(true){
+        Num sigma=A[n][n];
+        auto p=QR(A-sigma*eye);
+        Matrix Q=p.first,R=p.second;
+        Matrix _A=A;
+        A=R*Q+sigma*eye;
+        bool flag=true;
+        for (int i=1;i<=n-1;++i){
+            if (!equals(A[n][i],(Num)(0))){
+                flag=false;
+                break;
+            }
+        }
+        if (flag) break;
+    }
+    Num eig_val=A[n][n];
+    std::vector<Num> eig=EigenVals(subMatrix(A,1,n-1,1,n-1));
+    eig.push_back(eig_val);
+    return eig;
+}
+template<class Num>
 Num length(Matrix<Num> A){
     return sqrt(Num(A&A));
 }
