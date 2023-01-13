@@ -340,7 +340,7 @@ struct upoly{
         }
     }
     void init(const char *s,int maxlen=0x7fffffff){
-        init_from_poly(_poly(s,maxlen));
+        init_from_poly(_poly<Num>(s,maxlen));
     }
     upoly(const char *s,int maxlen=0x7fffffff){
         init(s,maxlen);
@@ -489,10 +489,79 @@ upoly<Num> F(upoly<Num> x,upoly<Num> a){
     return ans;
 }
 template<class Num>
+upoly<Num> F(upoly<Num> x,Num a){
+    Num ans;
+    for (int i=x.v.size()-1;i>=0;--i){
+        ans=ans*a+x.v[i];
+    }
+    return ans;
+}
+template<class Num>
 upoly<Num> operator ^ (upoly<Num> a,int k){
     upoly ret=a;
     for (int i=1;i<=k-1;++i) ret=ret*a;
     return ret;
+}
+upoly<double> Shie(upoly<double>a,double &p,double &q){
+    int n=a.v.size();
+    upoly<double>b,c;
+    b.v.resize(n),c.v.resize(n);
+    p=q=0;
+    double dp=1,dq=1;
+    static const double eps=1e-8;
+    while (dp>eps||dp<-eps||dq>eps||dq<-eps){
+        double p0=p,q0=q;
+        b[n-2]=a[n];
+        c[n-2]=b[n-2];
+        b[n-3]=a[n-1]-p0*b[n-2];
+        c[n-3]=b[n-3]-p0*b[n-2];
+        for (int j=n-4;j>=0;j--) {
+            b[j]=a[j+2]-p0*b[j+1]-q0*b[j+2];
+            c[j]=b[j]-p0*c[j+1]-q0*c[j+2];
+        }
+        double r=a[1]-p0*b[0]-q0*b[1];
+        double s=a[0]-q0*b[0];
+        double rp=c[1];
+        double sp=b[0]-q0*c[2];
+        double rq=c[0];
+        double sq=-q0*c[1];
+        dp=(rp*s-r*sp)/(rp*sq-rq*sp);
+        dq=(r*sq-rq*s)/(rp*sq-rq*sp);
+        p+=dp,q+=dq;
+    }
+    return b;
+}
+std::vector<double>solve(upoly<double>p){
+    if (p.deg()<=2){
+        if (p.deg()==2){
+            double a=p[0],b=p[1],c=p[2];
+            double delta=b*b-4*a*c;
+            if (delta<0) return std::vector<double>{};
+            else{
+                double sq=sqrt(delta);
+                return std::vector<double>{(-b+sq)/(2*a),(-b-sq)/(2*a)};
+            }
+        }
+        else if (p.deg()==1){
+            return std::vector<double>{-p[0]/p[1]};
+        }
+        else{
+            return std::vector<double>{};
+        }
+    }
+    else{
+        double a=1,b,c;
+        upoly<double>_p=Shie(p,b,c);
+        std::vector<double>res=solve(_p);
+        double delta=b*b-4*a*c;
+        if (delta<0) return res;
+        else{
+            double sq=sqrt(delta);
+            res.push_back((-b+sq)/(2*a));
+            res.push_back((-b-sq)/(2*a));
+            return res;
+        }
+    }
 }
 template<class Num>
 struct cpoly{

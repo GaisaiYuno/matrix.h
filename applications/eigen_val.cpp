@@ -6,48 +6,47 @@ using namespace std;
 int main(){
     ofstream out;
     out.open("test.tex");
-    Matrix<poly> A;
+    Matrix<poly<sqrtNum> > A;
     cin>>A;
     out<<begin_latex()<<endl<<endl;
     out<<to_latex(A)<<endl<<endl;
-    Matrix<poly> B=A;
+    Matrix<poly<sqrtNum> > B=A;
     for (int i=1;i<=A.row;++i){
-        B[i][i]=B[i][i]-poly("l");
+        B[i][i]=B[i][i]-poly<sqrtNum>("l");
     }
     cout<<"特征多项式"<<endl;
     _poly x=Determinant(B).x;
     cout<<x<<endl;
     out<<to_latex(B,"vmatrix")<<"="<<to_latex(x)<<endl<<endl;
-    upoly _x;
+    upoly<sqrtNum> _x;
     _x.init_from_poly(x);
     cpoly v=Factorization(_x);
     v.sort();
     cout<<"对其进行分解"<<endl<<v<<endl;
     out<<"对其进行分解，得到，"<<to_latex(v)<<endl<<endl;
-    vector<Matrix<poly> >s;
+    vector<Matrix<poly<sqrtNum> > >s;
     for (int i=0;i<v.v.size();++i){
         if (v.v[i].first.deg()==1){
             poly lambda=poly(poly_ele(-v.v[i].first[0]));
             out<<"对于特征值 $\\lambda="<<to_latex(lambda,0)<<"$ 我们有"<<endl<<endl;
             cout<<"特征值 lambda="<<lambda<<endl;
             cout<<"代数重数 n="<<v.v[i].second<<endl;//代数重数
-            Matrix<poly> B=A-lambda*Matrix<poly>(A.row,A.col,1);
-            vector<Matrix<poly> >baseS=baseSolution(B);
+            Matrix<poly<sqrtNum> > B=A-lambda*Matrix<poly<sqrtNum> >(A.row,A.col,1);
+            auto baseS=baseSolution(B);
             baseS=Schmidt(baseS);//进行施密特正交化
             cout<<"几何重数 m="<<baseS.size()<<endl;//几何重数，几何重数不超过代数重数
             cout<<B<<endl;
-            for (int i=0;i<baseS.size();++i){
-                cout<<baseS[i]<<endl;
-                s.push_back(baseS[i]);
-                out<<to_latex(baseS[i])<<endl<<endl;
+            for (auto x:baseS){
+                cout<<x<<endl;
+                s.push_back(x);
+                out<<to_latex(x)<<endl<<endl;
             }
         }
         else if (v.v[i].first.deg()==2){
-            poly lambda_1,lambda_2;
             frac a=v.v[i].first[2],b=v.v[i].first[1],c=v.v[i].first[0];
             frac delta=b*b-4*a*c;
-            lambda_1=poly_ele(sqrtNum(-b/(2*a),1/(2*a),delta));
-            lambda_2=poly_ele(sqrtNum(-b/(2*a),-1/(2*a),delta));
+            poly lambda_1=poly_ele(sqrtNum(-b/(2*a),1/(2*a),delta));
+            poly lambda_2=poly_ele(sqrtNum(-b/(2*a),-1/(2*a),delta));
 
             out<<"对于特征值 $\\lambda="<<to_latex(lambda_1,0)<<"$ , 我们有"<<endl<<endl;
             cout<<"特征值 lambda="<<lambda_1<<endl;
