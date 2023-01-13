@@ -133,6 +133,11 @@ poly_ele<Num> operator * (poly_ele<Num> A,poly_ele<Num> B){
     }
     return res;
 }
+template<class lam,class Num>
+poly_ele<Num> operator * (lam lambda,poly_ele<Num> B){
+    B.coef=(Num)(lambda)*B.coef;
+    return B;
+}
 template<class Num>
 poly_ele<Num> operator / (poly_ele<Num> A,poly_ele<Num> B){
     return A*(B.inv());

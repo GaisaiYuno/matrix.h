@@ -1,18 +1,17 @@
 #include "poly.h"
 using namespace std;
-sqrtNum lambda;
-poly simplify(poly ret){
+frac lambda;
+poly<frac> simplify(poly<frac> ret){
     lambda=ret.x[0].coef/ret.y[0].coef;
-    ret.x=ret.x-_poly(lambda)*_poly("t")*ret.y;
+    ret.x=ret.x-_poly(lambda)*_poly<frac>("t")*ret.y;
     ret.simp();
     return ret;
 }
 int main(){
-    upoly x;
-    cpoly y;
+    upoly<frac> x;
+    cpoly<frac> y;
     cin>>x>>y;
-    upoly _y=to_upoly(y);
-    upoly z=x/_y;
+    upoly _y=y,z=x/_y;
     cout<<Integral(z)<<endl;
     x=x%_y;
     decomp dc=Decomposit(x,y);

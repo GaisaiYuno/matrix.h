@@ -163,6 +163,11 @@ _poly<Num> operator * (_poly<Num> A,_poly<Num> B){
     }
     return C;
 }
+template<class lam,class Num>
+_poly<Num> operator * (lam lambda,_poly<Num> B){
+    for (auto &x:B.v) x=(Num)(lambda)*x;
+    return B;
+}
 template<class Num>
 _poly<Num> operator ^ (_poly<Num> a,int k){
     if (k==0) return _poly<Num>(1);
@@ -605,6 +610,7 @@ cpoly<Num> Factorization(upoly<Num> A){
 }
 template<class Num>
 upoly<Num>::upoly(cpoly<Num> x){
+    symb='x';
     upoly<Num> ret;
     ret.insert(0,Num(1));
     for (int i=0;i<x.v.size();++i){
@@ -616,6 +622,7 @@ upoly<Num>::upoly(cpoly<Num> x){
 }
 template<class Num>
 upoly<Num>::upoly(Matrix<Num> M){
+    symb='x';
     int cnt=0;
     for (int i=1;i<=M.row;++i){
         for (int j=1;j<=M.col;++j){
@@ -686,12 +693,12 @@ decomp<Num> Decomposit(upoly<Num> x,cpoly<Num> y){
         int d=y.v[i].first.deg();
         for (int j=1;j<=y.v[i].second;++j){
             if (d==1){
-                ret.insert(upoly(std::vector<sqrtNum>{ans[++cnt][1]}),y.v[i].first,j);
+                ret.insert(upoly(std::vector<Num>{ans[++cnt][1]}),y.v[i].first,j);
             }
             else if (d==2){
                 Num B=ans[++cnt][1];
                 Num D=ans[++cnt][1];
-                ret.insert(upoly(std::vector<sqrtNum>{D,B}),y.v[i].first,j);
+                ret.insert(upoly(std::vector<Num>{D,B}),y.v[i].first,j);
             }
         }
     }
@@ -904,7 +911,7 @@ struct poly{//含除法
         simp();
     }
     poly(_poly<Num> nx){
-        x=nx,y=1;
+        x=nx,y=_poly((Num)(1));
     }
     void init(const char *s,int maxlen=0x7fffffff){//多项式除法，以中间的 | 为分界符
         int len=std::min((int)std::strlen(s),maxlen);
@@ -1054,7 +1061,7 @@ std::string to_latex(const poly<Num> &f,bool begin=true){
 template<class Num>
 poly<Num> int_x2a2(int n,Num a){
     if (n==1){
-        return _poly("t");
+        return _poly<Num>("t");
     }
     return poly<Num>(poly_ele<Num>(Num(1)/(a*a)))*(poly<Num>(poly_ele<Num>(Num(2*n-3,2*n-2)))*int_x2a2(n-1,a)+poly<Num>(_poly<Num>("x"),2*(n-1)*((_poly<Num>("x^2")+_poly<Num>(a*a))^(n-1))));
 }

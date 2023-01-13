@@ -1,9 +1,9 @@
 #include "matrix.h"
 using namespace std;
 int main(){
-    Matrix<> A;
+    Matrix<double> A;
     cin>>A;
-    Matrix<> B;
+    Matrix<double> B;
     cin>>B;
     cout<<A*B<<endl;
 }
