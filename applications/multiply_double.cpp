@@ -1,10 +1,9 @@
-#include "poly.h"
 #include "matrix.h"
 using namespace std;
 int main(){
-    Matrix<poly<double> > A;
+    Matrix<> A;
     cin>>A;
-    Matrix<poly<double> > B;
+    Matrix<> B;
     cin>>B;
     cout<<A*B<<endl;
 }

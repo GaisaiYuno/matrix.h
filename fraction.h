@@ -5,7 +5,12 @@
 #include <iostream>
 #include <cassert>
 #include <cmath>
-long long toInterger(const char *s,int length){
+template<class T>
+T toConstVal(const char *s,int length){
+    return T(0);
+}
+template<>
+long long toConstVal<long long>(const char *s,int length){
     long long f=1,x=0;
     for (int i=0;i<length;++i){
         if (s[i]=='-') f=-f;
@@ -15,6 +20,23 @@ long long toInterger(const char *s,int length){
     }
     return x*f;
 }
+template<>
+int toConstVal<int>(const char *s,int length){
+    long long f=1,x=0;
+    for (int i=0;i<length;++i){
+        if (s[i]=='-') f=-f;
+        else if ('0'<=s[i] && s[i]<='9'){
+            x=x*10+s[i]-'0';
+        }
+    }
+    return x*f;
+}
+template<>
+double toConstVal<double>(const char *s,int length){
+    std::string s1=s;
+    return std::stod(s1.substr(0,length));
+}
+
 long long getPowFactor(long long x){
     for (long long i=sqrt(x);i>=1;--i){
         if (x%(i*i)==0) return i;
@@ -46,12 +68,12 @@ struct frac{
         int len=std::min((int)std::strlen(s),maxlen);
         for (int i=0;i<len;++i){
             if (s[i]=='/'){
-                x=toInterger(s,i),y=toInterger(s+i+1,len-i-1);
+                x=toConstVal<long long>(s,i),y=toConstVal<long long>(s+i+1,len-i-1);
                 simp();
                 return ;
             }
         }
-        x=toInterger(s,len),y=1;
+        x=toConstVal<long long>(s,len),y=1;
     }
     frac(const char *s,int maxlen=0x7fffffff){
         init(s,maxlen);
@@ -133,5 +155,9 @@ std::string to_latex(const frac &f,bool begin=true){
     else ret=std::to_string(f.x);
     if (begin) ret+="$";
     return ret;
+}
+template<>
+frac toConstVal<frac>(const char *s,int length){
+    return frac(s,length);
 }
 #endif

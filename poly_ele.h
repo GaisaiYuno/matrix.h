@@ -14,22 +14,17 @@ a^2 代表 1a^2
 #define POLY_ELE
 #include "fraction.h"
 #include "sqrt_field.h"
+template<class Num>
 struct poly_ele{//一个多项式的元素，形如 2/3a^3b^3/2
-    sqrtNum coef;
+    Num coef;
     frac expo[26];
     poly_ele(){
-        coef=(sqrtNum)(0);
+        coef=(Num)(0);
         for (int i=0;i<26;++i){
             expo[i]=(frac)(0);
         }
     }
-    poly_ele(int x){
-        coef=(sqrtNum)(x);
-        for (int i=0;i<26;++i){
-            expo[i]=(frac)(0);
-        }
-    }
-    poly_ele(sqrtNum x){
+    poly_ele(Num x){
         coef=x;
         for (int i=0;i<26;++i){
             expo[i]=(frac)(0);
@@ -46,8 +41,8 @@ struct poly_ele{//一个多项式的元素，形如 2/3a^3b^3/2
         int lastAlphabet=-1;
         for (int i=0;i<len;++i){
             if (lastAlphabet==-1 && 'a'<=s[i] && s[i]<='z'){//前面的系数
-                if (i==0) coef.init("1");
-                else coef.init(s,i);
+                if (i==0) coef=Num(1);
+                else coef=toConstVal<Num>(s,i);
                 lastAlphabet=i;
             }
             if ('a'<=s[i] && s[i]<='z' && lastAlphabet!=-1){
@@ -62,7 +57,7 @@ struct poly_ele{//一个多项式的元素，形如 2/3a^3b^3/2
             }
         }
         if (lastAlphabet==-1){
-            coef.init(s,len);
+            coef=toConstVal<Num>(s,len);
         }
         else{
             int index=s[lastAlphabet]-'a';
@@ -103,7 +98,7 @@ struct poly_ele{//一个多项式的元素，形如 2/3a^3b^3/2
     }
     poly_ele inv(){
         poly_ele ret;
-        ret.coef=sqrtNum(1)/coef;
+        ret.coef=Num(1)/coef;
         for (int i=0;i<26;++i){
             ret.expo[i]=frac(0)-expo[i];
         }
@@ -111,48 +106,80 @@ struct poly_ele{//一个多项式的元素，形如 2/3a^3b^3/2
     }
     poly_ele minus(){
         poly_ele ret;
-        ret.coef=sqrtNum(0)-coef;
+        ret.coef=Num(0)-coef;
         for (int i=0;i<26;++i){
             ret.expo[i]=expo[i];
         }
         return ret;
     }
 };
-bool equal(poly_ele A,poly_ele B){
+template<class Num>
+bool equal(poly_ele<Num> A,poly_ele<Num> B){
     for (int i=0;i<26;++i){
         if (A.expo[i]!=B.expo[i]) return false;
     }
     return true;
 }
-bool operator == (poly_ele A,poly_ele B){
+template<class Num>
+bool operator == (poly_ele<Num> A,poly_ele<Num> B){
     return A.coef == B.coef && equal(A,B);
 }
-poly_ele operator * (poly_ele A,poly_ele B){
-    poly_ele res;
+template<class Num>
+poly_ele<Num> operator * (poly_ele<Num> A,poly_ele<Num> B){
+    poly_ele<Num> res;
     res.coef=A.coef*B.coef;
     for (int i=0;i<26;++i){
         res.expo[i]=A.expo[i]+B.expo[i];
     }
     return res;
 }
-poly_ele operator / (poly_ele A,poly_ele B){
+template<class Num>
+poly_ele<Num> operator / (poly_ele<Num> A,poly_ele<Num> B){
     return A*(B.inv());
 }
-poly_ele operator + (poly_ele A,poly_ele B){
+template<class Num>
+poly_ele<Num> operator + (poly_ele<Num> A,poly_ele<Num> B){
     for (int i=0;i<26;++i){
         assert(A.expo[i]==B.expo[i]);
     }
     A.coef=A.coef+B.coef;
     return A;
 }
-poly_ele operator - (poly_ele A,poly_ele B){
+template<class Num>
+poly_ele<Num> operator - (poly_ele<Num> A,poly_ele<Num> B){
     for (int i=0;i<26;++i){
         assert(A.expo[i]==B.expo[i]);
     }
     A.coef=A.coef-B.coef;
     return A;
 }
-std::ostream& operator << (std::ostream &out,const poly_ele &pe){
+template<class Num>
+std::ostream& operator << (std::ostream &out,const poly_ele<Num> &pe){
+    bool flag=false;
+    for (int i=0;i<26;++i){
+        if (pe.expo[i]!=(frac)(0)){
+            flag=true;
+        }
+    }
+    if (flag){
+        if (pe.coef==(Num)(1)) out<<"";
+        else if (pe.coef==(Num)(-1)) out<<"-";
+        else out<<pe.coef;
+    }
+    else {
+        out<<pe.coef;
+    }
+    for (int i=0;i<26;++i){
+        if (pe.expo[i]!=(frac)(0)){
+            out<<char('a'+i);
+            if (pe.expo[i]!=frac(1)){
+                out<<"^"<<pe.expo[i];
+            }
+        }
+    }
+    return out;
+}
+std::ostream& operator << (std::ostream &out,const poly_ele<sqrtNum> &pe){
     bool flag=false;
     for (int i=0;i<26;++i){
         if (pe.expo[i]!=(frac)(0)){
@@ -182,13 +209,15 @@ std::ostream& operator << (std::ostream &out,const poly_ele &pe){
     }
     return out;
 }
-std::istream& operator >> (std::istream &in,poly_ele &f){
+template<class Num>
+std::istream& operator >> (std::istream &in,poly_ele<Num> &f){
     std::string s;
     in>>s;
     f=poly_ele(s.c_str());
     return in;
 }
-std::string to_latex(const poly_ele &pe,bool begin=true){
+template<class Num>
+std::string to_latex(const poly_ele<Num> &pe,bool begin=true){
     bool flag=false;
     for (int i=0;i<26;++i){
         if (pe.expo[i]!=(frac)(0)){
@@ -199,8 +228,8 @@ std::string to_latex(const poly_ele &pe,bool begin=true){
     if (begin) ret+="$";
     if (flag){
         if (pe.coef.M==-1){
-            if (pe.coef==(sqrtNum)(1)) ret=ret+"";
-            else if (pe.coef==(sqrtNum)(-1)) ret=ret+"-";
+            if (pe.coef==(Num)(1)) ret=ret+"";
+            else if (pe.coef==(Num)(-1)) ret=ret+"-";
             else ret=ret+to_latex(pe.coef,0);
         }
         else{

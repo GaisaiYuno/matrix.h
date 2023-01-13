@@ -269,4 +269,9 @@ std::string to_latex(const sqrtNum &A,bool begin=true){
     if (begin) ret+="$";
     return ret;
 }
+
+template<>
+sqrtNum toConstVal<sqrtNum>(const char *s,int length){
+    return sqrtNum(s,length);
+}
 #endif
