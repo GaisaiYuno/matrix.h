@@ -9,22 +9,14 @@ bool comp(double a,double b){
 }
 Matrix<double> diagonalize(Matrix<double> A){
     assert(A.row==A.col);
-    // Matrix<poly<double> >B=Matrix<poly<double> >(A);
-    // for (int i=1;i<=A.row;++i) B[i][i]=B[i][i]-poly<double>("x");
-    // // cout<<B<<endl;
-    // _poly<double> x=Determinant(B).x;
-    // cout<<"特征多项式"<<x<<endl;
-    // upoly<double> _x(x);
-    // vector<double> sol=solve(_x);
+    cout<<"calc..."<<endl;
     auto eig=EigenVals(A);
+    cout<<"calc ok"<<endl;
     sort(eig.begin(),eig.end(),greater<double>());
     eig.erase(unique(eig.begin(),eig.end(),comp),eig.end());
     vector<Matrix<double> >s;
     for (double lambda:eig){
-        // cout<<lambda<<endl;
-        // cout<<F(_x,lambda)<<endl;
         Matrix<double> B=A-lambda*Matrix<double>(A.row,A.col,1);
-        // cout<<B<<endl;
         auto baseS=Schmidt(baseSolution(B));
         cout<<"size"<<baseS.size()<<endl;
         for (auto x:baseS) s.push_back(x);
@@ -41,7 +33,9 @@ Matrix<double> diagonalize(Matrix<double> A){
     }
 }
 int main(){
-    Matrix<double> A;
+    freopen("svd.txt","w",stdout);
+    // Matrix<double> A(60,60);
+    // A.genRand();
     cin>>A;
     int m=A.row,n=A.col;
     vector<Matrix<double> >u;
@@ -54,10 +48,7 @@ int main(){
             u.push_back(1/Sigma[i][i]*(A*v[i-1]));
         }
     }
-    // std::cout<<baseSolution(addH(u).transpose()).size()<<std::endl;
-    // std::cout<<addH(baseExpansion(u))<<std::endl;
     Matrix<double>U=addH(addH(u),addH(baseExpansion(u)));
-    // U=diagonalize(A*A.transpose());
     V=V.transpose();
     cout<<U.message("U")<<endl;
     cout<<Sigma.message("Sigma")<<endl;

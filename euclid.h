@@ -57,7 +57,6 @@ std::pair<Matrix<Num>,Matrix<Num> > QR(Matrix<Num>A){
             R[j][i]=lambda;
         }
         R[i][i]=1;
-        beta_i.Message="\\beta_"+std::to_string(i);
         beta.push_back(beta_i);
     }
     for (int i=1;i<=s;++i){
@@ -67,6 +66,38 @@ std::pair<Matrix<Num>,Matrix<Num> > QR(Matrix<Num>A){
     }
     Matrix<Num>Q=addH(beta);
     return std::make_pair(Q.message("Q"),R.message("R"));
+}
+template<class Num>
+std::pair<Matrix<Num>,Matrix<Num> > QR_HouseHolder(Matrix<Num>A){
+    assert(A.row==A.col);
+    int n=A.row;
+    if (n==1){
+        return std::make_pair(Matrix<Num>(1,1,1),A);
+    }
+    Matrix<Num>x=subMatrix(A,1,n,1,1);
+    Num lx=length(x);
+    Num beta=(Num)(1)/(Num)(lx*lx+lx*x[1][1]);
+    Num sign=(Num)(x[1][1]>=0?1:-1);
+    Num k=-sign*lx;
+    x[1][1]-=k;
+    Matrix<Num>H=Matrix<Num>(n,n,1)-beta*x*x.transpose();
+    A=H*A;
+    auto p=QR_HouseHolder(subMatrix(A,2,n,2,n));
+    Matrix<Num>_H(n,n);
+    _H[1][1]=1;
+    for (int i=1;i<=n-1;++i){
+        for (int j=1;j<=n-1;++j){
+            _H[i+1][j+1]=p.first[i][j];
+        }
+    }
+    Matrix<Num>R(n,n);
+    for (int i=1;i<=n;++i) R[1][i]=A[1][i];
+    for (int i=1;i<=n-1;++i){
+        for (int j=1;j<=n-1;++j){
+            R[i+1][j+1]=p.second[i][j];
+        }
+    }
+    return std::make_pair(H.transpose()*_H.transpose(),R);
 }
 template<class Num>
 std::vector<Num> EigenVals(Matrix<Num>A){
@@ -105,7 +136,8 @@ bool isOrthogonalMatrix(Matrix<Num> A){
 }
 template<class Num>
 auto identilize(Matrix<Num> v){
-    return std::make_pair((Num(1)/length(v))*v,(Num(-1)/length(v))*v);
+    Num l=Num(1)/Num(length(v));
+    return std::make_pair(l*v,-l*v);
 }
 
 template<class Num>
