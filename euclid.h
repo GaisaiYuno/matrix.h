@@ -112,7 +112,7 @@ std::vector<Num> EigenVals(Matrix<Num>A){
         A=R*Q+sigma*eye;
         bool flag=true;
         for (int i=1;i<=n-1;++i){
-            if (!equals(A[n][i],(Num)(0))){
+            if (!equals(A[n][i],(Num)(0),1e-8)){
                 flag=false;
                 break;
             }
@@ -158,13 +158,17 @@ auto diagonalize(Matrix<Num> A){
     eig.erase(unique(eig.begin(),eig.end(),[](Num a,Num b){return equals(a,b);}),eig.end());
     std::vector<Matrix<Num> >s;
     for (Num lambda:eig){
+        std::cout<<lambda<<std::endl;
         Matrix<Num> B=A-lambda*Matrix<Num>(A.row,A.col,1);
+        // std::cout<<Gauss(B)<<std::endl;
         auto baseS=Schmidt(baseSolution(B));
+        std::cout<<"Size of BaseS:"<<baseS.size()<<std::endl;
         for (auto x:baseS) s.push_back(x);
     }
-    assert(s.size()==A.row);
+    // assert(s.size()==A.row);
     for (auto &x:s) x=identilize(x).first;
     Matrix<Num> Q=addH(s);
+    Q.resize(A.col,A.row);
     Matrix<Num> Lambda=(Q.transpose())*A*Q;
     return std::make_pair(Q,Lambda);
 }

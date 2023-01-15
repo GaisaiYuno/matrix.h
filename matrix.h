@@ -15,13 +15,11 @@ T myabs(T x){
     else return -x;
 }
 template<class T>
-bool equals(const T &a,const T &b){
+bool equals(const T &a,const T &b,const double eps=1e-6){
     if (typeid(T)==typeid(double)){
-        static const double eps=1e-6;
         return myabs(a-b)<=eps;
     }
     else if (typeid(T)==typeid(long double)){
-        static const long double eps=1e-6;
         return myabs(a-b)<=eps;
     }
     else{
@@ -490,6 +488,68 @@ Matrix<Num> Gauss(Matrix<Num> A){
         for (int j=1;j<=m;++j){
             if (!equals(A[i][j],(Num)(0))){
                 A.times('R',i,(Num)(1)/A[i][j]);
+                break;
+            }
+        }
+    }
+    A.Message="Matrix is in Gauss form";
+    return A;
+}
+Matrix<double> Gauss(Matrix<double> A){
+    int n=A.row,m=A.col;
+    int rk=1;
+    for (int i=1;i<=std::min(n,m);++i){
+        int r=rk;
+        for (int j=n;j>=rk;--j){
+            if (myabs(A[j][i])>myabs(A[r][i])) r=j;
+        }
+        A.swap('R',r,rk);
+        if (equals(A[rk][i],(double)(0))){
+            continue;
+        }
+        double inv=(double)(double(0)-((double)(1))/A[rk][i]);
+        for (int j=1;j<=n;++j){
+            if (j==rk) continue;
+            double t=A[j][i]*inv;
+            A.addtimes('R',rk,t,j);
+        }
+        ++rk;
+    }
+    for (int i=1;i<=std::min(n,m);++i){
+        for (int j=1;j<=m;++j){
+            if (!equals(A[i][j],(double)(0))){
+                A.times('R',i,(double)(1)/A[i][j]);
+                break;
+            }
+        }
+    }
+    A.Message="Matrix is in Gauss form";
+    return A;
+}
+Matrix<long double> Gauss(Matrix<long double> A){
+    int n=A.row,m=A.col;
+    int rk=1;
+    for (int i=1;i<=std::min(n,m);++i){
+        int r=rk;
+        for (int j=n;j>=rk;--j){
+            if (myabs(A[j][i])>myabs(A[r][i])) r=j;
+        }
+        A.swap('R',r,rk);
+        if (equals(A[rk][i],(long double)(0))){
+            continue;
+        }
+        long double inv=(long double)((long double)(0)-((long double)(1))/A[rk][i]);
+        for (int j=1;j<=n;++j){
+            if (j==rk) continue;
+            long double t=A[j][i]*inv;
+            A.addtimes('R',rk,t,j);
+        }
+        ++rk;
+    }
+    for (int i=1;i<=std::min(n,m);++i){
+        for (int j=1;j<=m;++j){
+            if (!equals(A[i][j],(long double)(0))){
+                A.times('R',i,(long double)(1)/A[i][j]);
                 break;
             }
         }
