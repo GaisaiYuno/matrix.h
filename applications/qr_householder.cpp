@@ -2,7 +2,8 @@
 #include "euclid.h"
 using namespace std;
 int main(){
-    Matrix<double> A;
+    Matrix<double>A;
+    // A.genRand();
     cin>>A;
     auto p=QR_HouseHolder(A);
     cout<<p.first<<p.second<<endl;

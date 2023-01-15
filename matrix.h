@@ -8,14 +8,20 @@
 #include <cmath>
 #include <algorithm>
 #include <iomanip>
-double myabs(double x){
-    if (x>0) return x;
+
+template<class T>
+T myabs(T x){
+    if (x>T(0)) return x;
     else return -x;
 }
 template<class T>
 bool equals(const T &a,const T &b){
     if (typeid(T)==typeid(double)){
         static const double eps=1e-6;
+        return myabs(a-b)<=eps;
+    }
+    else if (typeid(T)==typeid(long double)){
+        static const long double eps=1e-6;
         return myabs(a-b)<=eps;
     }
     else{
@@ -261,6 +267,17 @@ std::ostream& operator << (std::ostream &out,const Matrix<double> &A){
     }
     return out;
 }
+std::ostream& operator << (std::ostream &out,const Matrix<long double> &A){
+    std::cout<<A.Message<<std::endl;
+    for (int i=1;i<=A.row;++i){
+        for (int j=1;j<=A.col;++j){
+            if (equals(A.M[i][j],(long double)(0))) std::cout<<"0 ";
+            else std::cout<<std::setprecision(6)<<A.M[i][j]<<" ";
+        }
+        std::cout<<std::endl;
+    }
+    return out;
+}
 template<class Num>
 std::string to_latex(const Matrix<Num> &A,std::string type="bmatrix",bool begin=true){
     std::string ret="";
@@ -424,7 +441,6 @@ Num Determinant(Matrix<Num> A){
     }
     Num sign=(Num)(1);
     for (int i=1;i<=std::min(n,m)-1;++i){
-        std::cout<<A<<std::endl;
         if (i>m){
             break;
         }
@@ -646,7 +662,6 @@ Matrix<Num> subMatrix(Matrix<Num> A,int rlb,int rub,int clb,int cub){
 template<class Num>
 std::vector<Matrix<Num> > baseSolution(Matrix<Num> A){
     Matrix B=Gauss(A);
-    // std::cout<<B<<std::endl;
     std::vector<std::pair<int,int> >swapID;
     for (int i=1;i<=B.row;++i){
         for (int j=1;j<=B.col;++j){

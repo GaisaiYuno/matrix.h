@@ -76,18 +76,18 @@ std::pair<Matrix<Num>,Matrix<Num> > QR_HouseHolder(Matrix<Num>A){
     }
     Matrix<Num>x=subMatrix(A,1,n,1,1);
     Num lx=length(x);
-    Num beta=(Num)(1)/(Num)(lx*lx+lx*x[1][1]);
+    Num beta=(Num)(1)/(Num)(lx*lx+lx*myabs(x[1][1]));
     Num sign=(Num)(x[1][1]>=0?1:-1);
     Num k=-sign*lx;
     x[1][1]-=k;
     Matrix<Num>H=Matrix<Num>(n,n,1)-beta*x*x.transpose();
     A=H*A;
     auto p=QR_HouseHolder(subMatrix(A,2,n,2,n));
-    Matrix<Num>_H(n,n);
-    _H[1][1]=1;
+    Matrix<Num>_Q(n,n);
+    _Q[1][1]=1;
     for (int i=1;i<=n-1;++i){
         for (int j=1;j<=n-1;++j){
-            _H[i+1][j+1]=p.first[i][j];
+            _Q[i+1][j+1]=p.first[i][j];
         }
     }
     Matrix<Num>R(n,n);
@@ -97,7 +97,7 @@ std::pair<Matrix<Num>,Matrix<Num> > QR_HouseHolder(Matrix<Num>A){
             R[i+1][j+1]=p.second[i][j];
         }
     }
-    return std::make_pair(H.transpose()*_H.transpose(),R);
+    return std::make_pair(H.transpose()*_Q.transpose(),R);
 }
 template<class Num>
 std::vector<Num> EigenVals(Matrix<Num>A){
@@ -109,7 +109,6 @@ std::vector<Num> EigenVals(Matrix<Num>A){
         Num sigma=A[n][n];
         auto p=QR(A-sigma*eye);
         Matrix Q=p.first,R=p.second;
-        Matrix _A=A;
         A=R*Q+sigma*eye;
         bool flag=true;
         for (int i=1;i<=n-1;++i){
@@ -151,6 +150,83 @@ template<class Num>
 std::vector<Matrix<Num> >baseExpansion(std::vector<Matrix<Num> > v){
     return identilize(Schmidt(baseSolution(addH(v).transpose())));
 }
+template<class Num>
+auto diagonalize(Matrix<Num> A){
+    assert(A.row==A.col);
+    auto eig=EigenVals(A);
+    std::sort(eig.begin(),eig.end(),std::greater<Num>());
+    eig.erase(unique(eig.begin(),eig.end(),[](Num a,Num b){return equals(a,b);}),eig.end());
+    std::vector<Matrix<Num> >s;
+    for (Num lambda:eig){
+        Matrix<Num> B=A-lambda*Matrix<Num>(A.row,A.col,1);
+        auto baseS=Schmidt(baseSolution(B));
+        for (auto x:baseS) s.push_back(x);
+    }
+    assert(s.size()==A.row);
+    for (auto &x:s) x=identilize(x).first;
+    Matrix<Num> Q=addH(s);
+    Matrix<Num> Lambda=(Q.transpose())*A*Q;
+    return std::make_pair(Q,Lambda);
+}
+template<class Num>
+auto svd(Matrix<Num> A){
+    int m=A.row,n=A.col;
+    auto p=diagonalize(A.transpose()*A);
+    auto V=p.first,Lambda=p.second;
+    auto v=breakAsVector(V,'C');
+    Matrix<Num> Sigma=Lambda.resize(m,n);
+    std::vector<Matrix<Num> >u;
+    for (int i=1;i<=std::min(m,n);++i){
+        if (!equals(Sigma[i][i],(Num)(0))){
+            Sigma[i][i]=sqrt(Sigma[i][i]);
+            u.push_back(((Num)(1)/Sigma[i][i])*(A*v[i-1]));
+        }
+    }
+    Matrix<Num>U=addH(addH(u),addH(baseExpansion(u)));
+    V=V.transpose();
+    return std::make_tuple(U,Sigma,V);
+}
+template<class Num>
+auto mean(std::vector<Matrix<Num> >v){
+    Matrix<Num>m(v[0].row,v[0].col);
+    for (auto x:v) m=m+x;
+    return (Num)(1)/(Num)(v.size())*m;
+}
+template<class Num>
+auto divergence(std::vector<Matrix<Num> >v){
+    Matrix m=mean(v);
+    Matrix<Num>S(v[0].row,v[0].row);
+    for (auto x:v) S=S+(x-m)*(x-m).transpose();
+    return S;
+}
+template<class Num>
+auto regression(std::vector<Matrix<Num> >v){
+    auto S=divergence(v);
+    int n=S.row;
+    Matrix<Num>U,Sigma,V;
+    std::tie(U,Sigma,V)=svd(S);
+    V.resize(n-1,n);
+    return baseSolution(V).front();
+}
+
+template<class Num>
+Matrix<Num> Vector(Num A,Num B,Num C){
+    return Matrix<Num>('R',std::vector<Num>{A,B,C});
+}
+template<class Num>
+Matrix<Num> Plane(Num A,Num B,Num C,Num D){
+    return Matrix<Num>('R',std::vector<Num>{A,B,C,D});
+}
+template<class Num>
+Matrix<Num> cross(Matrix<Num> A,Matrix<Num> B){
+    if (A.row>A.col && B.row>B.col) return cross(A.transpose(),B.transpose()).transpose();
+    assert(A.row==1 && A.col==3 && B.row==1 && B.col==3);
+    Matrix<Num> ret(1,3);
+    ret[1][1]=A[1][2]*B[1][3]-A[1][3]*B[1][2];
+    ret[1][2]=-A[1][1]*B[1][3]+A[1][3]*B[1][1];
+    ret[1][3]=A[1][1]*B[1][2]-A[1][2]*B[1][1];
+    return ret;
+}
 /*
 template<class Num>
 auto length2(Matrix<Num> A){
@@ -174,12 +250,6 @@ std::string Arccos(Num x){
     if (x==Num("1")) return "0";
     return "arccos("+to_latex(x.eval(),0)+")";
 }
-Matrix<poly> Vector(poly A,poly B,poly C){
-    return Matrix<poly>('R',std::vector<poly>{A,B,C});
-}
-Matrix<poly> Plane(poly A,poly B,poly C,poly D){
-    return Matrix<poly>('R',std::vector<poly>{A,B,C,D});
-}
 auto angle(Matrix<poly> A,Matrix<poly> B){
     return (A&B)/(length(A)*length(B));
 }
@@ -196,15 +266,7 @@ Matrix<poly> Nvec(Matrix<poly> A){
     A.resize(1,3);
     return A;
 }
-Matrix<poly> cross(Matrix<poly> A,Matrix<poly> B){
-    if (A.row>A.col && B.row>B.col) return cross(A.transpose(),B.transpose()).transpose();
-    assert(A.row==1 && A.col==3 && B.row==1 && B.col==3);
-    Matrix<poly> ret(1,3);
-    ret[1][1]=A[1][2]*B[1][3]-A[1][3]*B[1][2];
-    ret[1][2]=-A[1][1]*B[1][3]+A[1][3]*B[1][1];
-    ret[1][3]=A[1][1]*B[1][2]-A[1][2]*B[1][1];
-    return ret;
-}
+
 Matrix<poly> Plane(Matrix<poly> V,Matrix<poly> P){
     Matrix<poly> ret=V;
     ret.resize(1,4);
