@@ -18,9 +18,9 @@ int main(){
         if (equals(Sigma[i][i],(long double)(0))){k=i-1;break;}
     }
     for (int j=k;j>=1;--j){
-        U.resize(m,j);
+        U.resize(n,j);
         Sigma.resize(j,j);
-        V.resize(j,n);
+        V.resize(j,m);
         cout<<U.message("New U")<<endl;
         cout<<Sigma.message("New Sigma")<<endl;
         cout<<V.message("New V")<<endl;

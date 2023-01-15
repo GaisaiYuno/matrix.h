@@ -193,18 +193,35 @@ auto mean(std::vector<Matrix<Num> >v){
     return (Num)(1)/(Num)(v.size())*m;
 }
 template<class Num>
-auto divergence(std::vector<Matrix<Num> >v){
+auto to_mean(std::vector<Matrix<Num> >v){
     Matrix m=mean(v);
-    Matrix<Num>S(v[0].row,v[0].row);
-    for (auto x:v) S=S+(x-m)*(x-m).transpose();
-    return S;
+    std::vector<Matrix<Num> >v_new;
+    for (auto x:v) v_new.push_back(x-m);
+    return v_new;
 }
 template<class Num>
-auto regression(std::vector<Matrix<Num> >v){
-    auto S=divergence(v);
+auto cov(std::vector<Matrix<Num> >v){
+    v=to_mean(v);
+    Matrix<Num>S(v[0].row,v[0].row);
+    for (auto x:v) S=S+x*x.transpose();
+    return (Num(1)/Num(v[0].row-1))*S;
+}
+template<class Num>
+auto pca(std::vector<Matrix<Num> >v){
+    auto S=cov(v);
+    int n=S.row;
+    auto p=diagonalize(S);
+    auto V=p.first.transpose();
+    V.resize(n-1,n);
+    return baseSolution(V).front();
+}
+
+template<class Num>
+auto pca_with_svd(std::vector<Matrix<Num> >v){
+    auto S=addH(to_mean(v));
     int n=S.row;
     Matrix<Num>U,Sigma,V;
-    std::tie(U,Sigma,V)=svd(S);
+    std::tie(U,Sigma,V)=svd(S.transpose());
     V.resize(n-1,n);
     return baseSolution(V).front();
 }

@@ -10,7 +10,7 @@ int main(){
         cin>>V[1][1]>>V[2][1]>>V[3][1];
         v.push_back(V);
     }
-    auto R=regression(v);
+    auto R=pca_with_svd(v);
     auto M=mean(v);
     cout<<R<<endl;
     for (int i=1;i<=n;++i){
