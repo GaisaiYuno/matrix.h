@@ -106,12 +106,6 @@ struct Matrix{
     std::vector<Num>&operator[](int i){
         return M[i];
     }
-    void identityMatrix(){
-        assert(row==col);
-        for (int i=1;i<=row;++i){
-            M[i][i]=1;
-        }
-    }
     void genRand(){
         srand(time(NULL));
         for (int i=1;i<=row;++i){
@@ -155,7 +149,7 @@ struct Matrix{
             assert(0);
         }
     }
-    void addtimes(char type,int x,Num t,int y){//x行/列的t倍加到y上
+    void addtimes(char type,int x,Num t,int y){
         if (type=='R'){
             assert(1<=x && x<=row && 1<=y && y<=row);
             for (int i=1;i<=col;++i){
