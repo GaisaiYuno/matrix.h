@@ -197,6 +197,16 @@ auto mean(std::vector<Matrix<Num> >v){
     return (Num)(1)/(Num)(v.size())*m;
 }
 template<class Num>
+auto mean(Matrix<Num> A){
+    Num sum=0;
+    for (int i=1;i<=A.row;++i){
+        for (int j=1;j<=A.col;++j){
+            sum+=A[i][j];
+        }
+    }
+    return sum/(Num)(A.row*A.col);
+}
+template<class Num>
 auto to_mean(std::vector<Matrix<Num> >v){
     Matrix m=mean(v);
     std::vector<Matrix<Num> >v_new;
