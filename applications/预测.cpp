@@ -19,11 +19,8 @@ int main(){
             in>>x;
             if (on[k]) V[++j][1]=x;
         }
-        cout<<"bgm评分"<<V[1][1]<<endl;
         v.push_back(V);
     }
-    // auto R=pca_with_svd(v);
-    cout<<"calculating pca"<<endl;
     auto R=pca(v);
     auto M=mean(v);
     cout<<R<<endl;
@@ -41,7 +38,6 @@ int main(){
                 data[j]=x,data[j]-=M[j][1];
             }
         }
-        // for (int j=2;j<=m;++j) in>>data[j],data[j]-=M[j][1];
         for (int j=2;j<=sz;++j) s+=data[j]*R[j][1];
         long double my_rate=(-s/R[1][1])+M[1][1];
         cout<<rate<<" "<<my_rate<<endl;

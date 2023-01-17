@@ -43,16 +43,17 @@ int main(){
     cin>>alpha;
     int iter;
     cin>>iter;
-    Matrix<long double>X(16,5),Y(16,1);
+    Matrix<long double>X(10,5),Y(10,1);
     //X 是数据坐标点，Y 是01标签
     Matrix<long double>beta(1,5);
     // beta[1][1]=0.5,beta[1][2]=0.5;
-    for (int i=1;i<=16;++i){
-        cin>>X[i][2]>>X[i][3],X[i][1]=1;
-        X[i][4]=X[i][2]*X[i][2];
-        X[i][5]=X[i][3]*X[i][3];
+    for (int i=1;i<=10;++i){
+        cin>>X[i][2],X[i][1]=1;
+        X[i][3]=X[i][2]*X[i][2];
+        X[i][4]=X[i][2]*X[i][2]*X[i][2];
+        X[i][5]=X[i][2]*X[i][2]*X[i][2];
     }
-    for (int i=1;i<=16;++i) cin>>Y[i][1];
+    for (int i=1;i<=10;++i) cin>>Y[i][1];
     for (int t=1;t<=iter;++t){
         Matrix y_posi=sigmoid(X*beta.transpose());
         long double cross_entropy=-mean(mul(Y,log(y_posi))+mul(flip(Y),log(flip(y_posi,1e-4))));
@@ -64,22 +65,16 @@ int main(){
     cout<<sigmoid(X*beta.transpose());
 }
 /*
-0.003 3000
--2 6
-1.43 8.05
-2.66 3.90
--2.00 2.65
-0.86 5.38
-3.14 1.14
--2.46 -0.27
-3.65 7.31
-0.10 11.4
--2.39 10.77
-5.66 7.11
--4.69 2.79
--4.58 -2.06
-6 4
-5.49 11.03
-1.69 -3.28
-1 1 1 1 1 1 1 1 0 0 0 0 0 0 0 0
+0.03 3000
+2
+4
+6
+8
+10
+1
+3
+5
+7
+9
+1 1 0 0 0 1 1 1 0 0
 */
