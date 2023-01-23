@@ -12,16 +12,16 @@ int main(){
     int sz=0;
     for (int i=1;i<=m;++i) sz+=on[i];
     for (int i=1;i<=n;++i){
-        Matrix<long double>V(sz,1);
+        Matrix<long double>V(1,sz);
         int j=0;
         for (int k=1;k<=m;++k){
             long double x;
             in>>x;
-            if (on[k]) V[++j][1]=x;
+            if (on[k]) V(++j)=x;
         }
         v.push_back(V);
     }
-    auto R=pca(v);
+    auto R=pca(to_mean(v));
     auto M=mean(v);
     cout<<R<<endl;
     long double sum=0;
@@ -35,11 +35,11 @@ int main(){
             in>>x;
             if (on[k]){
                 j++;
-                data[j]=x,data[j]-=M[j][1];
+                data[j]=x,data[j]-=M(j);
             }
         }
-        for (int j=2;j<=sz;++j) s+=data[j]*R[j][1];
-        long double my_rate=(-s/R[1][1])+M[1][1];
+        for (int j=2;j<=sz;++j) s+=data[j]*R(j);
+        long double my_rate=(-s/R(1))+M(1);
         cout<<rate<<" "<<my_rate<<endl;
         sum+=myabs(rate-my_rate);
     }
@@ -53,10 +53,10 @@ int main(){
             cin>>x;
             if (on[k]){
                 j++;
-                data[j]=x,data[j]-=M[j][1];
+                data[j]=x,data[j]-=M(j);
             }
         }
-        for (int j=2;j<=sz;++j) s+=data[j]*R[j][1];
-        cout<<(-s/R[1][1])+M[1][1]<<endl;
+        for (int j=2;j<=sz;++j) s+=data[j]*R(j);
+        cout<<(-s/R(1))+M(1)<<endl;
     }
 }

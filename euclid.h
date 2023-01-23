@@ -140,6 +140,14 @@ auto identilize(Matrix<Num> v){
 }
 
 template<class Num>
+Num mse_loss(Matrix<Num>y_true,Matrix<Num>y_pred){
+    int n=y_true.row;
+    Num sum=0;
+    for (int i=1;i<=n;++i) sum+=(y_true(i)-y_pred(i))*(y_true(i)-y_pred(i));
+    return sum/n;
+}
+
+template<class Num>
 auto identilize(std::vector<Matrix<Num> > s){
     for (int i=0;i<s.size();++i){
         s[i]=identilize(s[i]).first;
@@ -151,6 +159,11 @@ std::vector<Matrix<Num> >baseExpansion(std::vector<Matrix<Num> > v){
     return identilize(Schmidt(baseSolution(addH(v).transpose())));
 }
 template<class Num>
+Matrix<Num> Expand(Matrix<Num> A){
+    if (A.row==A.col) return A;
+    return addH(A,addH(identilize(Schmidt(baseSolution(A.transpose())))));
+}
+template<class Num>
 auto diagonalize(Matrix<Num> A){
     assert(A.row==A.col);
     auto eig=EigenVals(A);
@@ -158,18 +171,21 @@ auto diagonalize(Matrix<Num> A){
     eig.erase(unique(eig.begin(),eig.end(),[](Num a,Num b){return equals(a,b);}),eig.end());
     std::vector<Matrix<Num> >s;
     for (Num lambda:eig){
-        std::cout<<lambda<<std::endl;
+        // std::cout<<lambda<<std::endl;
         Matrix<Num> B=A-lambda*Matrix<Num>(A.row,A.col,1);
         // std::cout<<Gauss(B)<<std::endl;
         auto baseS=Schmidt(baseSolution(B));
-        std::cout<<"Size of BaseS:"<<baseS.size()<<std::endl;
+        // std::cout<<"Size of BaseS:"<<baseS.size()<<std::endl;
         for (auto x:baseS) s.push_back(x);
     }
     // assert(s.size()==A.row);
     for (auto &x:s) x=identilize(x).first;
-    Matrix<Num> Q=addH(s);
-    Q.resize(A.col,A.row);
+    // std::cout<<addH(s)<<std::endl;
+    Matrix<Num> Q=Expand(addH(s));
+    // std::cout<<Q*Q.transpose()<<std::endl;
+    // Q.resize(A.col,A.row);
     Matrix<Num> Lambda=(Q.transpose())*A*Q;
+    // std::cout<<(Q*Lambda*(Q.transpose())-A)<<std::endl;
     return std::make_pair(Q,Lambda);
 }
 template<class Num>
@@ -197,6 +213,21 @@ auto mean(std::vector<Matrix<Num> >v){
     return (Num)(1)/(Num)(v.size())*m;
 }
 template<class Num>
+auto devi(std::vector<Matrix<Num> >v){
+    Matrix<Num>M=mean(v);
+    int n=v.size();
+    Matrix<Num>sigma(M.row,M.col);
+    for (int i=1;i<=M.col;++i){
+        sigma[1][i]=0;
+        for (int j=1;j<=n;++j){
+            sigma[1][i]+=(v[j-1][1][i]-M[1][i])*(v[j-1][1][i]-M[1][i]);
+        }
+        sigma[1][i]/=n;
+        sigma[1][i]=sqrt(sigma[1][i]);
+    }
+    return sigma;
+}
+template<class Num>
 auto mean(Matrix<Num> A){
     Num sum=0;
     for (int i=1;i<=A.row;++i){
@@ -214,16 +245,26 @@ auto to_mean(std::vector<Matrix<Num> >v){
     return v_new;
 }
 template<class Num>
+auto to_std(std::vector<Matrix<Num> >v){
+    Matrix m=mean(v),d=devi(v);
+    std::vector<Matrix<Num> >v_new;
+    for (auto x:v){
+        Matrix y=x-m;
+        for (int i=1;i<=y.col;++i) y(i)/=d(i);
+        v_new.push_back(y);
+    }
+    return v_new;
+}
+template<class Num>
 auto cov(std::vector<Matrix<Num> >v){
-    v=to_mean(v);
-    Matrix<Num>S(v[0].row,v[0].row);
-    for (auto x:v) S=S+x*x.transpose();
-    return (Num(1)/Num(v[0].row-1))*S;
+    Matrix<Num>S(v[0].col,v[0].col);
+    for (auto x:v) S=S+x.transpose()*x;
+    return (Num(1)/Num(v[0].col-1))*S;
 }
 template<class Num>
 auto pca(std::vector<Matrix<Num> >v){
     auto S=cov(v);
-    int n=S.row;
+    int n=S.col;
     auto p=diagonalize(S);
     auto V=p.first.transpose();
     V.resize(n-1,n);

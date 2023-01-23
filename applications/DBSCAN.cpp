@@ -15,9 +15,20 @@ void dfs_paint(int u,int color){
         if (!vis[v]) dfs_paint(v,color);
     }
 }
+int n,m;
+void normalize(int j){
+    long double down=0,up=100;
+    long double maxn=-1e9,mino=1e9;
+    for (int i=1;i<=n;++i){
+        maxn=max(maxn,pt[i][1][j]);
+        mino=min(mino,pt[i][1][j]);
+    }
+    for (int i=1;i<=n;++i){
+        pt[i][1][j]=((pt[i][1][j]-mino)/(maxn-mino))*(up-down)+down;
+    }
+}
 int main(){
     freopen("bangumi_data_org.txt","r",stdin);
-    int n,m;
     cin>>n>>m;
     for (int i=1;i<=n;++i){
         pt[i].resize(1,m);
@@ -25,8 +36,10 @@ int main(){
             cin>>pt[i][1][j];
         }
     }
-    long double eps=1000;
-    int MinPts=5;
+    for (int j=1;j<=m;++j) normalize(j);
+    for (int i=1;i<=n;++i) cout<<pt[i]<<endl;
+    long double eps=50;
+    int MinPts=2;
     for (int i=1;i<=n;++i){
         int cnt=0;
         for (int j=1;j<=n;++j){
@@ -42,7 +55,7 @@ int main(){
                 if (dis[i][j]<=eps && core[j]){
                     adj[i].push_back(j);
                     adj[j].push_back(i);
-                    cout<<i<<" "<<j<<endl;
+                    // cout<<i<<" "<<j<<endl;
                 }
             }
         }

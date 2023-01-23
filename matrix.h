@@ -104,7 +104,13 @@ struct Matrix{
         row=col=0;
     }
     std::vector<Num>&operator[](int i){
+        assert(1<=i && i<=row);
         return M[i];
+    }
+    Num& operator()(int i){
+        assert(row==1 || col==1);
+        if (row==1) return M[1][i];
+        else return M[i][1];
     }
     void genRand(){
         srand(time(NULL));
