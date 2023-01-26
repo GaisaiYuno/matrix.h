@@ -30,17 +30,45 @@ void quickHull(std::vector<Matrix<double> >&hull,std::vector<Matrix<double> >&po
     quickHull(hull,points,points[ind],P1,-findSide(points[ind],P1,P2));
     quickHull(hull,points,points[ind],P2,-findSide(points[ind],P2,P1));
 }
-std::vector<Matrix<double> > Convex2D(std::vector<Matrix<double> >points){
-    std::vector<Matrix<double> >hull;
-    int min_x=0,max_x=0;
-    for (int i=0;i<(int)(points.size());++i){
-        if (points[i](1)<points[min_x](1)) min_x=i;
-        if (points[i](1)>points[max_x](1)) max_x=i;
+std::vector<Matrix<double> > jarvis(std::vector<Matrix<double> >points){
+    std::vector<Matrix<double> > hull;
+    int ind=0;
+    for (int i=1;i<(int)(points.size());++i){
+        if (points[i](1)<points[ind](1)) ind=i;
     }
-    quickHull(hull,points,points[min_x],points[max_x],1);
-    quickHull(hull,points,points[min_x],points[max_x],-1);
-    // for (auto pt:hull) std::cout<<pt;
-    std::sort(hull.begin(),hull.end(),[](Matrix<double> a,Matrix<double> b){return a(1)<b(1)?true:a(2)<b(2);});
-    hull.erase(unique(hull.begin(),hull.end(),[](Matrix<double> a,Matrix<double> b){return a==b;}),hull.end());
+    Matrix<double>pointOnHull=points[ind];
+    while (true){
+        hull.push_back(pointOnHull);
+        Matrix<double>endPoint=points[0];
+        for (int j=0;j<(int)(points.size());++j){
+            if (endPoint==pointOnHull||findSide(endPoint,pointOnHull,points[j])==-1){
+                endPoint=points[j];
+            }
+        }
+        pointOnHull=endPoint;
+        // std::cout<<endPoint;
+        if (endPoint==hull.front()) break;
+    }
     return hull;
+}
+std::vector<Matrix<double> > Convex2D(std::vector<Matrix<double> >points,std::string method){
+    if (method=="quickhull"){
+        std::vector<Matrix<double> >hull;
+        int min_x=0,max_x=0;
+        for (int i=1;i<(int)(points.size());++i){
+            if (points[i](1)<points[min_x](1)) min_x=i;
+            if (points[i](1)>points[max_x](1)) max_x=i;
+        }
+        quickHull(hull,points,points[min_x],points[max_x],1);
+        quickHull(hull,points,points[min_x],points[max_x],-1);
+        std::sort(hull.begin(),hull.end(),[](Matrix<double> a,Matrix<double> b){return a(1)<b(1)?true:a(2)<b(2);});
+        hull.erase(unique(hull.begin(),hull.end(),[](Matrix<double> a,Matrix<double> b){return a==b;}),hull.end());
+        return hull;
+    }
+    else if (method=="jarvis"){
+        return jarvis(points);
+    }
+    else{
+        assert(0);
+    }
 }

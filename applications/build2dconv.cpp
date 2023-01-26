@@ -9,7 +9,7 @@ int main(){
         cin>>pt(1)>>pt(2);
         points.push_back(pt);
     }
-    vector<Matrix<double> >hull=Convex2D(points);
+    vector<Matrix<double> >hull=Convex2D(points,"jarvis");
     for (auto pt:hull) cout<<pt;
 }
 /*
