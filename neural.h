@@ -1,7 +1,7 @@
 #include "matrix.h"
 #include "euclid.h"
-#define act sigmoid
-#define diff_act diff_sigmoid
+#define act relu
+#define diff_act diff_relu
 using namespace std;
 double sigmoid(double x){
     return 1.0/(1+exp(-x));
@@ -116,7 +116,7 @@ struct SimpleNeuralNetwork{
                 sum_of_loss+=mse_loss(y_true,y_pred_new);
             }
             cout<<"Epoch: "<<epoch<<" Sum of Loss: "<<sum_of_loss/data_size<<endl;
-            if (sum_of_loss<1e-4) break;
+            if (sum_of_loss/data_size<0.05) break;
         }
     }
 };
