@@ -72,3 +72,55 @@ std::vector<Matrix<double> > Convex2D(std::vector<Matrix<double> >points,std::st
         assert(0);
     }
 }
+double Simplex(Matrix<double>A,Matrix<double>b,Matrix<double>c){
+    Matrix<double>M=addV(addH(c,Matrix<double>(1,1)),addH(A,b));
+    int n=A.col,m=A.row;
+    Matrix<int>isBasic(1,n);
+    for (int i=n-m+1;i<=n;++i) isBasic(i)=true;
+    int last=n+1;
+    while (true){
+        // std::cout<<M<<std::endl;
+        int e=0;
+        for (int i=1;i<=n;++i){
+            if (!isBasic(i)&&M[1][i]>0){
+                e=i;
+                break;
+            }
+        }
+        if (e==0){
+            return -M[1][last];
+        }
+        int pos=0;
+        double min_f=0;
+        for (int i=2;i<=m+1;++i){
+            if (M[i][e]>0){
+                if (pos==0||M[i][last]/M[i][e]<min_f){
+                    pos=i;
+                    min_f=M[i][last]/M[i][e];
+                }
+            }
+        }
+        // std::cout<<pos<<std::endl;
+        if (pos==0){
+            return INFINITY;
+        }
+        else{
+            int l=0;
+            for (int i=1;i<=n;++i){
+                if (isBasic(i)&&equals(M[pos][i],1.0)){
+                    l=i;
+                    break;
+                }
+            }
+            // std::cout<<"leave "<<l<<" enter "<<e<<std::endl;
+            isBasic(l)=false;
+            isBasic(e)=true;
+            M.times('R',pos,1/M[pos][e]);
+            for (int i=1;i<=m+1;++i){
+                if (i!=pos){
+                    M.addtimes('R',pos,-M[i][e],i);
+                }
+            }
+        }
+    }
+}
